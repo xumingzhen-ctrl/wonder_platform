@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wonder_backend
+    ports:
+      # 宿主机端口:容器内部端口
+      - "8123:8000"
+    volumes:
+      # 【极其重要】SQLite 必须挂载目录，不能只挂载 db 文件，否则 -wal 临时文件无法持久化导致数据库损坏
+      - /volume1/docker/wonder_platform/data/db:/app/db
+      - /volume1/docker/wonder_platform/data/receipts_inbox:/app/receipts_inbox
+      - /volume1/docker/wonder_platform/data/receipts_archive:/app/receipts_archive
+      - /volume1/docker/wonder_platform/data/receipts_error:/app/receipts_error
+      - /volume1/docker/wonder_platform/data/statements_inbox:/app/statements_inbox
+      - /volume1/docker/wonder_platform/data/statements_archive:/app/statements_archive
+      - /volume1/docker/wonder_platform/data/statements_error:/app/statements_error
+    environment:
+      # 指向刚才挂载的 db 目录
+      - DATABASE_URL=sqlite:///./db/hk_admin.db
+      - ENVIRONMENT=production
+      # - DEEPSEEK_API_KEY=你的真实Key (可在群晖界面配置)
+      # - OPENROUTER_API_KEY=你的真实Key
+    restart: always
+
+  wonder-hub:
+    build:
+      context: ./apps/wonder-hub
+      dockerfile: Dockerfile
+    container_name: wonder_hub
+    ports:
+      # 将外部 3123 映射到容器内部 3000
+      - "3123:3000"
+    environment:
+      - NODE_ENV=production
+      # 如果需要配置发邮件的 API Key，可以在此注入或群晖界面注入
+      # - RESEND_API_KEY=xxx 
+      # - ADVISOR_EMAIL=xxx
+    depends_on:
+      - backend
+    restart: always
+
+  company-admin:
+    build:
+      context: ./apps/company-admin
+      dockerfile: Dockerfile
+    container_name: wonder_admin
+    ports:
+      # Nginx 容器内部是 80，外部我们打乱映射到 5273
+      - "5273:80"
+    depends_on:
+      - backend
+    restart: always
