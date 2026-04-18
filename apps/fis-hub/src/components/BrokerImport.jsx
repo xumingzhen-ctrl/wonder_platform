@@ -37,7 +37,7 @@ export default function BrokerImport({ isOpen, onClose, onImportSuccess }) {
     files.forEach(f => formData.append('files', f));
 
     try {
-      const res = await fetch('http://localhost:8000/import/broker-file', {
+      const res = await fetch('/api/import/broker-file', {
         method: 'POST',
         body: formData,
       });
@@ -121,7 +121,7 @@ export default function BrokerImport({ isOpen, onClose, onImportSuccess }) {
     setError(null);
 
     try {
-      const res = await fetch('http://localhost:8000/import/broker-file/confirm', {
+      const res = await fetch('/api/import/broker-file/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

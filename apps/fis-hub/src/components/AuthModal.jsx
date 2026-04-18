@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { authStorage } from '../utils/auth';
 
-const API = 'http://localhost:8000';
+const API = '/api';
 
 /* ── 密码强度计算 ─────────────────────────────────────────────────── */
 function calcStrength(pwd) {

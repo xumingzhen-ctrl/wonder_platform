@@ -24,7 +24,7 @@ const InsurancePlanPanel = ({
     formData.append('file', file);
 
     try {
-      const res = await fetch('http://localhost:8000/lab/insurance/parse', {
+      const res = await fetch('/api/lab/insurance/parse', {
         method: 'POST',
         body: formData,
       });

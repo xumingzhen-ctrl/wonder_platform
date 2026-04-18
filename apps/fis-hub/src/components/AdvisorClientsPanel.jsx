@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { authHeaders } from '../utils/auth';
 
-const API = 'http://localhost:8000';
+const API = '/api';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '从未登录';

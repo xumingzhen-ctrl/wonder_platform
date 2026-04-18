@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { authHeaders } from '../utils/auth';
 
-const API = 'http://localhost:8000';
+const API = '/api';
 
 const ROLE_META = {
   admin:   { label: '管理员', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
