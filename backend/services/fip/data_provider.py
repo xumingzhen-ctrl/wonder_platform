@@ -11,7 +11,8 @@ import requests_cache
 
 # Inject Persistent HTTP Cache for all requests (yfinance, eodhd, fmp)
 requests_cache.install_cache(
-    os.path.join(os.path.dirname(__file__), 'api_response_cache'),
+    'api_response_cache',
+    backend='memory',
     expire_after=timedelta(hours=12)
 )
 

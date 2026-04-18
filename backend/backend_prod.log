@@ -1,0 +1,15 @@
+2026-04-18 18:56:15 [WARNING] plugins.akshare_gateway: AKShare is not installed. Gateway will return empty defaults.
+2026-04-18 18:56:16 [INFO] services.fip.broker_price_provider: BrokerPriceProvider: configured Futu=127.0.0.1:11111
+2026-04-18 18:56:16 [INFO] routers.fip_router: BrokerPriceProvider configured (Futu → IB → yfinance priority chain).
+2026-04-18 18:56:16 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-18 18:56:16 [INFO] apscheduler.scheduler: Added job "update_daily_prices" to job store "default"
+2026-04-18 18:56:16 [INFO] apscheduler.scheduler: Scheduler started
+2026-04-18 18:56:16 [INFO] routers.fip_router: Background scheduler started correctly.
+INFO:     Started server process [4436]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4436]
