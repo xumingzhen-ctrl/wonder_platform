@@ -12,26 +12,62 @@
 | 系统 | Ubuntu 22.04 LTS |
 | 项目目录 | `/www/wonder_platform` |
 | 公网 IP | 47.239.63.70 |
+| 域名 | wonderwisdom.online |
 
 ## 🌐 访问地址
 
-| 服务 | 地址 |
-|------|------|
-| Wonder Hub (C端主入口) | `http://47.239.63.70/` |
-| Company Admin (B端 SaaS) | `http://47.239.63.70:5174/` |
-| FIS Hub (金融沙盘) | `http://47.239.63.70:5175/` |
-| 后端健康检查 | `http://47.239.63.70/api/health` |
+| 服务 | 域名访问（推荐）| IP 直连（过渡期）|
+|------|------|-----------|
+| Wonder Hub (C端主入口) | `http://wonderwisdom.online` | `http://47.239.63.70/` |
+| Company Admin (B端 SaaS) | `http://company.wonderwisdom.online` | `http://47.239.63.70:5174/` |
+| FIS Hub (金融沙盘) | `http://fis.wonderwisdom.online` | `http://47.239.63.70:5175/` |
+| 后端健康检查 | `http://wonderwisdom.online/api/health` | `http://47.239.63.70/api/health` |
 
 ## 🔥 轻量服务器防火墙端口（必须在控制台手动开放）
 
 | 端口 | 协议 | 用途 |
 |------|------|------|
 | 22 | TCP | SSH 登录 |
-| 80 | TCP | Wonder Hub + 后端 API（Nginx） |
-| 5174 | TCP | Company Admin B端 |
-| 5175 | TCP | FIS Hub 金融沙盘 |
+| 80 | TCP | Nginx 主入口（所有域名） |
+| 443 | TCP | HTTPS（申请证书后需要） |
+| 5174 | TCP | Company Admin B端（IP 直连过渡期） |
+| 5175 | TCP | FIS Hub 金融沙盘（IP 直连过渡期） |
 
 > 在阿里云控制台 → 轻量应用服务器 → 防火墙 → 添加规则
+
+## 🌏 DNS 配置步骤（域名生效前必读）
+
+**第一步：在域名注册商修改 Nameserver**
+
+登录购买 `wonderwisdom.online` 的注册商，将 DNS 服务器改为：
+```
+ns1.alidns.com
+ns2.alidns.com
+```
+
+**第二步：在阿里云云解析控制台添加记录**
+
+| 主机记录 | 记录类型 | 记录值 |
+|---------|---------|-------|
+| `@` | A | 47.239.63.70 |
+| `www` | A | 47.239.63.70 |
+| `company` | A | 47.239.63.70 |
+| `fis` | A | 47.239.63.70 |
+
+> DNS 传播需要 10分钟 ~ 24小时，可用 `nslookup wonderwisdom.online` 验证是否生效
+
+## 🔐 HTTPS 证书申请（DNS 生效后执行）
+
+```bash
+# SSH 登录服务器后执行
+certbot --nginx \
+  -d wonderwisdom.online -d www.wonderwisdom.online \
+  -d company.wonderwisdom.online \
+  -d fis.wonderwisdom.online
+
+# certbot 会自动修改 nginx.conf 并填入证书路径，完成后重载：
+nginx -t && systemctl reload nginx
+```
 
 ---
 
