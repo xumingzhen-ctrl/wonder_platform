@@ -1,0 +1,22 @@
+{
+  "name": "wonder-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "NODE_OPTIONS='--max-old-space-size=4096' npx pnpm exec turbo run dev",
+    "build": "npx pnpm exec turbo run build",
+    "start": "npx pnpm exec turbo run start",
+    "lint": "npx pnpm exec turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^1.11.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}

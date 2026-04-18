@@ -1,0 +1,33 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy==2.0.35
+alembic==1.13.2
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.12
+reportlab==4.2.5
+qrcode[pil]==7.4.2
+Pillow==11.0.0
+python-dotenv==1.0.1
+httpx==0.27.2
+email-validator>=2.0.0
+
+# ── 收据智能记账模块 ─────────────────────────────────────────────
+openai>=1.51.0          # OpenRouter 调用（OpenAI 兼容格式）
+watchdog>=4.0.1         # 文件夹持续监控
+pillow-heif>=0.16.0     # HEIC 格式转换（iPhone 拍摄的照片）
+pymupdf>=1.24.0         # PDF → 图片转换（内地电子发票/扫描件）
+python-dateutil
+
+# ── FIP (Financial Information Publist) 模块 ─────────────────────
+yfinance
+pandas
+apscheduler
+scipy
+numpy
+ib_insync
+futu-api
+python-docx
+requests-cache==1.2.0

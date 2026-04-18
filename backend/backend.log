@@ -1,0 +1,12 @@
+INFO:     Will watch for changes in these directories: ['/Users/derek/Projects/Company Admin/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [19899] using WatchFiles
+INFO:     Started server process [19902]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:53227 - "GET /portfolios HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53227 - "GET /portfolios HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53247 - "GET /portfolios HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53247 - "GET /portfolios HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53480 - "GET /portfolios HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53480 - "GET /portfolios HTTP/1.1" 404 Not Found

@@ -1,0 +1,217 @@
+/* ── Financials 财务报表页面特有样式 ────────────────────────────── */
+.fin-tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  border-bottom: 2px solid var(--color-border-light);
+}
+
+.fin-tab-btn {
+  background: transparent;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.fin-tab-btn:hover {
+  color: var(--color-primary);
+}
+
+.fin-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.fin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.kpi-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-1);
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.fin-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.fin-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.fin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fin-table th {
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.fin-row td {
+  padding: var(--space-2) 0;
+  font-size: 14px;
+  border-bottom: 1px dashed var(--color-border-light);
+}
+
+.fin-total-row td {
+  padding: var(--space-3) 0;
+  font-size: 14px;
+  font-weight: 600;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.fin-profit-row td {
+  color: #16A34A;
+  background: #F0FDF4;
+  padding: var(--space-3) var(--space-2);
+  border-top: 2px solid #16A34A;
+}
+
+.fin-loss-row td {
+  color: #DC2626;
+  background: #FEF2F2;
+  padding: var(--space-3) var(--space-2);
+  border-top: 2px solid #DC2626;
+}
+
+.fin-disclaimer {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: justify;
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+
+.fin-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.fin-bar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.fin-bar-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  width: 50px;
+}
+
+.fin-bar-track {
+  flex: 1;
+  height: 12px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.fin-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+  transition: width 0.5s ease;
+}
+
+.fin-bar-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  width: 80px;
+  text-align: right;
+}
+
+.fin-two-col {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.badge-green { background: #D1FAE5; color: #065F46; }
+.badge-yellow { background: #FEF3C7; color: #92400E; }
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.badge-gray { background: #F1F5F9; color: #475569; }
+
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.select-input {
+  appearance: none;
+  padding: 6px 30px 6px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.select-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-muted);
+}

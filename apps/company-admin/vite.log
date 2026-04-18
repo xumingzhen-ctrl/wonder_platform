@@ -1,0 +1,48 @@
+
+> hk-admin-frontend@1.0.0 dev
+> vite --port 5173
+
+
+  VITE v5.4.21  ready in 173 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+5:14:14 PM [vite] hmr update /src/contexts/AppContext.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Expenses.jsx
+5:14:14 PM [vite] hmr invalidate /src/contexts/AppContext.jsx Could not Fast Refresh ("useApp" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+5:14:14 PM [vite] hmr update /src/App.jsx, /src/components/Layout.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/Expenses.jsx, /src/pages/CompanyEdit.jsx
+5:14:51 PM [vite] hmr update /src/pages/Commissions.jsx
+6:02:41 PM [vite] hmr update /src/contexts/AppContext.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Expenses.jsx
+6:02:41 PM [vite] hmr invalidate /src/contexts/AppContext.jsx Could not Fast Refresh ("useApp" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+6:02:41 PM [vite] hmr update /src/App.jsx, /src/components/Layout.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/Expenses.jsx, /src/pages/CompanyEdit.jsx
+6:04:25 PM [vite] hmr update /src/App.jsx
+6:04:26 PM [vite] ✨ new dependencies optimized: lucide-react
+6:04:26 PM [vite] ✨ optimized dependencies changed. reloading
+6:30:09 PM [vite] hmr update /src/components/Layout.jsx
+6:30:40 PM [vite] hmr update /src/index.css
+[vite:css] @import must precede all other statements (besides @charset or empty @layer)
+780|  }
+781|  
+782|  @import './fin_styles.css';
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+783|  
+6:38:22 PM [vite] hmr update /src/pages/Financials.jsx
+6:49:35 PM [vite] hmr update /src/contexts/AppContext.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Expenses.jsx, /src/pages/Financials.jsx
+6:49:35 PM [vite] hmr invalidate /src/contexts/AppContext.jsx Could not Fast Refresh ("useApp" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+6:49:35 PM [vite] hmr update /src/App.jsx, /src/components/Layout.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/Expenses.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Financials.jsx
+6:49:35 PM [vite] hmr update /src/contexts/AppContext.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Expenses.jsx, /src/pages/Financials.jsx
+6:49:35 PM [vite] hmr invalidate /src/contexts/AppContext.jsx Could not Fast Refresh ("useApp" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+6:49:35 PM [vite] hmr update /src/App.jsx, /src/components/Layout.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/Expenses.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Financials.jsx
+6:50:32 PM [vite] hmr update /src/pages/Financials.jsx
+6:51:09 PM [vite] hmr update /src/pages/Financials.jsx
+6:51:30 PM [vite] hmr update /src/pages/Financials.jsx
+9:03:06 PM [vite] hmr update /src/contexts/AppContext.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Expenses.jsx, /src/pages/Financials.jsx, /src/components/TaxProfileModal.jsx
+9:03:06 PM [vite] hmr invalidate /src/contexts/AppContext.jsx Could not Fast Refresh ("useApp" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+9:03:06 PM [vite] hmr update /src/App.jsx, /src/components/Layout.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/Expenses.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Financials.jsx
+9:03:30 PM [vite] hmr update /src/pages/Financials.jsx
+9:05:00 PM [vite] hmr update /src/components/UnincorporatedTaxPanel.jsx
+9:56:36 PM [vite] hmr update /src/contexts/AppContext.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Expenses.jsx, /src/pages/Financials.jsx, /src/components/TaxProfileModal.jsx
+9:56:36 PM [vite] hmr invalidate /src/contexts/AppContext.jsx Could not Fast Refresh ("useApp" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+9:56:36 PM [vite] hmr update /src/App.jsx, /src/components/Layout.jsx, /src/pages/Login.jsx, /src/pages/Dashboard.jsx, /src/pages/Invoices.jsx, /src/pages/InvoiceEdit.jsx, /src/pages/InvoiceDetail.jsx, /src/pages/Clients.jsx, /src/pages/Commissions.jsx, /src/pages/Expenses.jsx, /src/pages/CompanyEdit.jsx, /src/pages/Financials.jsx
+9:58:55 PM [vite] hmr update /src/components/Layout.jsx
+9:59:18 PM [vite] hmr update /src/pages/Dashboard.jsx
+9:59:40 PM [vite] hmr update /src/App.jsx
