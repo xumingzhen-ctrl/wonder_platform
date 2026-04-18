@@ -1,0 +1,110 @@
+                    <Briefcase size={16} /> Composition$
+                  </button>$
+                  <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title="Dividend Management">$
+                    <Settings size={16} /> Dividends$
+                  </button>$
+                  <button onClick={() => setShowDivModal(true)} className="action-btn-secondary">$
+                    <DollarSign size={16} /> Add Dividend$
+                  </button>$
+                </div>$
+              </header>$
+$
+              {/* Sub-Tabs Navigation */}$
+              <div style={{display: 'flex', gap: '20px', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.05)'}}>$
+                <button $
+                  onClick={() => setActiveSubTab('performance')}$
+                  style={{paddingBottom: '10px', background: 'transparent', border: 'none', borderBottom: activeSubTab === 'performance' ? '2px solid #818cf8' : '2px solid transparent', color: activeSubTab === 'performance' ? '#818cf8' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'}}$
+                >$
+                  Holdings & Performance$
+                </button>$
+                <button $
+                  onClick={() => setActiveSubTab('dividends')}$
+                  style={{paddingBottom: '10px', background: 'transparent', border: 'none', borderBottom: activeSubTab === 'dividends' ? '2px solid #818cf8' : '2px solid transparent', color: activeSubTab === 'dividends' ? '#818cf8' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'}}$
+                >$
+                  Income & Projections$
+                </button>$
+              </div>$
+$
+              {activeSubTab === 'performance' ? ($
+                <>$
+                  {/* Existing Performance View (NAV Chart + Summary Stats) */}$
+                  <section className="glass-card" style={{marginBottom: '40px', padding: '30px', minHeight: '380px'}}>$
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>$
+                  <div className="stat-label" style={{fontSize: '1.2rem', color: '#fff'}}>Performance Over Time (Since Inception)</div>$
+                  {historyData.length === 0 && <div style={{fontSize: '0.85rem', color: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>Syncing Market Data...</div>}$
+                </div>$
+                <div style={{height: '300px', width: '100%'}}>$
+                  {historyData.length > 0 ? ($
+                    <ResponsiveContainer width="100%" height="100%">$
+                      <AreaChart data={historyData} margin={{top: 10, right: 10, left: 10, bottom: 0}}>$
+                        <defs>$
+                          <linearGradient id="navColor" x1="0" y1="0" x2="0" y2="1">$
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.5}/>$
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>$
+                          </linearGradient>$
+                        </defs>$
+                        <XAxis $
+                          dataKey="date" $
+                          stroke="rgba(255,255,255,0.1)" $
+                          tick={{fill: '#9ca3af', fontSize: 11}} $
+                          tickFormatter={(val) => val ? String(val).substring(0, 7) : ''} $
+                          minTickGap={40} $
+                        />$
+                        <YAxis $
+                          domain={([dataMin, dataMax]) => {$
+                            if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1000];$
+                            if (dataMin === dataMax) {$
+                              if (dataMin === 0) return [0, 1000];$
+                              const padding = Math.abs(dataMin * 0.1);$
+                              return [dataMin - padding, dataMax + padding];$
+                            }$
+                            return [dataMin, dataMax];$
+                          }}$
+                          stroke="rgba(255,255,255,0.1)" $
+                          tick={{fill: '#9ca3af', fontSize: 11}} $
+                          tickFormatter={(val) => fmtAxis(Number(val), data.usd_to_base_fx || 1, data.base_currency || 'USD')} $
+                          width={60}$
+                        />$
+                        <Tooltip $
+                          contentStyle={{backgroundColor: '#1e1e2f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'}}$
+                          itemStyle={{color: '#10b981', fontWeight: 'bold'}}$
+                          formatter={(value) => [fmtMoney(Number(value), data.usd_to_base_fx || 1, data.base_currency || 'USD'), 'M-hM-5M-^DM-dM-:M-'M-eM-8M-^BM-eM-^@M-<']}$
+                          labelStyle={{color: '#9ca3af', marginBottom: '8px'}}$
+                        />$
+                        <Area $
+                          type="monotone" $
+                          dataKey="value" $
+                          stroke="#10b981" $
+                          strokeWidth={3} $
+                          fill="url(#navColor)" $
+                          animationDuration={1500}$
+                        />$
+                      </AreaChart>$
+                    </ResponsiveContainer>$
+                  ) : ($
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'gray', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px'}}>$
+                      Constructing localized month-end time series...$
+                    </div>$
+                  )}$
+                </div>$
+              </section>$
+$
+              <section className="stats-grid">$
+                <div className="glass-card" title={fmtMoney(data.total_market_value || data.total_nav, data.usd_to_base_fx || 1, data.base_currency || 'USD')}>$
+                  <div className="stat-label">M-hM-5M-^DM-dM-:M-'M-eM-8M-^BM-eM-^@M-< <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data.base_currency || 'USD'}</span></div>$
+                  <div className="stat-value">{fmtCompact(data.total_market_value || data.total_nav, data.usd_to_base_fx || 1, data.base_currency || 'USD')}</div>$
+                  <div className="positive"><TrendingUp size={16} /> Market Value</div>$
+                </div>$
+                <div className="glass-card">$
+                  <div className="stat-label">Cumulative ROI</div>$
+                  <div className="stat-value" style={{color: '#818cf8'}}>{data.cumulative_roi}%</div>$
+                  <div className="positive"><TrendingUp size={16} /> Growth</div>$
+                </div>$
+                <div className="glass-card" title={fmtMoney(data.total_divs || 0, data.usd_to_base_fx || 1, data.base_currency || 'USD')}>$
+                  <div className="stat-label">Total Dividends <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data.base_currency || 'USD'}</span></div>$
+                  <div className="stat-value" style={{color: '#fbbf24'}}>{fmtCompact(data.total_divs || 0, data.usd_to_base_fx || 1, data.base_currency || 'USD')}</div>$
+                  <div className="positive"><DollarSign size={16} /> Passive Income</div>$
+                </div>$
+                <div className="glass-card">$
+                  <div className="stat-label">Annualized Return</div>$
+                  <div className="stat-value" style={{color: '#10b981'}}>{data.annualized_return}%</div>$

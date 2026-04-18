@@ -1,0 +1,175 @@
+   859	                'shares': d_item['shares_held'],
+   860	                'price': d_item['amount_per_share']
+   861	            })
+   862	        if div_records:
+   863	            div_df = pd.DataFrame(div_records)
+   864	            tx_df = pd.concat([tx_df, div_df], ignore_index=True)
+   865	            tx_df = tx_df.sort_values(by='date')
+   866	
+   867	        # Generate month-end dates from start_date to today
+   868	        dates_series = pd.date_range(start=start_date_ts, end=datetime.now(), freq='ME')
+   869	        dates = dates_series.strftime('%Y-%m-%d').tolist()
+   870	        
+   871	        # Ensure start_date itself is recorded if it's the very beginning
+   872	        start_str = start_date_ts.strftime('%Y-%m-%d')
+   873	        if not dates or start_str < dates[0]:
+   874	            dates.insert(0, start_str)
+   875	            
+   876	        today_str = datetime.now().strftime('%Y-%m-%d')
+   877	        if not dates or dates[-1] != today_str:
+   878	            dates.append(today_str)
+   879	            
+   880	        # Ensure uniqueness and chronological order
+   881	        dates = sorted(list(set(dates)))
+   882	        
+   883	        daily_shares = {isin: 0 for isin in unique_isins}
+   884	        cash = 0
+   885	        hist_chart = []
+   886	        
+   887	        tx_df['date_str'] = tx_df['date'].dt.strftime('%Y-%m-%d')
+   888	        tx_df = tx_df.sort_values(by='date')
+   889	        
+   890	        tx_idx = 0
+   891	        num_tx = len(tx_df)
+   892	        
+   893	        # Simulate value purely over the month-end dates instead of daily
+   894	        for d in dates:
+   895	            while tx_idx < num_tx and tx_df.iloc[tx_idx]['date_str'] <= d:
+   896	                row = tx_df.iloc[tx_idx]
+   897	                t = row['type'].upper()
+   898	                p = float(row['price'])
+   899	                q = float(row['shares']) if pd.notna(row['shares']) else 0
+   900	                isin = row['isin']
+   901	                
+   902	                fx = 1.0
+   903	                if isin.startswith('CASH_'):
+   904	                    # Cash injection/withdrawal in local currency → convert to USD
+   905	                    ccy = isin.split('_')[1]
+   906	                    if ccy != 'USD':
+   907	                        fx = RealTime.get_fx_rate(ccy, 'USD')
+   908	                else:
+   909	                    # Stock BUY/SELL/DIVIDEND price is in the stock's local currency
+   910	                    isin_ccy = RealTime.guess_currency_from_isin(isin)
+   911	                    if isin_ccy and isin_ccy != 'USD':
+   912	                        fx = RealTime.get_fx_rate(isin_ccy, 'USD')
+   913	                    
+   914	                if t == 'CASH_IN': cash += p * fx
+   915	                elif t == 'CASH_OUT': cash -= p * fx
+   916	                elif t == 'DIVIDEND': cash += q * p * fx
+   917	                elif t == 'BUY' and not isin.startswith('CASH_'):
+   918	                    cash -= q * p * fx  # Deduct purchase cost in USD-normalised value
+   919	                    daily_shares[isin] += q
+   920	                elif t == 'SELL' and not isin.startswith('CASH_'):
+   921	                    cash += q * p * fx
+   922	                    daily_shares[isin] -= q
+   923	                tx_idx += 1
+   924	                
+   925	            # Start with cash (Total Wealth includes accumulated dividends)
+   926	            daily_nav = cash
+   927	            for isin, shares in daily_shares.items():
+   928	                if shares > 0:
+   929	                    prices = historical_data.get(isin, {})
+   930	                    price = prices.get(d)
+   931	                    
+   932	                    # --- FIX: ROBUST PRICE FALLBACK ---
+   933	                    if price is None or price <= 0:
+   934	                        # 1. Try past 30 days (weekends/holidays)
+   935	                        d_obj = datetime.strptime(d, '%Y-%m-%d')
+   936	                        for b in range(1, 31):
+   937	                            pd_str = (d_obj - timedelta(days=b)).strftime('%Y-%m-%d')
+   938	                            if pd_str in prices and prices[pd_str] > 0:
+   939	                                price = prices[pd_str]
+   940	                                break
+   941	                        
+   942	                    # ── COST ANCHORING: Fix the 'Inception Pit' ──────────────────
+   943	                    # If the API price is lower than the cost price, use cost.
+   944	                    # This prevents artificial drops due to API/cost basis discrepancies.
+   945	                    avg_cost = tx_df[(tx_df['isin'] == isin) & (tx_df['date'] <= d) & (tx_df['type'] == 'BUY')]['price'].mean()
+   946	                    if price and avg_cost and price < avg_cost:
+   947	                        price = avg_cost
+   948	                    
+   949	                    # ── FX NORMALISATION: Convert local currency price to USD ──────
+   950	                    # Japanese stocks trade in JPY, European in EUR, etc.
+   951	                    # Without this step, ¥1,000/share inflates the chart 150x vs USD.
+   952	                    if price and price > 0:
+   953	                        isin_ccy = RealTime.guess_currency_from_isin(isin)
+   954	                        if isin_ccy and isin_ccy != 'USD':
+   955	                            price_fx = RealTime.get_fx_rate(isin_ccy, 'USD')
+   956	                            price = price * price_fx
+   957	                        
+   958	                    daily_nav += shares * (price or 0)
+   959	            
+   960	            # Ensure we don't return 0 for initiated portfolios if it's just a data gap
+   961	            if daily_nav <= 0 and cash > 0:
+   962	                daily_nav = cash
+   963	                
+   964	            hist_chart.append({"date": d, "value": round(daily_nav, 2)})
+   965	
+   966	        # ── Authoritative "today" data point: always use calculate_nav() ──────
+   967	        # This guarantees the chart's last point EXACTLY matches the NAV stat box.
+   968	        try:
+   969	            live_nav = self.calculate_nav()
+   970	            # Restore to total_nav (wealth) for total return chart
+   971	            today_nav = round(live_nav['total_nav'], 2)
+   972	            # Replace or append today's point
+   973	            if hist_chart and hist_chart[-1]['date'] == today_str:
+   974	                hist_chart[-1]['value'] = today_nav
+   975	            else:
+   976	                hist_chart.append({'date': today_str, 'value': today_nav})
+   977	        except Exception:
+   978	            pass  # Keep the estimate if live calc fails
+   979	
+   980	        return hist_chart
+   981	
+   982	def create_report(portfolio_id: int):
+   983	    engine = PortfolioEngine(portfolio_id)
+   984	    base_currency = 'USD'
+   985	    try:
+   986	        nav_info = engine.calculate_nav()
+   987	        perf_info = engine.calculate_performance(nav_data=nav_info)
+   988	        base_currency = engine.base_currency
+   989	    finally:
+   990	        engine.close()
+   991	    
+   992	    # Compute FX multiplier: 1 USD → base_currency (for frontend display)
+   993	    usd_to_base_fx = 1.0
+   994	    if base_currency != 'USD':
+   995	        try:
+   996	            usd_to_base_fx = RealTime.get_fx_rate('USD', base_currency)
+   997	        except Exception:
+   998	            usd_to_base_fx = 1.0
+   999	    
+  1000	    # --- SMART CACHE: Save stats for heartbeat polling ---
+  1001	    try:
+  1002	        conn = sqlite3.connect(DB_PATH)
+  1003	        cursor = conn.cursor()
+  1004	        cursor.execute("""
+  1005	            INSERT OR REPLACE INTO portfolio_stats_cache 
+  1006	            (portfolio_id, total_nav, wallet_balance, total_pnl, total_divs, cumulative_roi, annualized_return, details, last_updated)
+  1007	            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  1008	        """, (
+  1009	            portfolio_id,
+  1010	            nav_info['total_nav'],
+  1011	            nav_info['wallet_balance'],
+  1012	            perf_info.get('total_pnl', 0),
+  1013	            perf_info.get('total_divs', 0),
+  1014	            perf_info.get('cumulative_roi', 0),
+  1015	            perf_info.get('annualized_return', 0),
+  1016	            json.dumps(nav_info['details']),
+  1017	            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  1018	        ))
+  1019	        conn.commit()
+  1020	    except Exception as e:
+  1021	        logger.error(f"Error updating portfolio_stats_cache: {e}")
+  1022	    finally:
+  1023	        if 'conn' in locals():
+  1024	            conn.close()
+  1025	
+  1026	    return {**nav_info, **perf_info, 'base_currency': base_currency, 'usd_to_base_fx': round(usd_to_base_fx, 6)}
+  1027	
+  1028	def get_portfolio_historical_chart(portfolio_id: int):
+  1029	    engine = PortfolioEngine(portfolio_id)
+  1030	    try:
+  1031	        return engine.get_historical_chart_data()
+  1032	    finally:
+  1033	        engine.close()

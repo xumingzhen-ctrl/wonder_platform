@@ -1,0 +1,30 @@
+                        />$
+                      </AreaChart>$
+                    </ResponsiveContainer>$
+                  ) : ($
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'gray', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px'}}>$
+                      Constructing localized month-end time series...$
+                    </div>$
+                  )}$
+                </div>$
+              </section>$
+$
+              <section className="stats-grid">$
+                <div className="glass-card" title={fmtMoney(data.total_market_value || data.total_nav, data.usd_to_base_fx || 1, data.base_currency || 'USD')}>$
+                  <div className="stat-label">M-hM-5M-^DM-dM-:M-'M-eM-8M-^BM-eM-^@M-< <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data.base_currency || 'USD'}</span></div>$
+                  <div className="stat-value">{fmtCompact(data.total_market_value || data.total_nav, data.usd_to_base_fx || 1, data.base_currency || 'USD')}</div>$
+                  <div className="positive"><TrendingUp size={16} /> Market Value</div>$
+                </div>$
+                <div className="glass-card">$
+                  <div className="stat-label">Cumulative ROI</div>$
+                  <div className="stat-value" style={{color: '#818cf8'}}>{data.cumulative_roi}%</div>$
+                  <div className="positive"><TrendingUp size={16} /> Growth</div>$
+                </div>$
+                <div className="glass-card" title={fmtMoney(data.total_divs || 0, data.usd_to_base_fx || 1, data.base_currency || 'USD')}>$
+                  <div className="stat-label">Total Dividends <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data.base_currency || 'USD'}</span></div>$
+                  <div className="stat-value" style={{color: '#fbbf24'}}>{fmtCompact(data.total_divs || 0, data.usd_to_base_fx || 1, data.base_currency || 'USD')}</div>$
+                  <div className="positive"><DollarSign size={16} /> Passive Income</div>$
+                </div>$
+                <div className="glass-card">$
+                  <div className="stat-label">Annualized Return</div>$
+                  <div className="stat-value" style={{color: '#10b981'}}>{data.annualized_return}%</div>$
