@@ -35,18 +35,17 @@ export default function Home() {
       </section>
 
       {/* Feature Navigation Grid */}
-      <section className="w-full max-w-[1400px] mx-auto px-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 pb-32">
+      <section className="w-full max-w-[1400px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-32">
         {[
-          { title: "專業研究", desc: "前沿的宏觀經濟與資產配置文章。", link: "/blog" },
-          { title: "健康診斷", desc: "評估您的家庭資產負債與收支風險。", link: "/assessment#diagnostic" },
-          { title: "組合推演", desc: "基於複利與現金流折現的長期預測。", link: "/assessment#simulation" },
-          { title: "企業保障", desc: "雇員補償、MPF 及團體醫療方案詢價。", link: "/insurance" },
-          { title: "FIS 系統", desc: "獨立資產管理與沙盤推演系統(PortfolioHub)。", link: "http://localhost:5175" },
+          { title: "智庫洞察", desc: "深度宏觀研究與資產配置報告。", link: "/blog" },
+          { title: "財富診斷", desc: "家庭資產健康評估與現金流推演。", link: "/assessment" },
+          { title: "FIS 沙盤", desc: "獨立資產管理與 PortfolioHub 模擬系統。", link: "http://47.239.63.70:5175" },
+          { title: "行政中樞", desc: "企業/家族辦公室後台管理與 B 端系統。", link: "http://47.239.63.70:5174" },
         ].map((item, idx) => (
-          <Link href={item.link} target={item.link.startsWith('http') ? '_blank' : undefined} key={idx} className="group relative p-8 rounded-[2rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-xl hover:bg-card transition-all duration-500 overflow-hidden">
+          <Link href={item.link} target={item.link.startsWith('http') ? '_blank' : undefined} key={idx} className="group relative p-10 rounded-[2.5rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-2xl hover:bg-card transition-all duration-500 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <h3 className="text-2xl font-semibold mb-3 text-card-foreground">{item.title}</h3>
-            <p className="text-base text-foreground/80 font-light leading-relaxed">{item.desc}</p>
+            <h3 className="text-3xl font-semibold mb-4 text-card-foreground">{item.title}</h3>
+            <p className="text-lg text-foreground/80 font-light leading-relaxed">{item.desc}</p>
           </Link>
         ))}
       </section>

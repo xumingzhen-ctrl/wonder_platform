@@ -50,7 +50,7 @@ export default function AssessmentIndex() {
               高阶服务。设定未来的收益预期、通胀率与提取计划，利用金融数学模型为您推演未来 30 年的财富增长趋势。
             </p>
             <a 
-              href="http://localhost:5175" 
+              href="http://47.239.63.70:5175" 
               target="_blank" 
               rel="noopener noreferrer" 
               className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full h-16 rounded-2xl border-primary/30 text-primary hover:bg-primary/5 text-xl font-medium shadow-sm flex items-center justify-center")}
