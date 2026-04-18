@@ -200,7 +200,14 @@ function App() {
       .then(res => res.json())
       .then(list => {
         setPortfolios(list);
-        if (list.length > 0 && !activeId) setActiveId(list[0].id);
+        setActiveId(currentId => {
+          if (!currentId && list.length > 0) return list[0].id;
+          // If the current active ID is no longer in the list, fallback to first
+          if (currentId && !list.find(p => p.id === currentId) && list.length > 0) {
+            return list[0].id;
+          }
+          return currentId;
+        });
       })
       .catch(err => console.error("Fetch portfolios error:", err));
   };
@@ -360,12 +367,15 @@ function App() {
     if (!deleteCandidate) return;
     await fetch(`/api/portfolios/${deleteCandidate}`, { method: 'DELETE' });
     setShowDeleteModal(false);
-    setDeleteCandidate(null);
-    fetchPortfolios();
+    
+    // Clear active state immediately if we deleted the currently viewed portfolio
     if (activeId === deleteCandidate) {
       setActiveId(null);
       setData(null);
     }
+    
+    setDeleteCandidate(null);
+    fetchPortfolios(); // This will auto-select the first available if activeId is now null or invalid
   };
 
   const handleRename = async (e) => {
