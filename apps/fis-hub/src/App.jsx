@@ -196,7 +196,7 @@ function App() {
   }, [data]);
 
   const fetchPortfolios = () => {
-    fetch('http://localhost:8000/portfolios')
+    fetch('/api/portfolios')
       .then(res => res.json())
       .then(list => {
         setPortfolios(list);
@@ -211,7 +211,7 @@ function App() {
       setHistoryData([]); // Clear old history
       
       // 1. Fetch Core Data
-      fetch(`http://localhost:8000/report/${activeId}`)
+      fetch(`/api/report/${activeId}`)
         .then(res => res.json())
         .then(resData => {
           if (resData.detail) throw new Error(resData.detail);
@@ -224,7 +224,7 @@ function App() {
         .finally(() => setLoading(false));
 
       // 2. Fetch Historical Time-Series (Async background)
-      fetch(`http://localhost:8000/report/history/${activeId}`)
+      fetch(`/api/report/history/${activeId}`)
         .then(async res => {
           const text = await res.text();
           // Python's json.dumps emits actual `NaN` which breaks strict JSON.parse. Handle it cleanly.
@@ -254,7 +254,7 @@ function App() {
     
     const pollHeartbeat = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/heartbeat/${activeId}`);
+        const res = await fetch(`/api/heartbeat/${activeId}`);
         if (!res.ok) return;
         const hb = await res.json();
         
@@ -274,7 +274,7 @@ function App() {
         if (navChanged || isStale) {
           lastNavRef.current = currNav;
           // Re-trigger main report fetch silently (no loading spinner)
-          fetch(`http://localhost:8000/report/${activeId}`)
+          fetch(`/api/report/${activeId}`)
             .then(r => r.json())
             .then(d => { if (!d.detail) setData(d); })
             .catch(() => {});
@@ -291,7 +291,7 @@ function App() {
   useEffect(() => {
     if (activeId && activeSubTab === 'dividends') {
        setDivLoading(true);
-       fetch(`http://localhost:8000/portfolios/dividends/projections/${activeId}?tax_rate=${taxRate}&drip=${dripMode}`)
+       fetch(`/api/portfolios/dividends/projections/${activeId}?tax_rate=${taxRate}&drip=${dripMode}`)
          .then(res => {
            if (!res.ok) throw new Error(`Server returned ${res.status}`);
            return res.json();
@@ -333,7 +333,7 @@ function App() {
       if (a.manual_price) manualPrices[a.isin] = parseFloat(a.manual_price);
     });
 
-    const res = await fetch('http://localhost:8000/portfolios/new', {
+    const res = await fetch('/api/portfolios/new', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -358,7 +358,7 @@ function App() {
 
   const handleDelete = async () => {
     if (!deleteCandidate) return;
-    await fetch(`http://localhost:8000/portfolios/${deleteCandidate}`, { method: 'DELETE' });
+    await fetch(`/api/portfolios/${deleteCandidate}`, { method: 'DELETE' });
     setShowDeleteModal(false);
     setDeleteCandidate(null);
     fetchPortfolios();
@@ -371,7 +371,7 @@ function App() {
   const handleRename = async (e) => {
     e.preventDefault();
     if (!renameDraft.trim()) return;
-    await fetch(`http://localhost:8000/portfolios/${activeId}`, {
+    await fetch(`/api/portfolios/${activeId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: renameDraft.trim() })
@@ -388,18 +388,18 @@ function App() {
   const handleUndoConfirmed = async () => {
     setUndoConfirmOpen(false);
     try {
-      const res = await fetch(`http://localhost:8000/portfolios/rebalance/undo/${activeId}`, {
+      const res = await fetch(`/api/portfolios/rebalance/undo/${activeId}`, {
         method: 'POST'
       });
       const data = await res.json();
       if (data.status === 'success') {
         // Refresh core report data
-        const repRes = await fetch(`http://localhost:8000/report/${activeId}`);
+        const repRes = await fetch(`/api/report/${activeId}`);
         const repData = await repRes.json();
         if (!repData.detail) setData(repData);
         
         // Also refresh historical chart
-        fetch(`http://localhost:8000/report/history/${activeId}`)
+        fetch(`/api/report/history/${activeId}`)
           .then(async r => {
             const text = await r.text();
             return JSON.parse(text.replace(/:\s*NaN/g, ': null'));
@@ -422,7 +422,7 @@ function App() {
     if (!activeId) return;
     const params = new URLSearchParams();
     if (rebalanceDate) params.set('as_of_date', rebalanceDate);
-    const res = await fetch(`http://localhost:8000/portfolios/rebalance/preview/${activeId}?${params}`);
+    const res = await fetch(`/api/portfolios/rebalance/preview/${activeId}?${params}`);
     const json = await res.json();
     setRebalancePreview(json);
     setShowRebalanceModal(true);
@@ -432,7 +432,7 @@ function App() {
     setLoading(true);
     setShowRebalanceModal(false);
     try {
-      const rbRes = await fetch(`http://localhost:8000/portfolios/rebalance/${activeId}`, {
+      const rbRes = await fetch(`/api/portfolios/rebalance/${activeId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ as_of_date: rebalanceDate || null })
@@ -444,12 +444,12 @@ function App() {
         return;
       }
       // Refresh core report data
-      const repRes = await fetch(`http://localhost:8000/report/${activeId}`);
+      const repRes = await fetch(`/api/report/${activeId}`);
       const repData = await repRes.json();
       if (!repData.detail) setData(repData);
 
       // Also refresh historical chart so performance curve reflects the new trades
-      fetch(`http://localhost:8000/report/history/${activeId}`)
+      fetch(`/api/report/history/${activeId}`)
         .then(async r => {
           const text = await r.text();
           const cleanText = text.replace(/:\s*NaN/g, ': null');
@@ -470,21 +470,21 @@ function App() {
 
   const handleManualDiv = async (e) => {
     e.preventDefault();
-    await fetch(`http://localhost:8000/portfolios/dividend/manual/${activeId}`, {
+    await fetch(`/api/portfolios/dividend/manual/${activeId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isin: mDiv.isin, date: mDiv.date, amount_per_share: parseFloat(mDiv.amount) })
     });
     setShowDivModal(false);
     // Refresh report
-    const res = await fetch(`http://localhost:8000/report/${activeId}`);
+    const res = await fetch(`/api/report/${activeId}`);
     setData(await res.json());
   };
 
   const handleOpenManageDivModal = async () => {
     if (!activeId) return;
     try {
-      const res = await fetch(`http://localhost:8000/portfolios/dividends/export/${activeId}`);
+      const res = await fetch(`/api/portfolios/dividends/export/${activeId}`);
       if (!res.ok) throw new Error("Failed to fetch dividends");
       const divs = await res.json();
       setDividendHistory(divs);
@@ -498,11 +498,11 @@ function App() {
   const handleDeleteManualDividend = async (divId) => {
     if (!window.confirm("Are you sure you want to delete this manual dividend?")) return;
     try {
-      await fetch(`http://localhost:8000/dividends/manual/${divId}`, { method: 'DELETE' });
-      const res = await fetch(`http://localhost:8000/portfolios/dividends/export/${activeId}`);
+      await fetch(`/api/dividends/manual/${divId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/portfolios/dividends/export/${activeId}`);
       setDividendHistory(await res.json());
       
-      const repRes = await fetch(`http://localhost:8000/report/${activeId}`);
+      const repRes = await fetch(`/api/report/${activeId}`);
       setData(await repRes.json());
     } catch (err) {
       console.error(err);
@@ -514,7 +514,7 @@ function App() {
   const handleOpenCompModal = async () => {
     if (!activeId) return;
     try {
-      const res = await fetch(`http://localhost:8000/portfolios/transactions/${activeId}`);
+      const res = await fetch(`/api/portfolios/transactions/${activeId}`);
       if (!res.ok) throw new Error('Failed to fetch transactions');
       const result = await res.json();
       setCompTxs(result.transactions || []);
@@ -545,7 +545,7 @@ function App() {
       if (edits.shares !== undefined) txUpdate.shares = edits.shares;
       if (edits.price !== undefined) txUpdate.price = edits.price;
       if (Object.keys(txUpdate).length > 0) {
-        await fetch(`http://localhost:8000/portfolios/transactions/${txId}`, {
+        await fetch(`/api/portfolios/transactions/${txId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(txUpdate)
@@ -556,7 +556,7 @@ function App() {
         const tx = compTxs.find(t => t.id === txId);
         const isin = edits.isin || tx.isin;
         const newTargets = { ...compTargets, [isin]: parseFloat(edits.target_weight) };
-        await fetch(`http://localhost:8000/portfolios/${activeId}`, {
+        await fetch(`/api/portfolios/${activeId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ target_allocations: newTargets })
@@ -564,7 +564,7 @@ function App() {
       }
       // Refresh
       handleOpenCompModal();
-      const repRes = await fetch(`http://localhost:8000/report/${activeId}`);
+      const repRes = await fetch(`/api/report/${activeId}`);
       setData(await repRes.json());
     } catch (err) {
       console.error(err);
@@ -575,9 +575,9 @@ function App() {
   const handleCompDelete = async (txId) => {
     if (!window.confirm('Delete this transaction? This cannot be undone.')) return;
     try {
-      await fetch(`http://localhost:8000/portfolios/transactions/${txId}`, { method: 'DELETE' });
+      await fetch(`/api/portfolios/transactions/${txId}`, { method: 'DELETE' });
       handleOpenCompModal();
-      const repRes = await fetch(`http://localhost:8000/report/${activeId}`);
+      const repRes = await fetch(`/api/report/${activeId}`);
       setData(await repRes.json());
     } catch (err) {
       alert('Failed to delete transaction');
@@ -590,13 +590,13 @@ function App() {
       return;
     }
     try {
-      await fetch(`http://localhost:8000/portfolios/transactions/${activeId}`, {
+      await fetch(`/api/portfolios/transactions/${activeId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(compNewAsset)
       });
       handleOpenCompModal();
-      const repRes = await fetch(`http://localhost:8000/report/${activeId}`);
+      const repRes = await fetch(`/api/report/${activeId}`);
       setData(await repRes.json());
     } catch (err) {
       alert('Failed to add asset');
@@ -633,7 +633,7 @@ function App() {
   const handleExportDividendsCSV = async () => {
     if (!activeId) return;
     try {
-      const res = await fetch(`http://localhost:8000/portfolios/dividends/export/${activeId}`);
+      const res = await fetch(`/api/portfolios/dividends/export/${activeId}`);
       if (!res.ok) throw new Error("Failed to fetch dividends");
       const divs = await res.json();
       
@@ -697,7 +697,7 @@ function App() {
     }
     setReportLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/lab/generate-report', {
+      const res = await fetch('/api/lab/generate-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -756,7 +756,7 @@ function App() {
   // ─── Scenarios: Save / Load / Delete ───────────────────────────────────────
   const fetchSavedScenarios = async () => {
     try {
-      const res = await fetch('http://localhost:8000/lab/scenarios');
+      const res = await fetch('/api/lab/scenarios');
       if (!res.ok) { console.warn('fetchSavedScenarios: backend not ready (status', res.status, ')'); return; }
       const data = await res.json();
       setSavedScenarios(Array.isArray(data) ? data : []);
@@ -788,7 +788,7 @@ function App() {
         withdrawal: labMcSettings.withdrawal,
         years: labMcSettings.years,
       };
-      const res = await fetch('http://localhost:8000/lab/scenarios/save', {
+      const res = await fetch('/api/lab/scenarios/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -814,7 +814,7 @@ function App() {
 
   const handleLoadScenario = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8000/lab/scenarios/${id}`);
+      const res = await fetch(`/api/lab/scenarios/${id}`);
       const data = await res.json();
       // Restore assets, weights, settings
       setLabIsins(data.assets);
@@ -848,7 +848,7 @@ function App() {
 
   const handleDeleteScenario = async (id) => {
     if (!window.confirm('确认删除此方案？此操作不可撤销。')) return;
-    await fetch(`http://localhost:8000/lab/scenarios/${id}`, { method: 'DELETE' });
+    await fetch(`/api/lab/scenarios/${id}`, { method: 'DELETE' });
     fetchSavedScenarios();
   };
   // ───────────────────────────────────────────────────────────────────────────
@@ -911,7 +911,7 @@ function App() {
 
       if (submitCustomWeights) payload.custom_weights = submitCustomWeights;
       
-      const res = await fetch('http://localhost:8000/lab/analyze', {
+      const res = await fetch('/api/lab/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
