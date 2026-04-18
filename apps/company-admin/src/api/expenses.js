@@ -74,7 +74,7 @@ export const expensesApi = {
 
   // 导出支出明细（触发浏览器下载，直接请求后端避免 Vite 代理问题）
   exportUrl: (companyId, format = 'excel', filters = {}) => {
-    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    const BASE = import.meta.env.VITE_API_BASE_URL || ''  // 生产环境使用相对路径，由 nginx 代理
     const params = new URLSearchParams({ company_id: companyId, format })
     if (filters.status)        params.append('status', filters.status)
     if (filters.fiscal_year)   params.append('fiscal_year', filters.fiscal_year)

@@ -32,3 +32,4 @@ futu-api
 python-docx
 openpyxl>=3.1.0          # Excel 导出功能（expenses 模块）
 requests-cache==1.2.0
+akshare>=1.12.0            # A股数据网关（FIP 模块懒加载）
