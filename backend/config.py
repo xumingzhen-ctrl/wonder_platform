@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
     APP_NAME: str = "HK Admin System"
 
+    # ── CORS 跨域配置 ─────────────────────────────────────────────
+    # 本地开发默认值；生产环境在 .env 中以逗号分隔追加公网地址
+    # 例如：CORS_ORIGINS=http://1.2.3.4,http://1.2.3.4:5174,http://1.2.3.4:5175
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5174,http://localhost:5175"
+
     # ── AI 服务配置 ──────────────────────────────────────────────
     DEEPSEEK_API_KEY: str = ""
     OPENROUTER_API_KEY: str = ""
