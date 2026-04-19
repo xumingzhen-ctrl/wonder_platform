@@ -11,6 +11,7 @@ export interface BlogPost {
   date: string;
   summary: string;
   tags: string[];
+  category: string;
   author: string;
   readingTime: number;
   content: string;
@@ -87,6 +88,7 @@ export function getAllPostsMeta(): BlogPostMeta[] {
       date: data.date || "2026-01-01",
       summary: data.summary || content.slice(0, 120) + "...",
       tags: data.tags || [],
+      category: data.category || "未分类",
       author: data.author || "WONDER 研究团队",
       readingTime: calcReadingTime(content),
     } as BlogPostMeta;
@@ -119,6 +121,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
     date: data.date || "2026-01-01",
     summary: data.summary || content.slice(0, 120) + "...",
     tags: data.tags || [],
+    category: data.category || "未分类",
     author: data.author || "WONDER 研究团队",
     readingTime: calcReadingTime(content),
     content,

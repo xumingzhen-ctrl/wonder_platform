@@ -1,15 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // output: "export" 在正式部署构建时启用
-  // 本地开发时注释掉此行以获得完整的 Next.js 功能
-  typescript: {
-    ignoreBuildErrors: true,
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://localhost:8000/api/:path*",
+      },
+    ]
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-//  ...(process.env.NODE_ENV === "production" ? { output: "export" } : {}),
 };
 
 export default nextConfig;

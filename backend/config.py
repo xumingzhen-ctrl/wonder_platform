@@ -30,11 +30,18 @@ class Settings(BaseSettings):
     STATEMENTS_ARCHIVE_PATH: str = "./statements_archive" # 处理完成归档目录
     STATEMENTS_ERROR_PATH: str = "./statements_error"     # 处理失败隔离目录
 
-    # ── 公司配置 ─────────────────────────────────────────────────
+    # ── 公司配置 ─────────────────────────────────────────────
     DEFAULT_COMPANY_ID: str = ""   # inbox 扫描时使用的默认公司 ID
 
     # ── inbox 并发扫描设置 ───────────────────────────────────────
     INBOX_SCAN_CONCURRENCY: int = 3   # 并发处理数（避免 API 速率限制）
+
+    # ── 财富问卷通知推送配置 ─────────────────────────────────────
+    TELEGRAM_BOT_TOKEN: str = ""           # Telegram Bot Token
+    TELEGRAM_ADMIN_CHAT_ID: str = ""       # 管理员 Chat ID（个人或群组）
+    GMAIL_SENDER: str = ""                 # Gmail 发件人地址
+    GMAIL_APP_PASSWORD: str = ""           # Gmail 应用专用密码（非登录密码）
+    ADMIN_EMAIL: str = ""                  # 管理员收件邮箱
 
     class Config:
         env_file = ".env"

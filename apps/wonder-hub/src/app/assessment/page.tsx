@@ -33,9 +33,12 @@ export default function AssessmentIndex() {
             <p className="text-xl text-foreground/80 font-light mb-10 flex-1 leading-relaxed">
               通过标准的财务问卷，评估您的资产负债表与收支流水。我们将出具一份基础的健康风险报告，帮您查漏补缺。
             </p>
-            <Button size="lg" className="w-full h-16 rounded-2xl bg-primary text-primary-foreground hover:opacity-90 text-xl font-medium shadow-sm">
+            <Link
+              href="/assessment/questionnaire"
+              className="w-full h-16 rounded-2xl bg-primary text-primary-foreground hover:opacity-90 text-xl font-medium shadow-sm flex items-center justify-center"
+            >
               开始评估问卷
-            </Button>
+            </Link>
           </div>
 
           {/* Simulation Card */}

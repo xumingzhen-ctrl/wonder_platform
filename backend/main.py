@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from database import Base, engine
 import models  # 确保所有模型都被注册
 from routers import auth, companies, clients, invoices, expenses, commissions, financials, compliance, hr, leases, fip_router
+from routers.assessment_router import router as assessment_router
 from config import settings, ensure_receipt_dirs, ensure_statement_dirs
 
 # 创建所有数据表
@@ -39,6 +40,7 @@ app.include_router(compliance.router)
 app.include_router(hr.router)
 app.include_router(leases.router)
 app.include_router(fip_router.router)
+app.include_router(assessment_router)
 
 # 静态文件服务：收据归档
 archive_path = Path(settings.RECEIPTS_ARCHIVE_PATH)
