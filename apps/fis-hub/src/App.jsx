@@ -485,7 +485,7 @@ function App() {
     e.preventDefault();
     await fetch(`/api/portfolios/dividend/manual/${activeId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ isin: mDiv.isin, date: mDiv.date, amount_per_share: parseFloat(mDiv.amount) })
     });
     setShowDivModal(false);
@@ -511,8 +511,8 @@ function App() {
   const handleDeleteManualDividend = async (divId) => {
     if (!window.confirm("Are you sure you want to delete this manual dividend?")) return;
     try {
-      await fetch(`/api/dividends/manual/${divId}`, { method: 'DELETE' });
-      const res = await fetch(`/api/portfolios/dividends/export/${activeId}`);
+      await fetch(`/api/dividends/manual/${divId}`, { method: 'DELETE', headers: authHeaders() });
+      const res = await fetch(`/api/portfolios/dividends/export/${activeId}`, { headers: authHeaders() });
       setDividendHistory(await res.json());
       
       const repRes = await fetch(`/api/report/${activeId}`);
@@ -1116,6 +1116,7 @@ function App() {
       <DividendModal
         showDivModal={showDivModal} setShowDivModal={setShowDivModal}
         mDiv={mDiv} setMDiv={setMDiv} handleManualDiv={handleManualDiv}
+        data={activePortfolio}
       />
       <DeleteModal
         showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DividendModal = ({ showDivModal, setShowDivModal, mDiv, setMDiv, handleManualDiv }) => {
+const DividendModal = ({ showDivModal, setShowDivModal, mDiv, setMDiv, handleManualDiv, data }) => {
   if (!showDivModal) return null;
   return (
         <div className="modal-overlay">
