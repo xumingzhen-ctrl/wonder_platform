@@ -1116,7 +1116,7 @@ function App() {
       <DividendModal
         showDivModal={showDivModal} setShowDivModal={setShowDivModal}
         mDiv={mDiv} setMDiv={setMDiv} handleManualDiv={handleManualDiv}
-        data={activePortfolio}
+        data={data}
       />
       <DeleteModal
         showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal}
