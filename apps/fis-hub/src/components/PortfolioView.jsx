@@ -26,7 +26,9 @@ const PortfolioView = ({
   // Handlers
   handleExportCSV, handleExportDividendsCSV,
   handleOpenCompModal, handleOpenManageDivModal,
-  handleRebalancePreview, handleUndoRebalance
+  handleRebalancePreview, handleUndoRebalance,
+  // Permissions
+  canEdit
 }) => {
   // Re-export the formatter functions for convenience inside JSX
   const fx = data?.usd_to_base_fx || 1;
@@ -41,13 +43,15 @@ const PortfolioView = ({
                 <div>
                   <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                     <h1 style={{textAlign: 'left', margin: 0}}>{portfolios.find(p => p.id === activeId)?.name}</h1>
-                    <button
-                      title="Rename portfolio"
-                      onClick={() => { setRenameDraft(portfolios.find(p => p.id === activeId)?.name || ''); setShowRenameModal(true); }}
-                      style={{background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#818cf8', display: 'flex', alignItems: 'center'}}
-                    >
-                      <Edit3 size={16} />
-                    </button>
+                    {canEdit && (
+                      <button
+                        title="Rename portfolio"
+                        onClick={() => { setRenameDraft(portfolios.find(p => p.id === activeId)?.name || ''); setShowRenameModal(true); }}
+                        style={{background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#818cf8', display: 'flex', alignItems: 'center'}}
+                      >
+                        <Edit3 size={16} />
+                      </button>
+                    )}
                   </div>
                   <p className="header-subtitle">
                     <Calendar size={14} /> 
@@ -62,21 +66,25 @@ const PortfolioView = ({
                   <button onClick={handleExportDividendsCSV} className="action-btn-secondary" title="Export Dividends to CSV">
                     <Camera size={16} /> Export Dividends
                   </button>
-                  <button onClick={handleRebalancePreview} className="action-btn-secondary">
-                    <TrendingUp size={16} /> Rebalance
-                  </button>
-                  <button onClick={handleUndoRebalance} className="action-btn-secondary" title="Undo Latest Trades">
-                    <Undo2 size={16} /> Undo Trades
-                  </button>
-                  <button onClick={handleOpenCompModal} className="action-btn-secondary" title="Portfolio Composition Management">
-                    <Briefcase size={16} /> Composition
-                  </button>
-                  <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title="Dividend Management">
-                    <Settings size={16} /> Dividends
-                  </button>
-                  <button onClick={() => setShowDivModal(true)} className="action-btn-secondary">
-                    <DollarSign size={16} /> Add Dividend
-                  </button>
+                  {canEdit && (
+                    <>
+                      <button onClick={handleRebalancePreview} className="action-btn-secondary">
+                        <TrendingUp size={16} /> Rebalance
+                      </button>
+                      <button onClick={handleUndoRebalance} className="action-btn-secondary" title="Undo Latest Trades">
+                        <Undo2 size={16} /> Undo Trades
+                      </button>
+                      <button onClick={handleOpenCompModal} className="action-btn-secondary" title="Portfolio Composition Management">
+                        <Briefcase size={16} /> Composition
+                      </button>
+                      <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title="Dividend Management">
+                        <Settings size={16} /> Dividends
+                      </button>
+                      <button onClick={() => setShowDivModal(true)} className="action-btn-secondary">
+                        <DollarSign size={16} /> Add Dividend
+                      </button>
+                    </>
+                  )}
                 </div>
               </header>
 
@@ -482,14 +490,16 @@ const PortfolioView = ({
                   <h3 style={{color: '#9ca3af', marginBottom: '8px'}}>No Dividend Data Available</h3>
                   <p style={{color: 'rgba(255,255,255,0.3)', maxWidth: '480px', margin: '0 auto 20px', fontSize: '0.9rem', lineHeight: 1.6}}>
                     This portfolio's holdings (e.g. LU-ISIN funds) are not covered by the automatic dividend data source (yfinance).
-                    <br/>You can manually record dividends using the <strong style={{color: '#818cf8'}}>Dividends → Add Dividend</strong> button above.
+                    {canEdit && <><br/>You can manually record dividends using the <strong style={{color: '#818cf8'}}>Dividends → Add Dividend</strong> button above.</>}
                   </p>
-                  <button
-                    onClick={() => setShowDivModal(true)}
-                    style={{background: 'linear-gradient(135deg, #6366f1, #a855f7)', border: 'none', borderRadius: '8px', padding: '10px 24px', color: '#fff', cursor: 'pointer', fontWeight: 600}}
-                  >
-                    + Add Manual Dividend
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={() => setShowDivModal(true)}
+                      style={{background: 'linear-gradient(135deg, #6366f1, #a855f7)', border: 'none', borderRadius: '8px', padding: '10px 24px', color: '#fff', cursor: 'pointer', fontWeight: 600}}
+                    >
+                      + Add Manual Dividend
+                    </button>
+                  )}
                 </div>
               )}
             </div>

@@ -53,10 +53,49 @@ def require_premium():
     return require_role("premium")
 
 def assert_advisor_owns_client(advisor_id, client_id):
-    pass # To be implemented or bridged
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM advisor_clients WHERE advisor_id = ? AND client_id = ? AND is_active = 1", (str(advisor_id), str(client_id)))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=403, detail="Not authorized for this client")
 
-def assert_portfolio_access(portfolio_id, user):
-    pass # To be implemented or bridged
+def assert_portfolio_access(portfolio_id: int, user: dict):
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+        
+    role = user.get("role")
+    user_id = str(user.get("id"))
+    
+    if role == "admin":
+        return
+        
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM portfolios WHERE id = ?", (portfolio_id,))
+    row = cursor.fetchone()
+    
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+        
+    portfolio_owner_id = str(row[0]) if row[0] else None
+    
+    if portfolio_owner_id == user_id:
+        conn.close()
+        return
+        
+    if role == "advisor":
+        cursor.execute("SELECT 1 FROM advisor_clients WHERE advisor_id = ? AND client_id = ? AND is_active = 1", (user_id, portfolio_owner_id))
+        is_client = cursor.fetchone()
+        conn.close()
+        if is_client:
+            return
+        raise HTTPException(status_code=403, detail="Permission denied. Not authorized for this client's portfolio.")
+        
+    conn.close()
+    raise HTTPException(status_code=403, detail="Permission denied. You can only modify your own portfolio.")
 
 import logging
 
@@ -328,7 +367,8 @@ def delete_scenario(scenario_id: int):
 def list_portfolios(request: Request):
     """
     获取组合列表，根据角色过滤可见性：
-    - admin / advisor：返回所有组合
+    - admin：返回所有组合
+    - advisor：返回其对应的客户组合 + 属于自己的组合 + is_public=1
     - premium / free / 未登录：只返回 is_public=1 的公开组合，或属于自己的组合
     """
     from services.auth import get_optional_user
@@ -339,8 +379,16 @@ def list_portfolios(request: Request):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    if role in ("admin", "advisor"):
+    if role == "admin":
         cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios ORDER BY id")
+    elif role == "advisor":
+        cursor.execute("""
+            SELECT p.id, p.name, p.created_at, p.dividend_strategy, p.is_public, p.user_id 
+            FROM portfolios p
+            LEFT JOIN advisor_clients ac ON p.user_id = ac.client_id AND ac.advisor_id = ? AND ac.is_active = 1
+            WHERE p.is_public=1 OR p.user_id=? OR ac.client_id IS NOT NULL
+            ORDER BY p.id
+        """, (user_id, user_id))
     else:
         cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios WHERE is_public=1 OR user_id=? ORDER BY id", (user_id,))
     rows = cursor.fetchall()
@@ -454,7 +502,8 @@ def create_portfolio(req: NewPortfolioRequest, request: Request):
         conn.close()
 
 @router.put("/portfolios/{id}")
-def update_portfolio(id: int, req: UpdatePortfolioRequest):
+def update_portfolio(id: int, req: UpdatePortfolioRequest, user: dict = Depends(get_current_user)):
+    assert_portfolio_access(id, user)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     if req.name:
@@ -495,10 +544,16 @@ def get_portfolio_transactions(id: int):
     return {"transactions": txs, "target_allocations": target_allocations}
 
 @router.put("/portfolios/transactions/{tx_id}")
-def update_transaction(tx_id: int, req: UpdateTransactionRequest):
+def update_transaction(tx_id: int, req: UpdateTransactionRequest, user: dict = Depends(get_current_user)):
     """Update a specific transaction's ISIN, shares, or price."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    cursor.execute("SELECT portfolio_id FROM transactions WHERE id = ?", (tx_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    assert_portfolio_access(row[0], user)
     updates = []
     params = []
     if req.isin is not None:
@@ -518,8 +573,9 @@ def update_transaction(tx_id: int, req: UpdateTransactionRequest):
     return {"status": "success"}
 
 @router.post("/portfolios/transactions/{portfolio_id}")
-def add_transaction(portfolio_id: int, req: AddAssetRequest):
+def add_transaction(portfolio_id: int, req: AddAssetRequest, user: dict = Depends(get_current_user)):
     """Add a new asset (BUY transaction) to an existing portfolio."""
+    assert_portfolio_access(portfolio_id, user)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     date_str = req.date or datetime.now().strftime("%Y-%m-%d")
@@ -538,17 +594,24 @@ def add_transaction(portfolio_id: int, req: AddAssetRequest):
     return {"status": "success"}
 
 @router.delete("/portfolios/transactions/{tx_id}")
-def delete_transaction(tx_id: int):
+def delete_transaction(tx_id: int, user: dict = Depends(get_current_user)):
     """Delete a specific transaction."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    cursor.execute("SELECT portfolio_id FROM transactions WHERE id = ?", (tx_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    assert_portfolio_access(row[0], user)
     cursor.execute("DELETE FROM transactions WHERE id = ?", (tx_id,))
     conn.commit()
     conn.close()
     return {"status": "success"}
 
 @router.delete("/portfolios/{id}")
-def delete_portfolio(id: int):
+def delete_portfolio(id: int, user: dict = Depends(get_current_user)):
+    assert_portfolio_access(id, user)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM transactions WHERE portfolio_id = ?", (id,))
@@ -574,7 +637,8 @@ def get_rebalance_preview(id: int, as_of_date: Optional[str] = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/portfolios/rebalance/{id}")
-def trigger_rebalance(id: int, req: RebalanceExecuteRequest = None):
+def trigger_rebalance(id: int, req: RebalanceExecuteRequest = None, user: dict = Depends(get_current_user)):
+    assert_portfolio_access(id, user)
     try:
         engine = PortfolioEngine(id)
         as_of_date = req.as_of_date if req else None
@@ -584,11 +648,12 @@ def trigger_rebalance(id: int, req: RebalanceExecuteRequest = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/portfolios/rebalance/undo/{id}")
-def undo_latest_transactions(id: int):
+def undo_latest_transactions(id: int, user: dict = Depends(get_current_user)):
     """
     Finds the latest transaction date for the portfolio and deletes all transactions
     on that date. This effectively acts as an 'Undo Rebalance' or 'Undo Latest Batch'.
     """
+    assert_portfolio_access(id, user)
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -619,7 +684,8 @@ def undo_latest_transactions(id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/portfolios/dividend/manual/{id}")
-def add_manual_dividend(id: int, req: ManualDividendRequest):
+def add_manual_dividend(id: int, req: ManualDividendRequest, user: dict = Depends(get_current_user)):
+    assert_portfolio_access(id, user)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(
@@ -631,9 +697,15 @@ def add_manual_dividend(id: int, req: ManualDividendRequest):
     return {"status": "success"}
 
 @router.delete("/dividends/manual/{div_id}")
-def delete_manual_dividend(div_id: int):
+def delete_manual_dividend(div_id: int, user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    cursor.execute("SELECT portfolio_id FROM manual_dividends WHERE id = ?", (div_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Dividend not found")
+    assert_portfolio_access(row[0], user)
     cursor.execute("DELETE FROM manual_dividends WHERE id = ?", (div_id,))
     conn.commit()
     conn.close()

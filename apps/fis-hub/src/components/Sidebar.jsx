@@ -10,7 +10,7 @@ const Sidebar = ({
   setShowModal, setShowBrokerImport, setShowBrokerSync,
   setDeleteCandidate, setShowDeleteModal,
   savedScenarios, handleLoadScenario, handleDeleteScenario,
-  currentUser,
+  currentUser, canEditPortfolio
 }) => {
   const isAdmin   = currentUser?.role === 'admin';
   const isAdvisor = currentUser?.role === 'advisor' || isAdmin;
@@ -73,7 +73,9 @@ const Sidebar = ({
               <div className="date">{pf.dividend_strategy} Strategy</div>
             </div>
             <div className="actions">
-              <Trash2 size={14} className="action-icon" onClick={(e) => { e.stopPropagation(); setDeleteCandidate(pf.id); setShowDeleteModal(true); }} />
+              {canEditPortfolio && canEditPortfolio(pf) && (
+                <Trash2 size={14} className="action-icon" onClick={(e) => { e.stopPropagation(); setDeleteCandidate(pf.id); setShowDeleteModal(true); }} />
+              )}
             </div>
           </div>
         ))}

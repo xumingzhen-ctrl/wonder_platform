@@ -373,7 +373,10 @@ function App() {
 
   const handleDelete = async () => {
     if (!deleteCandidate) return;
-    await fetch(`/api/portfolios/${deleteCandidate}`, { method: 'DELETE' });
+    await fetch(`/api/portfolios/${deleteCandidate}`, { 
+      method: 'DELETE',
+      headers: authHeaders()
+    });
     setShowDeleteModal(false);
     // Don't set activeId to null here. fetchPortfolios will automatically detect 
     // that the currentId is missing from the new list and fallback to the first available.
@@ -386,7 +389,7 @@ function App() {
     if (!renameDraft.trim()) return;
     await fetch(`/api/portfolios/${activeId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ name: renameDraft.trim() })
     });
     setShowRenameModal(false);
@@ -402,7 +405,8 @@ function App() {
     setUndoConfirmOpen(false);
     try {
       const res = await fetch(`/api/portfolios/rebalance/undo/${activeId}`, {
-        method: 'POST'
+        method: 'POST',
+        headers: authHeaders()
       });
       const data = await res.json();
       if (data.status === 'success') {
@@ -447,7 +451,7 @@ function App() {
     try {
       const rbRes = await fetch(`/api/portfolios/rebalance/${activeId}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ as_of_date: rebalanceDate || null })
       });
       if (!rbRes.ok) {
@@ -527,7 +531,7 @@ function App() {
   const handleOpenCompModal = async () => {
     if (!activeId) return;
     try {
-      const res = await fetch(`/api/portfolios/transactions/${activeId}`);
+      const res = await fetch(`/api/portfolios/transactions/${activeId}`, { headers: authHeaders() });
       if (!res.ok) throw new Error('Failed to fetch transactions');
       const result = await res.json();
       setCompTxs(result.transactions || []);
@@ -560,7 +564,7 @@ function App() {
       if (Object.keys(txUpdate).length > 0) {
         await fetch(`/api/portfolios/transactions/${txId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify(txUpdate)
         });
       }
@@ -571,7 +575,7 @@ function App() {
         const newTargets = { ...compTargets, [isin]: parseFloat(edits.target_weight) };
         await fetch(`/api/portfolios/${activeId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ target_allocations: newTargets })
         });
       }
@@ -588,7 +592,7 @@ function App() {
   const handleCompDelete = async (txId) => {
     if (!window.confirm('Delete this transaction? This cannot be undone.')) return;
     try {
-      await fetch(`/api/portfolios/transactions/${txId}`, { method: 'DELETE' });
+      await fetch(`/api/portfolios/transactions/${txId}`, { method: 'DELETE', headers: authHeaders() });
       handleOpenCompModal();
       const repRes = await fetch(`/api/report/${activeId}`);
       setData(await repRes.json());
@@ -605,7 +609,7 @@ function App() {
     try {
       await fetch(`/api/portfolios/transactions/${activeId}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify(compNewAsset)
       });
       handleOpenCompModal();
@@ -970,6 +974,19 @@ function App() {
     }
   };
 
+  const canEditPortfolio = (pf) => {
+    if (!pf) return false;
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return true;
+    if (pf.user_id === currentUser.id) return true;
+    if (currentUser.role === 'advisor' && !pf.is_public && pf.user_id !== currentUser.id) {
+      return true;
+    }
+    return false;
+  };
+  const activePf = portfolios.find(p => p.id === activeId);
+  const canEditActive = canEditPortfolio(activePf);
+
   return (
     <div className="app-layout">
       {/* ── Top Header Bar ── */}
@@ -1037,7 +1054,7 @@ function App() {
         setShowModal={setShowModal} setShowBrokerImport={setShowBrokerImport} setShowBrokerSync={setShowBrokerSync}
         setDeleteCandidate={setDeleteCandidate} setShowDeleteModal={setShowDeleteModal}
         savedScenarios={savedScenarios} handleLoadScenario={handleLoadScenario} handleDeleteScenario={handleDeleteScenario}
-        currentUser={currentUser} setActiveTab={setActiveTab}
+        currentUser={currentUser} canEditPortfolio={canEditPortfolio}
       />
 
       {/* Main Content */}
@@ -1095,6 +1112,7 @@ function App() {
               handleExportCSV={handleExportCSV} handleExportDividendsCSV={handleExportDividendsCSV}
               handleOpenCompModal={handleOpenCompModal} handleOpenManageDivModal={handleOpenManageDivModal}
               handleRebalancePreview={handleRebalancePreview} handleUndoRebalance={handleUndoRebalance}
+              canEdit={canEditActive}
             />
           ) : (
             <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>Data Unavailable</h2><p>Please select a different portfolio.</p></div>
