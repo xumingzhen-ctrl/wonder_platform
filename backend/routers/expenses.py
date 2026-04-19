@@ -13,7 +13,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models.company import User
+from models.company import User, UserCompanyAccess
 from models.expense import Expense, ExpenseCategory, ExpenseStatus, ReceiptType
 from services.auth import get_current_user
 from services.receipt_scanner import scan_receipt
@@ -29,6 +29,13 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/expenses", tags=["支出管理"])
 
+def _check_company_access(company_id: str, user: User, db: Session):
+    access = db.query(UserCompanyAccess).filter(
+        UserCompanyAccess.company_id == company_id,
+        UserCompanyAccess.user_id == user.id
+    ).first()
+    if not access:
+        raise HTTPException(status_code=403, detail="无此公司访问权限")
 
 # ── 种子数据注入（在分类表为空时自动初始化）────────────────────────
 
@@ -201,8 +208,10 @@ async def add_expense_manual(
     description: Optional[str] = Form(None),
     notes: Optional[str] = Form(None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """手动记账（无收据图片）"""
+    _check_company_access(company_id, current_user, db)
     _ensure_categories(db)
     
     category = db.query(ExpenseCategory).filter(ExpenseCategory.code == category_code).first()
@@ -218,12 +227,13 @@ async def add_expense_manual(
     fiscal_year = calculate_fiscal_year(parsed_date)
     amount_hkd = convert_to_hkd(total_amount, currency)
     
-    # 自动生成一个带 MANUAL 前缀的凭证号
     count = db.query(Expense).filter(
         Expense.company_id == company_id,
         Expense.receipt_date == parsed_date
     ).count() + 1
-    voucher_number = f"EXP-{parsed_date.strftime('%Y%m')}-M{count:03d}"
+    import uuid
+    short_uuid = str(uuid.uuid4())[:6].upper()
+    voucher_number = f"EXP-{parsed_date.strftime('%Y%m')}-M{count:03d}-{short_uuid}"
     
     expense = Expense(
         company_id=company_id,
@@ -309,8 +319,10 @@ def list_expenses(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """支出记录列表查询（支持多维筛选）"""
+    _check_company_access(company_id, current_user, db)
     query = db.query(Expense).filter(Expense.company_id == company_id)
 
     if fiscal_year:
@@ -349,8 +361,10 @@ def stats_by_category(
     company_id: str = Query(...),
     fiscal_year: Optional[str] = Query(None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """按分类的支出统计"""
+    _check_company_access(company_id, current_user, db)
     query = db.query(
         ExpenseCategory.code,
         ExpenseCategory.name_zh,
@@ -383,8 +397,10 @@ def stats_by_category(
 def stats_by_fiscal_year(
     company_id: str = Query(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """按财政年度的支出汇总"""
+    _check_company_access(company_id, current_user, db)
     results = db.query(
         Expense.fiscal_year,
         func.count(Expense.id).label("count"),
@@ -414,11 +430,13 @@ def export_expenses(
     fiscal_year: Optional[str] = None,
     category_code: Optional[str] = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     导出支出明细为 Excel (.xlsx) 或 CSV 文件。
     支持与列表页相同的筛选条件。
     """
+    _check_company_access(company_id, current_user, db)
     # ── 查询 ──────────────────────────────────────────────────────
     q = db.query(Expense).filter(Expense.company_id == company_id)
     if status:
@@ -573,11 +591,16 @@ def export_expenses(
 
 
 @router.get("/{expense_id}")
-def get_expense(expense_id: str, db: Session = Depends(get_db)):
+def get_expense(
+    expense_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """获取单条支出记录详情"""
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
     if not expense:
         raise HTTPException(status_code=404, detail="记录不存在")
+    _check_company_access(expense.company_id, current_user, db)
     return _expense_to_dict(expense, db)
 
 
@@ -592,11 +615,13 @@ def update_expense(
     category_code: Optional[str] = Form(None),
     notes: Optional[str] = Form(None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """人工修正 AI 识别结果"""
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
     if not expense:
         raise HTTPException(status_code=404, detail="记录不存在")
+    _check_company_access(expense.company_id, current_user, db)
 
     if vendor_name is not None:
         expense.vendor_name = vendor_name
@@ -629,11 +654,16 @@ def update_expense(
 
 
 @router.put("/{expense_id}/confirm")
-def confirm_expense(expense_id: str, db: Session = Depends(get_db)):
+def confirm_expense(
+    expense_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """确认支出记录（pending → confirmed）"""
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
     if not expense:
         raise HTTPException(status_code=404, detail="记录不存在")
+    _check_company_access(expense.company_id, current_user, db)
 
     expense.status = ExpenseStatus.confirmed
     db.commit()
@@ -641,11 +671,17 @@ def confirm_expense(expense_id: str, db: Session = Depends(get_db)):
 
 
 @router.put("/{expense_id}/reject")
-def reject_expense(expense_id: str, reason: Optional[str] = Form(None), db: Session = Depends(get_db)):
+def reject_expense(
+    expense_id: str,
+    reason: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """驳回支出记录（识别错误/重复）"""
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
     if not expense:
         raise HTTPException(status_code=404, detail="记录不存在")
+    _check_company_access(expense.company_id, current_user, db)
 
     expense.status = ExpenseStatus.rejected
     if reason:
@@ -655,11 +691,16 @@ def reject_expense(expense_id: str, reason: Optional[str] = Form(None), db: Sess
 
 
 @router.delete("/{expense_id}")
-def delete_expense(expense_id: str, db: Session = Depends(get_db)):
+def delete_expense(
+    expense_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """彻底删除支出记录及其文件记录"""
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
     if not expense:
         raise HTTPException(status_code=404, detail="记录不存在")
+    _check_company_access(expense.company_id, current_user, db)
 
     # 物理删除凭证文件
     if expense.receipt_image_path:

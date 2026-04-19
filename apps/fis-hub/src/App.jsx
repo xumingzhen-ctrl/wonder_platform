@@ -371,13 +371,8 @@ function App() {
     if (!deleteCandidate) return;
     await fetch(`/api/portfolios/${deleteCandidate}`, { method: 'DELETE' });
     setShowDeleteModal(false);
-    
-    // Clear active state immediately if we deleted the currently viewed portfolio
-    if (activeId === deleteCandidate) {
-      setActiveId(null);
-      setData(null);
-    }
-    
+    // Don't set activeId to null here. fetchPortfolios will automatically detect 
+    // that the currentId is missing from the new list and fallback to the first available.
     setDeleteCandidate(null);
     fetchPortfolios(); // This will auto-select the first available if activeId is now null or invalid
   };

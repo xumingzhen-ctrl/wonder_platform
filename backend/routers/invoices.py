@@ -237,7 +237,7 @@ def create_invoice(
         company_id=company_id,
         invoice_number=invoice_number,
         invoice_type=data.invoice_type,
-        client_id=data.client_id,
+        client_id=str(data.client_id) if data.client_id else None,
         client_name=data.client_name,
         client_address=data.client_address,
         client_email=data.client_email,

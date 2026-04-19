@@ -227,7 +227,9 @@ def confirm_ir56m(
     current_user=Depends(get_current_user),
 ):
     _check_access(company_id, current_user, db)
-    stmt = db.query(IR56MStatement).filter(IR56MStatement.id == stmt_id).first()
+    stmt = db.query(IR56MStatement).filter(IR56MStatement.id == stmt_id, IR56MStatement.company_id == company_id).first()
+    if not stmt:
+        raise HTTPException(status_code=404, detail="IR56M记录不存在")
     stmt.status = CommissionStatus.confirmed
     db.commit()
     return {"status": "confirmed"}

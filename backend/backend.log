@@ -1,12 +1,203 @@
-INFO:     Will watch for changes in these directories: ['/Users/derek/Projects/Company Admin/backend']
+INFO:     Will watch for changes in these directories: ['/Users/derek/Projects/Wonder_Platform/backend']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [19899] using WatchFiles
-INFO:     Started server process [19902]
+INFO:     Started reloader process [27573] using WatchFiles
+2026-04-19 09:13:51 [WARNING] plugins.akshare_gateway: AKShare is not installed. Gateway will return empty defaults.
+2026-04-19 09:13:51 [INFO] services.fip.broker_price_provider: BrokerPriceProvider: configured Futu=127.0.0.1:11111
+2026-04-19 09:13:51 [INFO] routers.fip_router: BrokerPriceProvider configured (Futu → IB → yfinance priority chain).
+2026-04-19 09:13:51 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-19 09:13:51 [INFO] apscheduler.scheduler: Added job "update_daily_prices" to job store "default"
+2026-04-19 09:13:51 [INFO] apscheduler.scheduler: Scheduler started
+2026-04-19 09:13:51 [INFO] routers.fip_router: Background scheduler started correctly.
+INFO:     Started server process [27575]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     127.0.0.1:53227 - "GET /portfolios HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:53227 - "GET /portfolios HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:53247 - "GET /portfolios HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:53247 - "GET /portfolios HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:53480 - "GET /portfolios HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:53480 - "GET /portfolios HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63477 - "GET /heartbeat/1011 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63479 - "POST /auth/register HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63480 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63481 - "POST /auth/register HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63482 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63483 - "POST /companies/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63484 - "POST /companies/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63485 - "POST /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/clients/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63486 - "POST /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/invoices/ HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63486 - "POST /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/invoices HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63487 - "POST /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/invoices/deb78bb9-26cb-440c-bd46-d5600748a063/payments HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63488 - "POST /expenses/manual HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: UNIQUE constraint failed: expenses.voucher_number
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Wonder_Platform/backend/routers/expenses.py", line 254, in add_expense_manual
+    db.commit()
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2028, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1313, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1288, in _prepare_impl
+    self.session.flush()
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4352, in flush
+    self._flush(objects)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4487, in _flush
+    with util.safe_reraise():
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4448, in _flush
+    flush_context.execute()
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: expenses.voucher_number
+[SQL: INSERT INTO expenses (id, company_id, voucher_number, receipt_type, receipt_date, upload_date, vendor_name, vendor_tax_id, vendor_address, description, currency, amount_original, tax_rate, tax_amount, total_amount, amount_hkd, cn_invoice_code, cn_invoice_number, category_id, ai_confidence, ai_raw_response, receipt_image_path, receipt_original_filename, source_format, file_hash, fiscal_year, source_type, source_ref, status, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('2600f340-80a6-4697-91ec-30a41ec1e72d', '450b71e3-2bf5-47c4-930c-6acf93860b45', 'EXP-202403-M001', 'other', '2024-03-05', '2026-04-19 01:13:54.651682', 'Supplier Y', None, None, None, 'HKD', None, None, None, 1000.0, 1000.0, None, None, '1b33b117-924d-4b50-81a8-092b8767c4ca', None, None, None, None, None, None, '2023-24', 'manual', None, 'confirmed', None, '2026-04-19 01:13:54.651686', '2026-04-19 01:13:54.651687')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+INFO:     127.0.0.1:63489 - "POST /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/hr/employees HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63490 - "POST /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/hr/payroll/generate?month=2024-03 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63491 - "POST /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/commissions/manual?statement_month=2024-03&income_source=Referral&amount=8000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63492 - "GET /companies/450b71e3-2bf5-47c4-930c-6acf93860b45 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63493 - "PUT /companies/450b71e3-2bf5-47c4-930c-6acf93860b45 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63494 - "GET /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/invoices/ HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63494 - "GET /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/invoices HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63495 - "GET /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/invoices/deb78bb9-26cb-440c-bd46-d5600748a063 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63496 - "GET /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/clients/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63497 - "GET /expenses/?company_id=450b71e3-2bf5-47c4-930c-6acf93860b45 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63498 - "GET /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/hr/employees HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63499 - "GET /companies/450b71e3-2bf5-47c4-930c-6acf93860b45/commissions/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63516 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63520 - "GET /heartbeat/1011 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63531 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'routers/expenses.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [27575]
+2026-04-19 09:14:12 [WARNING] plugins.akshare_gateway: AKShare is not installed. Gateway will return empty defaults.
+2026-04-19 09:14:13 [INFO] services.fip.broker_price_provider: BrokerPriceProvider: configured Futu=127.0.0.1:11111
+2026-04-19 09:14:13 [INFO] routers.fip_router: BrokerPriceProvider configured (Futu → IB → yfinance priority chain).
+2026-04-19 09:14:13 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-19 09:14:13 [INFO] apscheduler.scheduler: Added job "update_daily_prices" to job store "default"
+2026-04-19 09:14:13 [INFO] apscheduler.scheduler: Scheduler started
+2026-04-19 09:14:13 [INFO] routers.fip_router: Background scheduler started correctly.
+INFO:     Started server process [27597]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:63536 - "GET /heartbeat/1011 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63540 - "POST /auth/register HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63541 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63542 - "POST /auth/register HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63543 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63544 - "POST /companies/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63545 - "POST /companies/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63546 - "POST /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/clients/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63547 - "POST /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/invoices/ HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63547 - "POST /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/invoices HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63548 - "POST /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/invoices/f8d81014-7b21-4e55-b2fe-e7b02d5fc1f8/payments HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63549 - "POST /expenses/manual HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63550 - "POST /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/hr/employees HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63551 - "POST /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/hr/payroll/generate?month=2024-03 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63552 - "POST /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/commissions/manual?statement_month=2024-03&income_source=Referral&amount=8000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63553 - "GET /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63554 - "PUT /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63555 - "GET /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/invoices/ HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63555 - "GET /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/invoices HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63556 - "GET /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/invoices/f8d81014-7b21-4e55-b2fe-e7b02d5fc1f8 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63557 - "GET /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/clients/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63558 - "GET /expenses/?company_id=e59320d2-a5b2-43cc-b0b6-76d3a1207de3 HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63559 - "GET /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/hr/employees HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63560 - "GET /companies/e59320d2-a5b2-43cc-b0b6-76d3a1207de3/commissions/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:63563 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63568 - "GET /heartbeat/1011 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63584 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63590 - "GET /heartbeat/1011 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63596 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63603 - "GET /heartbeat/1011 HTTP/1.1" 200 OK
+2026-04-19 09:14:42 [ERROR] data_provider: Stooq Fetch Error for : Error tokenizing data. C error: Expected 1 fields in line 6, saw 2
+
+2026-04-19 09:14:42 [ERROR] data_provider: YFinance Historical Error for : Empty ticker name
+INFO:     127.0.0.1:63599 - "GET /portfolios/rebalance/preview/1011?as_of_date=2026-04-19 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:63613 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63618 - "GET /heartbeat/1011 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63627 - "GET /heartbeat/1 HTTP/1.1" 200 OK
