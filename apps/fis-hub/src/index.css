@@ -828,3 +828,53 @@ input:checked+.slider:before {
     page-break-inside: avoid;
   }
 }
+/* =========================================================
+   Mobile Responsiveness
+   ========================================================= */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    position: relative;
+    top: 0;
+    height: auto;
+    max-height: 50vh;
+    padding: 1rem;
+    border-right: none;
+    border-bottom: 1px solid var(--glass-border);
+    z-index: 10;
+  }
+  
+  .dashboard-container {
+    margin-left: 0;
+    margin-top: 0;
+    padding: 1rem;
+    max-width: 100%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .header-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .portfolio-item .actions {
+    opacity: 1; /* Always show actions on mobile */
+  }
+}
