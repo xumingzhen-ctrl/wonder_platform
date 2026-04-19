@@ -20,5 +20,6 @@ export default defineConfig({
   preview: {
     port: 5175,
     proxy: apiProxy,
+    allowedHosts: true,
   },
 })
