@@ -382,7 +382,7 @@ def get_compliance_summary(items: List[Dict]) -> Dict[str, int]:
     计算合规摘要（用于 Dashboard 警告条）
     返回：{overdue, due_soon_7d, due_soon_30d, total_pending}
     """
-    from datetime import date
+    from datetime import date, datetime, timedelta
     today = date.today()
     in_7d = today + timedelta(days=7)
     in_30d = today + timedelta(days=30)
@@ -403,11 +403,21 @@ def get_compliance_summary(items: List[Dict]) -> Dict[str, int]:
             continue
         total_pending += 1
         if due:
-            due_val = due.date() if hasattr(due, "date") else due
-            if due_val <= in_7d:
-                due_soon_7d += 1
-            elif due_val <= in_30d:
-                due_soon_30d += 1
+            due_val = None
+            if isinstance(due, str):
+                try:
+                    # Parse ISO string
+                    due_val = datetime.fromisoformat(due.replace("Z", "")).date()
+                except ValueError:
+                    pass
+            else:
+                due_val = due.date() if hasattr(due, "date") else due
+                
+            if due_val:
+                if due_val <= in_7d:
+                    due_soon_7d += 1
+                elif due_val <= in_30d:
+                    due_soon_30d += 1
 
     return {
         "overdue": overdue,
