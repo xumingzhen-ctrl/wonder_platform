@@ -39,8 +39,8 @@ export default function Home() {
         {[
           { title: "智庫洞察", desc: "深度宏觀研究與資產配置報告。", link: "/blog" },
           { title: "財富診斷", desc: "家庭資產健康評估與現金流推演。", link: "/assessment" },
-          { title: "FIS 沙盤", desc: "獨立資產管理與 PortfolioHub 模擬系統。", link: "http://47.239.63.70:5175" },
-          { title: "行政中樞", desc: "企業/家族辦公室後台管理與 B 端系統。", link: "http://47.239.63.70:5174" },
+          { title: "FIS 沙盤", desc: "獨立資產管理與 PortfolioHub 模擬系統。", link: "http://fis.wonderwisdom.online" },
+          { title: "行政中樞", desc: "企業/家族辦公室後台管理與 B 端系統。", link: "http://company.wonderwisdom.online" },
         ].map((item, idx) => (
           <Link href={item.link} target={item.link.startsWith('http') ? '_blank' : undefined} key={idx} className="group relative p-10 rounded-[2.5rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-2xl hover:bg-card transition-all duration-500 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
