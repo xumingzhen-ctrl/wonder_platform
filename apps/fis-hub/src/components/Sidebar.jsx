@@ -85,22 +85,6 @@ const Sidebar = ({
           <button className="create-btn" onClick={() => setShowModal(true)}>
             <Plus size={18} /> New Strategy
           </button>
-
-          <button
-            className="create-btn"
-            style={{marginTop: '8px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981'}}
-            onClick={() => setShowBrokerImport(true)}
-          >
-            <Camera size={18} /> Import File / Screenshot
-          </button>
-
-          <button
-            className="create-btn"
-            style={{marginTop: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)'}}
-            onClick={() => setShowBrokerSync(true)}
-          >
-            <Globe size={18} /> Sync from Broker
-          </button>
         </>
       )}
 

@@ -97,6 +97,8 @@ class NewPortfolioRequest(BaseModel):
     manual_prices: Optional[Dict[str, float]] = None
     dividend_strategy: Optional[str] = "CASH"
     base_currency: Optional[str] = "USD"
+    is_public: Optional[bool] = False
+    client_id: Optional[str] = None
 
 class UpdatePortfolioRequest(BaseModel):
     name: Optional[str] = None
@@ -327,33 +329,45 @@ def list_portfolios(request: Request):
     """
     获取组合列表，根据角色过滤可见性：
     - admin / advisor：返回所有组合
-    - premium / free / 未登录：只返回 is_public=1 的公开组合
+    - premium / free / 未登录：只返回 is_public=1 的公开组合，或属于自己的组合
     """
     from services.auth import get_optional_user
     user = get_optional_user(request)
     role = user.role if user else None
+    user_id = str(user.id) if user else "unauthenticated"
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     if role in ("admin", "advisor"):
-        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public FROM portfolios ORDER BY id")
+        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios ORDER BY id")
     else:
-        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public FROM portfolios WHERE is_public=1 ORDER BY id")
+        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios WHERE is_public=1 OR user_id=? ORDER BY id", (user_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
 @router.post("/portfolios/new")
-def create_portfolio(req: NewPortfolioRequest):
+def create_portfolio(req: NewPortfolioRequest, request: Request):
+    from services.auth import get_optional_user
+    user = get_optional_user(request)
+    user_id = str(user.id) if user else None
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    
+    if req.client_id and user and user.role in ["admin", "advisor"]:
+        if user.role != "admin":
+            assert_advisor_owns_client(user.id, req.client_id)
+        user_id = req.client_id
+
     # Normalize currency code to uppercase (e.g. 'jpy' -> 'JPY')
     base_currency = (req.base_currency or "USD").upper().strip()
+    is_public = 1 if req.is_public else 0
     try:
         cursor.execute(
-            "INSERT INTO portfolios (name, created_at, dividend_strategy, target_allocations, base_currency) VALUES (?, ?, ?, ?, ?)",
-            (req.name, req.date or datetime.now().strftime("%Y-%m-%d %H:%M:%S"), req.dividend_strategy, json.dumps(req.allocations), base_currency)
+            "INSERT INTO portfolios (name, created_at, dividend_strategy, target_allocations, base_currency, user_id, is_public) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (req.name, req.date or datetime.now().strftime("%Y-%m-%d %H:%M:%S"), req.dividend_strategy, json.dumps(req.allocations), base_currency, user_id, is_public)
         )
         portfolio_id = cursor.lastrowid
         
@@ -1167,9 +1181,12 @@ class UpdateUserStatusRequest(BaseModel):
 class UpdateUserNotesRequest(BaseModel):
     notes: str
 
+class UpdateUserAdvisorRequest(BaseModel):
+    advisor_id: Optional[str] = None
+
 class CreateAdvisorClientRequest(BaseModel):
-    advisor_id: int
-    client_id: int
+    advisor_id: str
+    client_id: str
 
 @router.get("/admin/users", tags=["admin"], dependencies=[Depends(require_role("admin"))])
 def admin_list_users(role: Optional[str] = None, page: int = 1, per_page: int = 20):
@@ -1188,15 +1205,16 @@ def admin_list_users(role: Optional[str] = None, page: int = 1, per_page: int = 
         users = []
         for r in rows:
             u = dict(r)
-            # 附带顾问信息（若为 premium 用户）
-            if u["role"] == "premium":
+            # 附带顾问信息（若为 premium 用户或普通用户）
+            if u["role"] in ["premium", "free"]:
                 rel = conn.execute(
                     """SELECT u2.id, u2.name as display_name FROM advisor_clients ac
                        JOIN users u2 ON u2.id=ac.advisor_id
                        WHERE ac.client_id=? AND ac.is_active=1 LIMIT 1""",
                     (u["id"],)
                 ).fetchone()
-                u["advisor"] = dict(rel) if rel else None
+                u["advisor_id"] = dict(rel)["id"] if rel else None
+                u["advisor_name"] = dict(rel)["display_name"] if rel else None
             users.append(u)
         total = conn.execute("SELECT COUNT(*) FROM users" + (" WHERE role=?" if role else ""),
                              ([role] if role else [])).fetchone()[0]
@@ -1217,6 +1235,34 @@ def admin_update_role(user_id: str, req: UpdateUserRoleRequest):
             raise HTTPException(404, "用户不存在")
         conn.commit()
         return {"status": "success", "user_id": user_id, "new_role": req.role}
+    finally:
+        conn.close()
+
+@router.put("/admin/users/{user_id}/advisor", tags=["admin"], dependencies=[Depends(require_role("admin"))])
+def admin_update_advisor(user_id: str, req: UpdateUserAdvisorRequest):
+    """管理员：为普通/付费用户指定或取消关联财务顾问"""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        if req.advisor_id:
+            # 校验顾问是否存在且角色为 advisor
+            adv = conn.execute("SELECT role FROM users WHERE id=?", (req.advisor_id,)).fetchone()
+            if not adv or adv[0] != "advisor":
+                raise HTTPException(400, "指定的顾问不存在或角色不匹配")
+            # 更新或插入关联关系 (确保先停用旧的)
+            conn.execute("UPDATE advisor_clients SET is_active=0 WHERE client_id=?", (user_id,))
+            conn.execute(
+                "INSERT INTO advisor_clients (advisor_id, client_id, is_active) VALUES (?, ?, 1)",
+                (req.advisor_id, user_id)
+            )
+            # 自动升级为 premium
+            conn.execute("UPDATE users SET role='premium' WHERE id=? AND role='free'", (user_id,))
+        else:
+            # 取消关联
+            conn.execute("UPDATE advisor_clients SET is_active=0 WHERE client_id=?", (user_id,))
+            # 自动降级为 free
+            conn.execute("UPDATE users SET role='free' WHERE id=? AND role='premium'", (user_id,))
+        conn.commit()
+        return {"status": "success", "user_id": user_id, "advisor_id": req.advisor_id}
     finally:
         conn.close()
 
@@ -1345,24 +1391,37 @@ class UpdateInsurancePlanRequest(BaseModel):
 
 @router.get("/advisor/clients", tags=["advisor"])
 def advisor_list_clients(user: dict = Depends(require_role("advisor"))):
-    """顾问：获取我的客户列表"""
+    """顾问：获取我的客户列表（Admin查看所有）"""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
-        rows = conn.execute("""
-            SELECT u.id, u.email, u.name as display_name, u.last_login_at, ac.assigned_at,
-                   (SELECT COUNT(*) FROM portfolios WHERE user_id=u.id) as portfolio_count,
-                   (SELECT COUNT(*) FROM insurance_plans WHERE client_id=u.id AND advisor_id=?) as insurance_count
-            FROM advisor_clients ac JOIN users u ON u.id=ac.client_id
-            WHERE ac.advisor_id=? AND ac.is_active=1
-            ORDER BY ac.assigned_at DESC
-        """, (user["id"], user["id"])).fetchall()
+        if user["role"] == "admin":
+            rows = conn.execute("""
+                SELECT u.id, u.email, u.name as display_name, u.created_at as last_login_at, ac.assigned_at,
+                       (SELECT COUNT(*) FROM portfolios WHERE user_id=u.id) as portfolio_count,
+                       (SELECT COUNT(*) FROM insurance_plans WHERE client_id=u.id) as insurance_count,
+                       adv.name as advisor_name
+                FROM advisor_clients ac 
+                JOIN users u ON u.id=ac.client_id
+                JOIN users adv ON adv.id=ac.advisor_id
+                WHERE ac.is_active=1
+                ORDER BY ac.assigned_at DESC
+            """).fetchall()
+        else:
+            rows = conn.execute("""
+                SELECT u.id, u.email, u.name as display_name, u.created_at as last_login_at, ac.assigned_at,
+                       (SELECT COUNT(*) FROM portfolios WHERE user_id=u.id) as portfolio_count,
+                       (SELECT COUNT(*) FROM insurance_plans WHERE client_id=u.id AND advisor_id=?) as insurance_count
+                FROM advisor_clients ac JOIN users u ON u.id=ac.client_id
+                WHERE ac.advisor_id=? AND ac.is_active=1
+                ORDER BY ac.assigned_at DESC
+            """, (user["id"], user["id"])).fetchall()
         return [dict(r) for r in rows]
     finally:
         conn.close()
 
 @router.get("/advisor/clients/{client_id}/portfolios", tags=["advisor"])
-def advisor_get_client_portfolios(client_id: int, user: dict = Depends(require_role("advisor"))):
+def advisor_get_client_portfolios(client_id: str, user: dict = Depends(require_role("advisor"))):
     """顾问：查看指定客户的所有组合"""
     if user["role"] != "admin":
         assert_advisor_owns_client(user["id"], client_id)
@@ -1399,7 +1458,7 @@ def advisor_create_insurance(req: CreateInsurancePlanRequest, user: dict = Depen
 
 @router.post("/advisor/insurance/upload/{client_id}", tags=["advisor"])
 async def advisor_upload_insurance_excel(
-    client_id: int,
+    client_id: str,
     file: UploadFile = File(...),
     user: dict = Depends(require_role("advisor"))
 ):

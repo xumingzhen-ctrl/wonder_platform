@@ -135,6 +135,7 @@ function App() {
     date: new Date().toISOString().split('T')[0],
     dividend_strategy: 'CASH',
     base_currency: 'USD',
+    is_public: false,
     allocations: [{ isin: '', weight: 0.5, manual_price: '' }, { isin: '', weight: 0.5, manual_price: '' }]
   });
 
@@ -347,13 +348,15 @@ function App() {
 
     const res = await fetch('/api/portfolios/new', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({
         name: newPf.name,
         budget: parseFloat(newPf.budget),
         date: newPf.date,
         dividend_strategy: newPf.dividend_strategy,
         base_currency: newPf.base_currency || 'USD',
+        is_public: newPf.is_public || false,
+        client_id: newPf.client_id || null,
         allocations: allocationsObj,
         manual_prices: manualPrices
       })
@@ -946,6 +949,7 @@ function App() {
     setNewPf({
       ...newPf,
       name: 'Optimized Strategy',
+      is_public: false,
       allocations: allocArray
     });
     setActiveTab('portfolios');
@@ -1041,7 +1045,13 @@ function App() {
         {activeTab === 'admin' ? (
           <AdminPanel currentUser={currentUser} />
         ) : activeTab === 'advisor' ? (
-          <AdvisorClientsPanel currentUser={currentUser} />
+          <AdvisorClientsPanel 
+            currentUser={currentUser} 
+            onAssignPortfolio={(clientId) => {
+              setNewPf({ name: '', budget: 100000, allocations: [{isin: '', weight: ''}], date: '', base_currency: 'USD', dividend_strategy: 'CASH', is_public: false, client_id: clientId });
+              setShowModal(true);
+            }}
+          />
         ) : activeTab === 'lab' ? (
           <FeatureLock minRole="premium" currentUser={currentUser} featureName="策略实验室" onLoginClick={() => setAuthModalOpen(true)}>
             <StrategyLabView
@@ -1109,7 +1119,7 @@ function App() {
       />
       <DeleteModal
         showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal}
-        handleDelete={handleDelete}
+        handleDelete={handleDelete} setDeleteCandidate={setDeleteCandidate}
       />
       <RenameModal
         showRenameModal={showRenameModal} setShowRenameModal={setShowRenameModal}

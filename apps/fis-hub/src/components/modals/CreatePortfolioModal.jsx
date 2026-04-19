@@ -65,6 +65,16 @@ const CreatePortfolioModal = ({
                     <option value="REINVEST">Reinvest (DRIP)</option>
                   </select>
                 </div>
+                <div className="form-group" style={{flex: 1, display: 'flex', alignItems: 'center', paddingTop: '1.5rem', gap: '8px'}}>
+                  <input 
+                    type="checkbox" 
+                    id="is_public_cb"
+                    checked={newPf.is_public || false} 
+                    onChange={e => setNewPf({...newPf, is_public: e.target.checked})} 
+                    style={{width: 'auto', cursor: 'pointer', accentColor: '#a855f7'}}
+                  />
+                  <label htmlFor="is_public_cb" style={{cursor: 'pointer', margin: 0, fontWeight: 500}}>公开可见 (Publicly Visible)</label>
+                </div>
               </div>
 
               <div className="form-row">

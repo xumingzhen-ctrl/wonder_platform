@@ -1,6 +1,7 @@
 import React from 'react';
+import { Trash2 } from 'lucide-react';
 
-const DeleteModal = ({ showDeleteModal, setShowDeleteModal, handleDelete }) => {
+const DeleteModal = ({ showDeleteModal, setShowDeleteModal, handleDelete, setDeleteCandidate }) => {
   if (!showDeleteModal) return null;
   return (
         <div className="modal-overlay">

@@ -13,7 +13,7 @@ const formatDate = (dateStr) => {
   return d.toLocaleDateString('zh-CN');
 };
 
-export default function AdvisorClientsPanel({ currentUser }) {
+export default function AdvisorClientsPanel({ currentUser, onAssignPortfolio }) {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -140,6 +140,11 @@ export default function AdvisorClientsPanel({ currentUser }) {
                     <span style={{ fontWeight: 700, fontSize: 15, color: '#f1f5f9' }}>
                       {client.display_name || '未设置名称'}
                     </span>
+                    {client.advisor_name && currentUser?.role === 'admin' && (
+                      <span style={{ fontSize: 11, background: 'rgba(59,130,246,0.15)', color: '#60a5fa', padding: '2px 8px', borderRadius: 6, border: '1px solid rgba(59,130,246,0.3)' }}>
+                        顾问: {client.advisor_name}
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
                     📧 {client.email}
@@ -164,6 +169,22 @@ export default function AdvisorClientsPanel({ currentUser }) {
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>最后活跃</div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>{formatDate(client.last_login_at)}</div>
                   </div>
+
+                  {/* 创建组合按钮 */}
+                  {onAssignPortfolio && (
+                    <button
+                      onClick={() => onAssignPortfolio(client.id)}
+                      style={{
+                        padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                        background: 'rgba(16,185,129,0.15)',
+                        border: '1px solid rgba(16,185,129,0.3)',
+                        color: '#34d399',
+                        cursor: 'pointer', transition: 'all 0.2s',
+                      }}
+                    >
+                      + 创建组合
+                    </button>
+                  )}
 
                   {/* 展开按钮 */}
                   <button

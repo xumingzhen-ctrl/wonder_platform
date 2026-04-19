@@ -113,18 +113,33 @@ export default function AuthModal({ onSuccess, onClose }) {
             email: regEmail.trim(),
             name: regName.trim(),
             password: regPwd,
-            invited_by_advisor_id: regType === 'premium' && advisorId ? advisorId : null,
           };
 
-      const res  = await fetch(url, {
+      let data;
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
+      data = await res.json();
+      
       if (!res.ok) {
         setError(data.detail || (mode === 'login' ? '邮箱或密码错误，请重试' : '注册失败，邮箱可能已存在'));
         return;
+      }
+
+      // If registration was successful, auto-login to get the access token
+      if (mode === 'register') {
+        const loginRes = await fetch(`${API}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: body.email, password: body.password }),
+        });
+        data = await loginRes.json();
+        if (!loginRes.ok) {
+          setError('注册成功，但自动登录失败，请手动登录');
+          return;
+        }
       }
 
       const tokenValue = data.access_token || data.token;
@@ -330,90 +345,6 @@ export default function AuthModal({ onSuccess, onClose }) {
               )}
             </Field>
 
-            {/* 账号类型 */}
-            <div style={{ marginBottom: 16 }}>
-              <label style={labelStyle}>账号类型</label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {[
-                  { value: 'free',    icon: '👤', title: '普通用户',    desc: '免费使用基础功能' },
-                  { value: 'premium', icon: '💎', title: '付费用户',    desc: '绑定顾问，解锁全功能' },
-                ].map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => { setRegType(opt.value); setAdvisorId(''); }}
-                    style={{
-                      background: regType === opt.value
-                        ? 'rgba(99,102,241,0.18)'
-                        : 'rgba(255,255,255,0.04)',
-                      border: `1.5px solid ${regType === opt.value ? '#6366f1' : 'rgba(255,255,255,0.1)'}`,
-                      borderRadius: 12,
-                      padding: '12px 10px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    <div style={{ fontSize: 20, marginBottom: 4 }}>{opt.icon}</div>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: regType === opt.value ? '#a5b4fc' : '#94a3b8' }}>
-                      {opt.title}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
-                      {opt.desc}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 顾问选择（仅 premium） */}
-            {regType === 'premium' && (
-              <div style={{
-                marginBottom: 16,
-                padding: '14px 16px',
-                background: 'rgba(99,102,241,0.07)',
-                border: '1px solid rgba(99,102,241,0.2)',
-                borderRadius: 12,
-                animation: 'fadeIn 0.3s ease',
-              }}>
-                <label style={labelStyle}>
-                  选择您的专属顾问 <span style={{ color: '#ef4444' }}>*</span>
-                </label>
-                {advisorLoading ? (
-                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, padding: '8px 0' }}>
-                    <span style={spinnerStyle} /> 正在加载顾问列表…
-                  </div>
-                ) : advisors.length === 0 ? (
-                  <div style={{ color: '#f87171', fontSize: 13, padding: '6px 0' }}>
-                    暂无可用顾问，请联系管理员
-                  </div>
-                ) : (
-                  <select
-                    value={advisorId}
-                    onChange={e => setAdvisorId(e.target.value)}
-                    style={{
-                      ...inputStyle,
-                      cursor: 'pointer',
-                      appearance: 'none',
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23818cf8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 14px center',
-                      paddingRight: 38,
-                    }}
-                  >
-                    <option value="">-- 请选择顾问 --</option>
-                    {advisors.map(a => (
-                      <option key={a.id} value={a.id}>
-                        {a.display_name}（{a.email}）
-                      </option>
-                    ))}
-                  </select>
-                )}
-                <p style={{ margin: '8px 0 0', fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
-                  💡 绑定顾问后，您将立即获得 <strong style={{ color: '#a5b4fc' }}>Premium</strong> 权限，并可查看顾问为您定制的保险方案
-                </p>
-              </div>
-            )}
 
             {/* 服务条款 */}
             <label style={{

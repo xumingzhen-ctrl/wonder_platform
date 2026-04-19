@@ -72,6 +72,24 @@ export default function AdminPanel({ currentUser }) {
     }
   };
 
+  // 分配顾问
+  const handleAdvisorChange = async (userId, newAdvisorId) => {
+    setSaving(true);
+    try {
+      const res = await fetch(`${API}/admin/users/${userId}/advisor`, {
+        method: 'PUT',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ advisor_id: newAdvisorId || null }),
+      });
+      if (!res.ok) throw new Error((await res.json()).detail || '操作失败');
+      await fetchUsers();
+    } catch (e) {
+      alert('分配顾问失败：' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // 封禁/激活
   const handleStatusToggle = async (userId, isActive) => {
     setSaving(true);
@@ -243,8 +261,28 @@ export default function AdminPanel({ currentUser }) {
                       <option value="free">普通用户</option>
                     </select>
                   </td>
-                  <td style={{ ...tdStyle, color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>
-                    {u.advisor_name || '—'}
+                  <td style={tdStyle}>
+                    {(u.role === 'premium' || u.role === 'free') ? (
+                      <select
+                        value={u.advisor_id || ''}
+                        onChange={(e) => handleAdvisorChange(u.id, e.target.value)}
+                        disabled={saving}
+                        style={{
+                          padding: '4px 8px', borderRadius: 8, fontSize: 12,
+                          background: 'rgba(255,255,255,0.06)',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          color: '#e2e8f0',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="">-- 无关联 --</option>
+                        {users.filter(x => x.role === 'advisor').map(a => (
+                          <option key={a.id} value={a.id}>{a.display_name || a.email}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>—</span>
+                    )}
                   </td>
                   <td style={tdStyle}>
                     <span style={{
