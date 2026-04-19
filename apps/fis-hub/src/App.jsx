@@ -1089,21 +1089,12 @@ function App() {
           ) : (
             <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>Data Unavailable</h2><p>Please select a different portfolio.</p></div>
           )
-        ) : activeTab === 'lab' ? (
-          <FeatureLock allowedRoles={['admin', 'advisor']} featureName="Strategy Lab">
-            <StrategyLabView 
-              labSearchQ={labSearchQ} setLabSearchQ={setLabSearchQ}
-              labSearchResults={labSearchResults} isLabSearching={isLabSearching}
-              labSelectedAssets={labSelectedAssets} 
-              handleAddLabIsin={handleAddLabIsin} handleRemoveLabIsin={handleRemoveLabIsin}
-              handleRunLabAnalysis={handleRunLabAnalysis} handleDeployLabStrategy={handleDeployLabStrategy}
-              handleSaveScenario={handleSaveScenario} applyLabTemplate={applyLabTemplate}
-              reportLoading={reportLoading} handleGenerateReport={handleGenerateReport}
-              handleGenerateWordReport={handleGenerateWordReport}
-              labSum={labSum} isLabReady={isLabReady}
-            />
-          </FeatureLock>
-        ) : null}
+        ) : (
+          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '16px', color: 'rgba(255,255,255,0.3)'}}>
+            <div style={{fontSize: '3rem'}}>📊</div>
+            <div>Select a portfolio from the sidebar or create a new one</div>
+          </div>
+        )}
       </main>
 
       {/* ── Modals ── */}
