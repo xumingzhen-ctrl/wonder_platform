@@ -71,6 +71,12 @@ const PortfolioView = ({
                   <button onClick={handleOpenCompModal} className="action-btn-secondary" title="Portfolio Composition Management">
                     <Briefcase size={16} /> Composition
                   </button>
+                  <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title="Dividend Management">
+                    <Settings size={16} /> Dividends
+                  </button>
+                  <button onClick={() => setShowDivModal(true)} className="action-btn-secondary">
+                    <DollarSign size={16} /> Add Dividend
+                  </button>
                 </div>
               </header>
 
@@ -476,7 +482,14 @@ const PortfolioView = ({
                   <h3 style={{color: '#9ca3af', marginBottom: '8px'}}>No Dividend Data Available</h3>
                   <p style={{color: 'rgba(255,255,255,0.3)', maxWidth: '480px', margin: '0 auto 20px', fontSize: '0.9rem', lineHeight: 1.6}}>
                     This portfolio's holdings (e.g. LU-ISIN funds) are not covered by the automatic dividend data source (yfinance).
+                    <br/>You can manually record dividends using the <strong style={{color: '#818cf8'}}>Dividends → Add Dividend</strong> button above.
                   </p>
+                  <button
+                    onClick={() => setShowDivModal(true)}
+                    style={{background: 'linear-gradient(135deg, #6366f1, #a855f7)', border: 'none', borderRadius: '8px', padding: '10px 24px', color: '#fff', cursor: 'pointer', fontWeight: 600}}
+                  >
+                    + Add Manual Dividend
+                  </button>
                 </div>
               )}
             </div>
