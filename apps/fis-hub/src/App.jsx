@@ -196,7 +196,7 @@ function App() {
   }, [data]);
 
   const fetchPortfolios = () => {
-    fetch('/api/portfolios')
+    fetch('/api/portfolios', { headers: authHeaders() })
       .then(res => res.json())
       .then(list => {
         setPortfolios(list);

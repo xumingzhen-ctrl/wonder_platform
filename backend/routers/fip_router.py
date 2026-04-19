@@ -323,13 +323,25 @@ def delete_scenario(scenario_id: int):
 
 
 @router.get("/portfolios")
+def list_portfolios(request: Request):
+    """
+    获取组合列表，根据角色过滤可见性：
+    - admin / advisor：返回所有组合
+    - premium / free / 未登录：只返回 is_public=1 的公开组合
+    """
+    from services.auth import get_optional_user
+    user = get_optional_user(request)
+    role = user.role if user else None
 
-def list_portfolios():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, created_at, dividend_strategy FROM portfolios")
+    if role in ("admin", "advisor"):
+        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public FROM portfolios ORDER BY id")
+    else:
+        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public FROM portfolios WHERE is_public=1 ORDER BY id")
     rows = cursor.fetchall()
+    conn.close()
     return [dict(r) for r in rows]
 
 @router.post("/portfolios/new")
