@@ -207,9 +207,10 @@ function App() {
         setActiveId(currentId => {
           if (!currentId && list.length > 0) return list[0].id;
           // If the current active ID is no longer in the list, fallback to first
-          if (currentId && !list.find(p => p.id === currentId) && list.length > 0) {
-            return list[0].id;
+          if (currentId && !list.find(p => p.id === currentId)) {
+            return list.length > 0 ? list[0].id : null;
           }
+          if (list.length === 0) return null;
           return currentId;
         });
       })
@@ -1073,7 +1074,7 @@ function App() {
         ) : activeTab === 'portfolios' && activeId ? (
           loading ? (
             <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>Analyzing Data...</h2></div>
-          ) : data && data.details && (
+          ) : data && data.details ? (
             <PortfolioView
               portfolios={portfolios} activeId={activeId} data={data} historyData={historyData} loading={loading}
               activeSubTab={activeSubTab} setActiveSubTab={setActiveSubTab}
@@ -1085,13 +1086,24 @@ function App() {
               handleOpenCompModal={handleOpenCompModal} handleOpenManageDivModal={handleOpenManageDivModal}
               handleRebalancePreview={handleRebalancePreview} handleUndoRebalance={handleUndoRebalance}
             />
+          ) : (
+            <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>Data Unavailable</h2><p>Please select a different portfolio.</p></div>
           )
-        ) : (
-          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '16px', color: 'rgba(255,255,255,0.3)'}}>
-            <div style={{fontSize: '3rem'}}>📊</div>
-            <div>Select a portfolio from the sidebar or create a new one</div>
-          </div>
-        )}
+        ) : activeTab === 'lab' ? (
+          <FeatureLock allowedRoles={['admin', 'advisor']} featureName="Strategy Lab">
+            <StrategyLabView 
+              labSearchQ={labSearchQ} setLabSearchQ={setLabSearchQ}
+              labSearchResults={labSearchResults} isLabSearching={isLabSearching}
+              labSelectedAssets={labSelectedAssets} 
+              handleAddLabIsin={handleAddLabIsin} handleRemoveLabIsin={handleRemoveLabIsin}
+              handleRunLabAnalysis={handleRunLabAnalysis} handleDeployLabStrategy={handleDeployLabStrategy}
+              handleSaveScenario={handleSaveScenario} applyLabTemplate={applyLabTemplate}
+              reportLoading={reportLoading} handleGenerateReport={handleGenerateReport}
+              handleGenerateWordReport={handleGenerateWordReport}
+              labSum={labSum} isLabReady={isLabReady}
+            />
+          </FeatureLock>
+        ) : null}
       </main>
 
       {/* ── Modals ── */}
