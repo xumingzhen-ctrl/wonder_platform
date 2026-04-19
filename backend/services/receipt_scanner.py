@@ -316,39 +316,45 @@ def archive_file(
 ) -> str:
     """
     将原始收据文件归档至标准目录，使用凭证号重命名
-
-    归档规则：
-    - HEIC/HEIF → 转换为 JPEG 再归档（浏览器无法原生渲染 HEIC）
-    - PDF       → 原样保留（浏览器支持 embed 预览）
-    - 其他图片   → 原样保留
-
-    归档路径：receipts_archive/YYYY-MM/EXP-YYYYMM-XXXX.{ext}
-    Returns: 相对路径字符串
+    加入“瘦身”逻辑：将图片统一压缩并转换为 WebP，大幅节约空间。
     """
     target_date = receipt_date or date.today()
     month_dir = target_date.strftime("%Y-%m")
 
     suffix = Path(filename).suffix.lower()
-    # 按照 company_id / YYYY-MM 归档
     archive_dir = Path(settings.RECEIPTS_ARCHIVE_PATH) / company_id / month_dir
     archive_dir.mkdir(parents=True, exist_ok=True)
 
-    # HEIC/HEIF 不被浏览器支持，统一转 JPEG 后归档
-    if suffix in ('.heic', '.heif'):
+    # 尝试压缩图片（仅限常见图片格式）
+    if suffix in ('.jpg', '.jpeg', '.png', '.heic', '.heif', '.webp'):
         try:
-            import pillow_heif
-            from PIL import Image
             import io as _io
+            from PIL import Image, ImageOps
+            import pillow_heif
+            
+            # 支持 HEIC
             pillow_heif.register_heif_opener()
+            
             img = Image.open(_io.BytesIO(file_bytes))
-            img = img.convert("RGB")
+            
+            # 自动根据 EXIF 修正方向（防止手机拍照方向不对）
+            img = ImageOps.exif_transpose(img)
+            
+            # 转为 RGB（去除透明通道）
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+                
+            # 限制最大宽高，等比例缩放（保留足够清晰度用于复核）
+            img.thumbnail((1200, 1600), Image.Resampling.LANCZOS)
+            
+            # 转为 WebP 格式保存，质量设为 60（高压缩比，人眼难以分辨差别）
             out = _io.BytesIO()
-            img.save(out, format="JPEG", quality=92)
+            img.save(out, format="WEBP", quality=60)
             file_bytes = out.getvalue()
-            suffix = '.jpg'
-            logger.info(f"[归档] HEIC → JPEG 转换完成：{filename}")
+            suffix = '.webp'
+            logger.info(f"[归档瘦身] {filename} 已压缩为 WebP，压缩后大小: {len(file_bytes)//1024} KB")
         except Exception as e:
-            logger.warning(f"[归档] HEIC 转 JPEG 失败，保留原格式: {e}")
+            logger.warning(f"[归档瘦身] 图片压缩失败，保留原格式和大小: {e}")
 
     archive_path = archive_dir / f"{voucher_number}{suffix}"
     archive_path.write_bytes(file_bytes)

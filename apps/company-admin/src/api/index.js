@@ -186,6 +186,6 @@ export const leasesApi = {
 
 // ── Admin (系統管理) ──────────────────────────────────────────
 export const adminApi = {
-  listUsers: () => api.get('/admin/users'),
+  listUsers: () => api.get('/admin/users', { params: { per_page: 100 } }),
   togglePremium: (userId, isPremium) => api.post(`/admin/users/${userId}/toggle-premium`, { is_premium: isPremium }),
 }

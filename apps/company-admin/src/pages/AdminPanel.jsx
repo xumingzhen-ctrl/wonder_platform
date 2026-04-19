@@ -14,7 +14,19 @@ export default function AdminPanel() {
     try {
       setLoading(true)
       const r = await adminApi.listUsers()
-      setUsers(r.data)
+      console.log('listUsers response:', r.data)
+      if (Array.isArray(r.data)) {
+        setUsers(r.data)
+      } else if (r.data && Array.isArray(r.data.users)) {
+        setUsers(r.data.users)
+      } else if (r.data && Array.isArray(r.data.items)) {
+        setUsers(r.data.items)
+      } else if (r.data && Array.isArray(r.data.data)) {
+        setUsers(r.data.data)
+      } else {
+        setUsers([])
+        console.error('Expected array but got:', typeof r.data, r.data)
+      }
     } catch (err) {
       alert('獲取用戶列表失敗: ' + (err.response?.data?.detail || err.message))
     } finally {

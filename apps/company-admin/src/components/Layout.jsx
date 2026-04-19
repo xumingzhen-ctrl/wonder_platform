@@ -82,7 +82,7 @@ export default function Layout({ children }) {
             </NavLink>
           ))}
 
-          {user?.role === 'admin' && (
+          {user?.role?.toLowerCase() === 'admin' && (
             <>
               <div className="nav-group-label" style={{ marginTop: 24 }}>系統管理</div>
               <NavLink to="/admin" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
@@ -96,7 +96,7 @@ export default function Layout({ children }) {
         {/* 底部用户 */}
         <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border-light)' }}>
           <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 4 }}>
-            {user?.name}
+            {user?.name} ({user?.role})
           </div>
           <button className="btn btn-ghost btn-sm w-full" style={{ justifyContent: 'flex-start' }} onClick={handleLogout}>
             登出
