@@ -117,11 +117,15 @@ function App() {
   const handleAuthSuccess = (user) => {
     setCurrentUser(user);
     setAuthModalOpen(false);
+    // Token is now in localStorage — re-fetch portfolios so admin/advisor sees all
+    setTimeout(() => fetchPortfolios(), 100);
   };
 
   const handleLogout = () => {
     authStorage.clear();
     setCurrentUser(null);
+    // Re-fetch without token to show only public portfolios
+    setTimeout(() => fetchPortfolios(), 100);
   };
   
 

@@ -111,9 +111,9 @@ export default function AuthModal({ onSuccess, onClose }) {
         ? { email: loginEmail.trim(), password: loginPwd }
         : {
             email: regEmail.trim(),
+            name: regName.trim(),
             password: regPwd,
-            display_name: regName.trim(),
-            invited_by_advisor_id: regType === 'premium' && advisorId ? Number(advisorId) : null,
+            invited_by_advisor_id: regType === 'premium' && advisorId ? advisorId : null,
           };
 
       const res  = await fetch(url, {
