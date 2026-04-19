@@ -21,7 +21,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import settings
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/assessment", tags=["assessment"])
+router = APIRouter(prefix="/assessment", tags=["assessment"])
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "hk_admin.db")
 
