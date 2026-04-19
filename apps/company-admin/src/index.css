@@ -398,6 +398,9 @@ input, textarea, select { font-family: inherit; }
 .badge-partial  { background: var(--color-warning-light); color: #92400E; }
 .badge-overdue  { background: var(--color-danger-light);  color: #991B1B; }
 .badge-void     { background: var(--color-border-light);  color: var(--color-text-muted); text-decoration: line-through; }
+.badge-primary  { background: var(--color-info-light);   color: var(--color-info); }
+.badge-success  { background: var(--color-success-light); color: var(--color-success); }
+.badge-light    { background: var(--color-border-light);  color: var(--color-text-muted); }
 
 /* ── Table ──────────────────────────────────────────────────────── */
 .table-container {

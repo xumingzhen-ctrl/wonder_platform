@@ -16,6 +16,7 @@ import FinancialsPage from './pages/Financials.jsx'
 import CompliancePage from './pages/Compliance.jsx'
 import HRPage from './pages/HR.jsx'
 import LeasesPage from './pages/Leases.jsx'
+import AdminPanel from './pages/AdminPanel.jsx'
 
 function ProtectedRoutes() {
   const { user, loading } = useApp()
@@ -46,6 +47,7 @@ function ProtectedRoutes() {
         <Route path="/compliance" element={<CompliancePage />} />
         <Route path="/hr" element={<HRPage />} />
         <Route path="/leases" element={<LeasesPage />} />
+        <Route path="/admin" element={user.role === 'admin' ? <AdminPanel /> : <Navigate to="/" />} />
         <Route path="/companies/new" element={<CompanyEditPage />} />
         <Route path="/companies/:id/edit" element={<CompanyEditPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

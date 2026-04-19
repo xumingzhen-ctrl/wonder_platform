@@ -89,7 +89,7 @@ def get_pnl(
         fiscal_year = get_current_fiscal_year()
     
     pnl = build_pnl(db, company_id, fiscal_year)
-    if current_user.role == "free":
+    if current_user.role not in ["admin", "premium"]:
         pnl["is_partial_tax"] = True
     else:
         pnl["is_partial_tax"] = False

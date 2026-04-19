@@ -82,7 +82,16 @@ export default function Layout({ children }) {
             </NavLink>
           ))}
 
-          </nav>
+          {user?.role === 'admin' && (
+            <>
+              <div className="nav-group-label" style={{ marginTop: 24 }}>系統管理</div>
+              <NavLink to="/admin" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
+                <span style={{ fontSize: 15 }}>⚙️</span>
+                系統用戶
+              </NavLink>
+            </>
+          )}
+        </nav>
 
         {/* 底部用户 */}
         <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border-light)' }}>

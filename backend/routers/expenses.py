@@ -104,7 +104,7 @@ async def upload_receipts(
     - 每个文件独立处理，单个失败不影响其他文件
     - AI 识别完成后记录状态为 pending，等待人工复核
     """
-    if current_user.role == "free":
+    if current_user.role not in ["admin", "premium"]:
         from datetime import date
         import calendar
         today = date.today()
@@ -279,7 +279,7 @@ async def scan_inbox(
             detail="请提供 company_id 或在 .env 中配置 DEFAULT_COMPANY_ID"
         )
         
-    if current_user.role == "free":
+    if current_user.role not in ["admin", "premium"]:
         from datetime import date
         import calendar
         import os

@@ -183,3 +183,9 @@ export const leasesApi = {
   deleteMiscFee: (companyId, feeId) => 
     api.delete(`/companies/${companyId}/leases/misc/${feeId}`),
 }
+
+// ── Admin (系統管理) ──────────────────────────────────────────
+export const adminApi = {
+  listUsers: () => api.get('/admin/users'),
+  togglePremium: (userId, isPremium) => api.post(`/admin/users/${userId}/toggle-premium`, { is_premium: isPremium }),
+}

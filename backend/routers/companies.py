@@ -39,7 +39,7 @@ def create_company(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role == "free":
+    if current_user.role not in ["admin", "premium"]:
         count = db.query(UserCompanyAccess).filter(UserCompanyAccess.user_id == current_user.id).count()
         if count >= 1:
             raise HTTPException(status_code=403, detail="免費版帳戶只能建立一間公司。如需建立更多，請升級帳戶。")
