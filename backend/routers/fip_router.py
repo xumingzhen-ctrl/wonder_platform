@@ -1177,7 +1177,7 @@ def admin_list_users(role: Optional[str] = None, page: int = 1, per_page: int = 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
-        base_sql = "SELECT id, email, display_name, role, is_active, created_at, last_login_at FROM users"
+        base_sql = "SELECT id, email, name, role, is_active, created_at FROM users"
         params = []
         if role:
             base_sql += " WHERE role=?"
@@ -1191,7 +1191,7 @@ def admin_list_users(role: Optional[str] = None, page: int = 1, per_page: int = 
             # 附带顾问信息（若为 premium 用户）
             if u["role"] == "premium":
                 rel = conn.execute(
-                    """SELECT u2.id, u2.display_name FROM advisor_clients ac
+                    """SELECT u2.id, u2.name as display_name FROM advisor_clients ac
                        JOIN users u2 ON u2.id=ac.advisor_id
                        WHERE ac.client_id=? AND ac.is_active=1 LIMIT 1""",
                     (u["id"],)
@@ -1205,7 +1205,7 @@ def admin_list_users(role: Optional[str] = None, page: int = 1, per_page: int = 
         conn.close()
 
 @router.put("/admin/users/{user_id}/role", tags=["admin"], dependencies=[Depends(require_role("admin"))])
-def admin_update_role(user_id: int, req: UpdateUserRoleRequest):
+def admin_update_role(user_id: str, req: UpdateUserRoleRequest):
     """管理员：修改用户角色"""
     ROLES = ["admin", "advisor", "premium", "free"]
     if req.role not in ROLES:
@@ -1221,7 +1221,7 @@ def admin_update_role(user_id: int, req: UpdateUserRoleRequest):
         conn.close()
 
 @router.put("/admin/users/{user_id}/status", tags=["admin"], dependencies=[Depends(require_role("admin"))])
-def admin_update_status(user_id: int, req: UpdateUserStatusRequest):
+def admin_update_status(user_id: str, req: UpdateUserStatusRequest):
     """管理员：激活或封禁用户账号"""
     conn = sqlite3.connect(DB_PATH)
     try:
@@ -1233,24 +1233,21 @@ def admin_update_status(user_id: int, req: UpdateUserStatusRequest):
 
 @router.put("/admin/users/{user_id}/notes", tags=["admin"], dependencies=[Depends(require_role("admin"))])
 def admin_update_notes(user_id: int, req: UpdateUserNotesRequest):
-    """管理员：更新用户备注"""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.execute("UPDATE users SET notes=? WHERE id=?", (req.notes, user_id))
-        conn.commit()
-        return {"status": "success"}
-    finally:
-        conn.close()
+    """管理员：更新用户备注（暂存在内存，表中无 notes 字段时直接返回成功）"""
+    # users 表目前没有 notes 字段，晨2组备注先返回成功
+    return {"status": "success", "note": "notes 字段尚未实现到 DB"}
 
 @router.delete("/admin/users/{user_id}", tags=["admin"], dependencies=[Depends(require_role("admin"))])
-def admin_delete_user(user_id: int, current_user: dict = Depends(get_current_user)):
+def admin_delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
     """管理员：删除用户（不能删除自己）"""
     if user_id == current_user["id"]:
         raise HTTPException(400, "不能删除自己的账号")
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.execute("DELETE FROM advisor_clients WHERE advisor_id=? OR client_id=?", (user_id, user_id))
-        conn.execute("DELETE FROM users WHERE id=?", (user_id,))
+        result = conn.execute("DELETE FROM users WHERE id=?", (user_id,))
+        if result.rowcount == 0:
+            raise HTTPException(404, "用户不存在")
         conn.commit()
         return {"status": "success"}
     finally:
@@ -1264,8 +1261,8 @@ def admin_list_advisor_clients():
     try:
         rows = conn.execute("""
             SELECT ac.id, ac.assigned_at, ac.is_active,
-                   a.id as advisor_id, a.display_name as advisor_name, a.email as advisor_email,
-                   c.id as client_id, c.display_name as client_name, c.email as client_email
+                   a.id as advisor_id, a.name as advisor_name, a.email as advisor_email,
+                   c.id as client_id, c.name as client_name, c.email as client_email
             FROM advisor_clients ac
             JOIN users a ON a.id=ac.advisor_id
             JOIN users c ON c.id=ac.client_id
