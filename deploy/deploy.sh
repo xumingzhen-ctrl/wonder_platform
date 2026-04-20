@@ -33,16 +33,24 @@ source venv/bin/activate
 pip install -r requirements.txt --quiet
 deactivate
 echo "  ✅ Python 依赖已更新"
-
-# ── 4. 安装前端依赖并构建 ────────────────────────
+# ── 4. 执行数据库迁移 ──────────────────────────
 echo ""
-echo "[3/5] 安装前端依赖..."
+echo "[3/5] 执行数据库迁移..."
+cd "$BACKEND_DIR"
+source venv/bin/activate
+python scratch/migrate_auth.py
+deactivate
+echo "  ✅ 数据库已同步"
+
+# ── 5. 安装前端依赖并构建 ────────────────────────
+echo ""
+echo "[4/5] 安装前端依赖..."
 cd "$PROJECT_DIR"
 pnpm install --frozen-lockfile
 echo "  ✅ 前端依赖已安装"
 
 echo ""
-echo "[4/5] 构建前端应用..."
+echo "[5/6] 构建前端应用..."
 # 单独构建各应用（避免 wonder-hub 的大内存消耗影响其他服务）
 cd "$PROJECT_DIR/apps/wonder-hub"
 NODE_OPTIONS="--max-old-space-size=1024" npx next build
@@ -56,9 +64,9 @@ cd "$PROJECT_DIR/apps/fis-hub"
 npx vite build
 echo "  ✅ FIS Hub 构建完成"
 
-# ── 5. 零停机重载所有进程 ────────────────────────
+# ── 6. 零停机重载所有进程 ────────────────────────
 echo ""
-echo "[5/5] 零停机重载所有服务 (pm2 reload)..."
+echo "[6/6] 零停机重载所有服务 (pm2 reload)..."
 cd "$PROJECT_DIR"
 
 # 检查 PM2 是否已在运行
