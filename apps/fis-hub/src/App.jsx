@@ -1016,7 +1016,7 @@ function App() {
         justifyContent: 'space-between',
       }}>
         <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
-          {currentUser ? `欢迎回来，${currentUser.display_name}` : 'PortfolioHub 财富管理平台'}
+          {currentUser ? `欢迎回来，${currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0] || '用户'}` : 'PortfolioHub 财富管理平台'}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {currentUser ? (
@@ -1031,7 +1031,7 @@ function App() {
               </span>
               {/* 用户名 */}
               <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 500 }}>
-                {currentUser.display_name}
+                {currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0] || '用户'}
               </span>
               {/* 登出按钮 */}
               <button
