@@ -368,7 +368,9 @@ def archive_file(
     archive_path = archive_dir / f"{voucher_number}{suffix}"
     archive_path.write_bytes(file_bytes)
 
-    relative_path = f"{settings.RECEIPTS_ARCHIVE_PATH}/{company_id}/{month_dir}/{voucher_number}{suffix}"
+    # 固定使用相对路径格式存入数据库，不依赖 RECEIPTS_ARCHIVE_PATH 的具体值
+    # 前端 receiptImageUrl() 通过剥离 "receipts_archive/" 前缀来构建 /receipts/... URL
+    relative_path = f"receipts_archive/{company_id}/{month_dir}/{voucher_number}{suffix}"
     logger.info(f"已归档：{filename} → {archive_path}")
     return relative_path
 
