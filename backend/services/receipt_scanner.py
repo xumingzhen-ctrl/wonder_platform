@@ -280,6 +280,9 @@ def generate_voucher_number(db: Session, receipt_date: Optional[date], company_i
 
     年月取自收据实际日期（如 AI 无法识别日期则用当前月份）
     序号在公司+月份维度内自增
+
+    注意：数据库中可能存在旧格式的凭证号（如 EXP-YYYYMM-M001 或含哈希的后缀），
+    此函数通过正则过滤，只考虑纯数字后缀的凭证号，避免 int() 崩溃。
     """
     from models.expense import Expense
 
@@ -287,23 +290,29 @@ def generate_voucher_number(db: Session, receipt_date: Optional[date], company_i
     year_month = target_date.strftime("%Y%m")
     prefix = f"EXP-{year_month}-"
 
-    # 查当月最大序号
-    existing = (
+    # 查询当月所有凭证号（含旧格式），在 Python 层面过滤出纯数字后缀的标准格式
+    existing_all = (
         db.query(Expense.voucher_number)
         .filter(
             Expense.company_id == company_id,
             Expense.voucher_number.like(f"{prefix}%"),
         )
-        .order_by(Expense.voucher_number.desc())
-        .first()
+        .all()
     )
 
-    if existing:
-        last_num = int(existing[0].split("-")[-1])
-        next_num = last_num + 1
-    else:
-        next_num = 1
+    max_num = 0
+    for (vnum,) in existing_all:
+        suffix = vnum[len(prefix):]  # 截取前缀之后的部分
+        # 只处理纯数字后缀（忽略 M001、FE7A99、EMP-001 等旧式格式）
+        if re.match(r"^\d+$", suffix):
+            try:
+                num = int(suffix)
+                if num > max_num:
+                    max_num = num
+            except ValueError:
+                pass  # 理论上正则已保证是数字，此处仅作双重保险
 
+    next_num = max_num + 1
     return f"{prefix}{next_num:04d}"
 
 
