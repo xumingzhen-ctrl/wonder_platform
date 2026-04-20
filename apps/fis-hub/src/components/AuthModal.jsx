@@ -179,7 +179,7 @@ export default function AuthModal({ onSuccess, onClose }) {
 
   /* ═══════════════════════════════════════════════════════════════ */
   return (
-    <div onClick={onClose} style={overlayStyle}>
+    <div style={overlayStyle}>
       <div
         onClick={e => e.stopPropagation()}
         style={{
