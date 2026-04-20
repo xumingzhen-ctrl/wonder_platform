@@ -38,7 +38,7 @@ echo ""
 echo "[3/5] 执行数据库迁移..."
 cd "$BACKEND_DIR"
 source venv/bin/activate
-python scratch/migrate_auth.py
+python scripts/migrate_auth.py
 deactivate
 echo "  ✅ 数据库已同步"
 
