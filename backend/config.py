@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     OPENROUTER_MODEL_FREE: str = "qwen/qwen2.5-vl-72b-instruct"
     OPENROUTER_MODEL_PAID: str = "qwen/qwen2.5-vl-72b-instruct"
+    
+    # ── 数据源配置 (Financial Data Providers) ───────────────────
+    EODHD_API_KEY: str = ""
+    FMP_API_KEY: str = ""
 
     # ── 收据文件夹配置 ───────────────────────────────────────────
     RECEIPTS_INBOX_PATH: str = "./receipts_inbox"       # 待处理收据投放目录

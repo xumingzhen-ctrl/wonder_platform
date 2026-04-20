@@ -718,9 +718,8 @@ class RealTimeProvider:
                 except Exception as e:
                     logger.error(f"EODHD Div Fetch Error for {isin}: {e}")
                     
-            # Funds that fail EODHD or lack premium key return empty series
-            # Avoid sending raw LU/IE ISINs to yfinance which results in 404 spam.
-            return pd.Series(dtype=float)
+            # If EODHD fails or no key, proceed to yfinance fallback below.
+            pass
 
         # --- Standard yfinance Route ---
         try:

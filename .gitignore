@@ -3,6 +3,7 @@ node_modules/
 __pycache__/
 *.pyc
 .env
+.env.bak
 .venv
 venv/
 env/
@@ -11,9 +12,17 @@ dist/
 build/
 *.db
 *.sqlite3
+scratch/
+**/scratch/
 # 生产环境机密文件（含 API Keys 和 SECRET_KEY，绝对不能提交）
 deploy/.env.production
 # PM2 运行日志
 logs/
 # Next.js 构建缓存
 .next/
+receipts_inbox/
+receipts_archive/
+receipts_error/
+statements_inbox/
+statements_archive/
+statements_error/
