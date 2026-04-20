@@ -17,6 +17,9 @@ import CompliancePage from './pages/Compliance.jsx'
 import HRPage from './pages/HR.jsx'
 import LeasesPage from './pages/Leases.jsx'
 import AdminPanel from './pages/AdminPanel.jsx'
+import ForgotPasswordPage from './pages/ForgotPassword.jsx'
+import ResetPasswordPage from './pages/ResetPassword.jsx'
+import VerifyEmailPage from './pages/VerifyEmail.jsx'
 
 function ProtectedRoutes() {
   const { user, loading } = useApp()
@@ -62,6 +65,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPublic />} />
         <Route path="/register" element={<RegisterPublic />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/*" element={<ProtectedRoutes />} />
       </Routes>
     </AppProvider>

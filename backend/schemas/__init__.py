@@ -19,12 +19,27 @@ class TokenResponse(BaseModel):
     role: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+    redirect_url: Optional[str] = None
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
 # ─── User ───────────────────────────────────────────────────────────────────
 
 class UserCreate(BaseModel):
     email: EmailStr
     name: str
     password: str
+    redirect_url: Optional[str] = None
 
 
 class UserOut(BaseModel):
@@ -33,6 +48,7 @@ class UserOut(BaseModel):
     name: str
     role: str
     is_active: bool
+    is_verified: bool
     created_at: datetime
 
     class Config:

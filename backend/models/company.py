@@ -51,9 +51,24 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     role = Column(String(50), default="free", nullable=False)  # admin, premium, free
     is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     company_accesses = relationship("UserCompanyAccess", back_populates="user")
+
+
+class UserToken(Base):
+    """用于存储邮箱验证、重置密码等临时 Token"""
+    __tablename__ = "user_tokens"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    token = Column(String(255), unique=True, nullable=False, index=True)
+    type = Column(String(50), nullable=False)  # verification, reset
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
 
 
 class Company(Base):

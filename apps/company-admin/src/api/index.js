@@ -24,8 +24,11 @@ export default api
 // ── Auth ─────────────────────────────────────────────────────────────────
 export const authApi = {
   login: (email, password) => api.post('/auth/login', { email, password }),
-  register: (data) => api.post('/auth/register', data),
+  register: (data) => api.post('/auth/register', { ...data, redirect_url: window.location.origin }),
   me: () => api.get('/auth/me'),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email, redirect_url: window.location.origin }),
+  resetPassword: (token, new_password) => api.post('/auth/reset-password', { token, new_password }),
+  verifyEmail: (token) => api.get('/auth/verify-email', { params: { token } }),
 }
 
 // ── Companies ─────────────────────────────────────────────────────────────

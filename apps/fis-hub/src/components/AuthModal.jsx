@@ -113,6 +113,7 @@ export default function AuthModal({ onSuccess, onClose }) {
             email: regEmail.trim(),
             name: regName.trim(),
             password: regPwd,
+            redirect_url: window.location.origin
           };
 
       let data;
@@ -205,10 +206,10 @@ export default function AuthModal({ onSuccess, onClose }) {
 
         {/* ── 模式选项卡 ── */}
         <div style={tabBarStyle}>
-          {['login', 'register'].map(m => (
+          {['login', 'register', 'forgot'].map(m => (
             <button
               key={m}
-              onClick={() => switchMode(m)}
+              onClick={() => switchMode(m === 'forgot' ? 'forgot' : m)}
               style={{
                 ...tabBtnBase,
                 background: mode === m ? 'rgba(99,102,241,0.22)' : 'transparent',
@@ -216,10 +217,61 @@ export default function AuthModal({ onSuccess, onClose }) {
                 borderBottom: mode === m ? '2px solid #818cf8' : '2px solid transparent',
               }}
             >
-              {m === 'login' ? '登 录' : '注 册'}
+              {m === 'login' ? '登 录' : m === 'register' ? '注 册' : '找回密码'}
             </button>
           ))}
         </div>
+
+        {/* ══════════════════ 找回密码表单 ══════════════════ */}
+        {mode === 'forgot' && (
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setError('');
+            setSuccess('');
+            if (!loginEmail.trim()) { setError('请输入邮箱地址'); return; }
+            setLoading(true);
+            try {
+              const res = await fetch(`${API}/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  email: loginEmail.trim(),
+                  redirect_url: window.location.origin
+                }),
+              });
+              const data = await res.json();
+              if (res.ok) {
+                setSuccess('重置链接已发送到您的邮箱，请查收');
+              } else {
+                setError(data.detail || '请求失败');
+              }
+            } catch (err) {
+              setError('网络错误');
+            } finally {
+              setLoading(false);
+            }
+          }} noValidate style={{ marginTop: 20 }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginBottom: 16 }}>
+              请输入您的邮箱，我们将向您发送重置密码的链接。
+            </p>
+            <Field label="邮箱地址">
+              <input
+                autoFocus
+                type="email"
+                value={loginEmail}
+                onChange={e => setLoginEmail(e.target.value)}
+                placeholder="your@email.com"
+                style={inputStyle}
+              />
+            </Field>
+            <ErrorBox msg={error} />
+            <SuccessBox msg={success} />
+            <SubmitBtn loading={loading} label="发送重置链接" loadingLabel="发送中…" />
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <button type="button" onClick={() => setMode('login')} style={linkBtnStyle}>返回登录</button>
+            </div>
+          </form>
+        )}
 
         {/* ══════════════════ 登录表单 ══════════════════ */}
         {mode === 'login' && (
@@ -248,6 +300,12 @@ export default function AuthModal({ onSuccess, onClose }) {
                 style={{ ...inputStyle, paddingRight: 40 }}
               />
             </Field>
+
+            <div style={{ textAlign: 'right', marginTop: -8, marginBottom: 16 }}>
+              <button type="button" onClick={() => setMode('forgot')} style={{ ...linkBtnStyle, fontSize: 12, textDecoration: 'none' }}>
+                忘记密码？
+              </button>
+            </div>
 
             <ErrorBox msg={error} />
 

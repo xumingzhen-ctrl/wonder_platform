@@ -51,7 +51,16 @@ export default function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">密碼</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label className="form-label">密碼</label>
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); navigate('/forgot-password'); }} 
+                style={{ fontSize: 12, color: 'var(--color-primary)', textDecoration: 'none' }}
+              >
+                忘記密碼？
+              </a>
+            </div>
             <input
               className="form-input"
               type="password"

@@ -29,7 +29,22 @@ const ROLE_META = {
   free:    { label: '普通用户', color: '#6b7280' },
 };
 
+import { VerifyEmailOverlay, ResetPasswordOverlay } from './components/AuthOverlays';
+
 function App() {
+  const [urlParams] = useState(new URLSearchParams(window.location.search));
+  const [authAction, setAuthAction] = useState(() => {
+    if (window.location.pathname === '/verify-email') return 'verify';
+    if (window.location.pathname === '/reset-password') return 'reset';
+    return null;
+  });
+  const token = urlParams.get('token');
+
+  const closeAuthAction = () => {
+    setAuthAction(null);
+    window.history.replaceState({}, '', '/');
+  };
+
   const [portfolios, setPortfolios] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [activeTab, setActiveTab] = useState('portfolios'); // 'portfolios' or 'lab'
@@ -1233,6 +1248,14 @@ function App() {
           onSuccess={handleAuthSuccess}
           onClose={() => setAuthModalOpen(false)}
         />
+      )}
+
+      {/* ── Verification / Reset Overlays ── */}
+      {authAction === 'verify' && (
+        <VerifyEmailOverlay token={token} onClose={closeAuthAction} />
+      )}
+      {authAction === 'reset' && (
+        <ResetPasswordOverlay token={token} onClose={closeAuthAction} />
       )}
     </div>
   );
