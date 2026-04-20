@@ -1065,7 +1065,7 @@ function App() {
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab} setActiveTab={setActiveTab}
-        portfolios={portfolios} activeId={activeId} setActiveId={setActiveId}
+        portfolios={portfolios} setPortfolios={setPortfolios} activeId={activeId} setActiveId={setActiveId}
         setShowModal={setShowModal} setShowBrokerImport={setShowBrokerImport} setShowBrokerSync={setShowBrokerSync}
         setDeleteCandidate={setDeleteCandidate} setShowDeleteModal={setShowDeleteModal}
         savedScenarios={savedScenarios} handleLoadScenario={handleLoadScenario} handleDeleteScenario={handleDeleteScenario}

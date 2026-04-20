@@ -380,17 +380,17 @@ def list_portfolios(request: Request):
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     if role == "admin":
-        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios ORDER BY id")
+        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios ORDER BY COALESCE(sort_order, id)")
     elif role == "advisor":
         cursor.execute("""
             SELECT p.id, p.name, p.created_at, p.dividend_strategy, p.is_public, p.user_id 
             FROM portfolios p
             LEFT JOIN advisor_clients ac ON p.user_id = ac.client_id AND ac.advisor_id = ? AND ac.is_active = 1
             WHERE p.is_public=1 OR p.user_id=? OR ac.client_id IS NOT NULL
-            ORDER BY p.id
+            ORDER BY COALESCE(p.sort_order, p.id)
         """, (user_id, user_id))
     else:
-        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios WHERE is_public=1 OR user_id=? ORDER BY id", (user_id,))
+        cursor.execute("SELECT id, name, created_at, dividend_strategy, is_public, user_id FROM portfolios WHERE is_public=1 OR user_id=? ORDER BY COALESCE(sort_order, id)", (user_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
@@ -624,6 +624,25 @@ def delete_portfolio(id: int, user: dict = Depends(get_current_user)):
     conn.commit()
     conn.close()
     return {"status": "success"}
+
+class ReorderPortfoliosRequest(BaseModel):
+    ordered_ids: List[int]  # 组合 ID 按新顺序排列
+
+@router.put("/portfolios/reorder")
+def reorder_portfolios(req: ReorderPortfoliosRequest, user: dict = Depends(get_current_user)):
+    """批量更新组合的 sort_order，实现拖拽排序持久化。"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    try:
+        for index, portfolio_id in enumerate(req.ordered_ids):
+            cursor.execute("UPDATE portfolios SET sort_order = ? WHERE id = ?", (index, portfolio_id))
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
 
 class RebalanceExecuteRequest(BaseModel):
     as_of_date: Optional[str] = None  # ISO date e.g. '2024-01-01'; None = today
