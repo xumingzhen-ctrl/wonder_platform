@@ -8,9 +8,6 @@
 
 import { useState, useEffect } from "react";
 
-const BACKEND_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5001";
-
 interface CurrentUser {
   id: number;
   email: string;
@@ -41,7 +38,8 @@ export function useAuth(): AuthState {
       return;
     }
 
-    fetch(`${BACKEND_BASE}/api/auth/me`, {
+    // 通过 Next.js 代理访问后端（/api/* → localhost:8000/*）
+    fetch("/api/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {

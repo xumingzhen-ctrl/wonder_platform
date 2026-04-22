@@ -1,17 +1,44 @@
 "use client";
 
 /**
- * 文章内嵌登录门
- * 用户登录成功后，将 JWT 存入 cookie（让服务端可读）并刷新页面
+ * 文章内嵌登录/权限门
+ * - 未登录 → 显示登录表单
+ * - 已登录但 free 角色 → 显示权限不足提示
+ * - 登录成功后存 JWT 到 cookie 并刷新
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// 有权阅读受限文章的角色（与 fis-hub / company-admin 一致）
+const PRIVILEGED_ROLES = ["admin", "premium", "advisor"];
 
 export function ArticleLoginGate({ slug }: { slug: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
+
+  // 检查当前登录状态和角色
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setChecking(false);
+      return;
+    }
+    // 从 JWT payload 解码 role
+    try {
+      const parts = token.split(".");
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        setUserRole(payload.role || "free");
+      }
+    } catch {
+      // token 无效
+    }
+    setChecking(false);
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -27,13 +54,21 @@ export function ArticleLoginGate({ slug }: { slug: string }) {
       if (!res.ok) throw new Error(data.detail || "登录失败");
 
       const token = data.access_token;
+      const role = data.role || "free";
 
-      // 同时存 localStorage（供其他子系统）和 cookie（供服务端读取）
+      // 存 localStorage + cookie
       localStorage.setItem("token", token);
       document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
 
-      // 刷新当前页面（服务端重新判断权限）
-      window.location.reload();
+      // 检查角色
+      if (PRIVILEGED_ROLES.includes(role)) {
+        // 有权 → 刷新显示全文
+        window.location.reload();
+      } else {
+        // free 角色 → 显示权限不足
+        setUserRole(role);
+        setError("");
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "登录失败，请重试");
     } finally {
@@ -41,6 +76,34 @@ export function ArticleLoginGate({ slug }: { slug: string }) {
     }
   }
 
+  if (checking) return null;
+
+  // 已登录但权限不足
+  if (userRole && !PRIVILEGED_ROLES.includes(userRole)) {
+    return (
+      <div className="my-8 rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-8 shadow-sm text-center">
+        <div className="inline-flex w-14 h-14 items-center justify-center rounded-2xl bg-amber-100 text-2xl mb-4">
+          🔐
+        </div>
+        <h3 className="text-xl font-semibold text-card-foreground mb-2">
+          权限不足
+        </h3>
+        <p className="text-sm text-foreground/60 max-w-sm mx-auto leading-relaxed mb-4">
+          您已登录，但当前账户（{userRole}）无权查看客户通讯内容。
+          <br />
+          此内容仅对 WONDER 签约客户开放。
+        </p>
+        <p className="text-xs text-muted-foreground">
+          如需升级权限，请
+          <a href="mailto:hello@wonderwisdom.online" className="text-primary hover:underline ml-1">
+            联系顾问
+          </a>
+        </p>
+      </div>
+    );
+  }
+
+  // 未登录 → 显示登录表单
   return (
     <div className="my-8 rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-8 shadow-sm">
       <div className="text-center mb-6">

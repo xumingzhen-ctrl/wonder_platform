@@ -94,23 +94,51 @@ const mdxComponents = {
   ),
 };
 
+// 有权阅读受限文章的角色（与 fis-hub / company-admin 一致）
+const PRIVILEGED_ROLES = ["admin", "premium", "advisor"];
+
+/**
+ * 从 JWT 中解码角色信息（不验证签名，仅解码 payload）
+ * 签名验证由后端负责，前端 SSR 仅需判断角色
+ */
+function decodeJwtRole(token: string): string | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf-8"));
+    return payload.role || null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── 访问控制判断 ────────────────────────────────────────────────────────
 async function checkAccess(slug: string, searchParams: Record<string, string>): Promise<boolean> {
-  // 1. 微信 token（URL 参数 ?wc=TOKEN）
+  // 1. 微信 token（URL 参数 ?wc=TOKEN）→ 永久有效，不看角色
   const wcToken = searchParams["wc"];
   if (wcToken && verifyWechatToken(wcToken, slug)) {
     return true;
   }
 
-  // 2. JWT token（localStorage → 通过 cookie 传入）
+  // 2. JWT token（cookie 传入）→ 解码 role，仅 admin/premium/advisor 放行
   const cookieStore = await cookies();
   const jwtCookie = cookieStore.get("token")?.value;
-  if (jwtCookie) return true;
+  if (jwtCookie) {
+    const role = decodeJwtRole(jwtCookie);
+    if (role && PRIVILEGED_ROLES.includes(role)) return true;
+    // free 角色已登录但无权 → 不放行
+    return false;
+  }
 
   // 3. Authorization header（API 场景）
   const headersList = await headers();
   const authHeader = headersList.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) return true;
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    const role = decodeJwtRole(token);
+    if (role && PRIVILEGED_ROLES.includes(role)) return true;
+    return false;
+  }
 
   return false;
 }

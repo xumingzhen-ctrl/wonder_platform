@@ -7,6 +7,9 @@ import { RESTRICTED_CATEGORY } from "@/lib/constants";
 import { useAuth } from "@/lib/useAuth";
 import { cn } from "@/lib/utils";
 
+// 有权阅读受限文章的角色（与后端、fis-hub、company-admin 一致）
+const PRIVILEGED_ROLES = ["admin", "premium", "advisor"];
+
 // ─── 分类颜色 ─────────────────────────────────────────────────────────────
 const CATEGORY_STYLE: Record<string, string> = {
   投资理念: "bg-blue-50 text-blue-700 border-blue-200",
@@ -43,7 +46,9 @@ function InlineLoginModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "登录失败");
+      // 同时存 localStorage + cookie（cookie 让 SSR 可读）
       localStorage.setItem("token", data.access_token);
+      document.cookie = `token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
       onSuccess();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "登录失败，请重试");
@@ -55,11 +60,9 @@ function InlineLoginModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
     >
       <div
         className="w-full max-w-sm bg-card border border-border rounded-3xl p-8 shadow-2xl relative"
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -118,14 +121,18 @@ function InlineLoginModal({
 function NewsletterCard({
   post,
   isLoggedIn,
+  userRole,
   onLoginRequest,
 }: {
   post: BlogPostMeta;
   isLoggedIn: boolean;
+  userRole?: string;
   onLoginRequest: () => void;
 }) {
+  const hasAccess = isLoggedIn && userRole && PRIVILEGED_ROLES.includes(userRole);
+
   function handleClick(e: React.MouseEvent) {
-    if (!isLoggedIn) {
+    if (!hasAccess) {
       e.preventDefault();
       onLoginRequest();
     }
@@ -145,11 +152,13 @@ function NewsletterCard({
           <span className="text-xs text-muted-foreground">{post.date}</span>
           <span className={cn(
             "ml-auto text-xs font-medium px-2 py-0.5 rounded-full",
-            isLoggedIn
+            hasAccess
               ? "bg-emerald-50 text-emerald-600"
-              : "bg-foreground/5 text-muted-foreground"
+              : isLoggedIn
+                ? "bg-orange-50 text-orange-600"
+                : "bg-foreground/5 text-muted-foreground"
           )}>
-            {isLoggedIn ? "已授权" : "🔒 客户专属"}
+            {hasAccess ? "已授权" : isLoggedIn ? "🔐 需升级" : "🔒 客户专属"}
           </span>
         </div>
 
@@ -183,13 +192,20 @@ function NewsletterCard({
           onClick={handleClick}
           className={cn(
             "inline-flex items-center gap-2 text-sm font-medium transition-all duration-200",
-            isLoggedIn
+            hasAccess
               ? "text-amber-700 hover:text-amber-900"
               : "text-muted-foreground cursor-pointer"
           )}
         >
-          {isLoggedIn ? (
+          {hasAccess ? (
             <>阅读全文 <span className="group-hover:translate-x-1 transition-transform">→</span></>
+          ) : isLoggedIn ? (
+            <>
+              <span className="text-xs">权限不足</span>
+              <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">
+                联系顾问升级
+              </span>
+            </>
           ) : (
             <>
               <span className="text-xs">登录查看全文</span>
@@ -248,7 +264,8 @@ function ArticleCard({ post }: { post: BlogPostMeta }) {
 
 // ─── 主组件 ──────────────────────────────────────────────────────────────
 export function BlogList({ posts }: { posts: BlogPostMeta[] }) {
-  const { isLoggedIn, loading } = useAuth();
+  const { user, isLoggedIn, loading } = useAuth();
+  const userRole = user?.role;
   const [activeCategory, setActiveCategory] = useState<string>("全部");
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -310,13 +327,13 @@ export function BlogList({ posts }: { posts: BlogPostMeta[] }) {
         ))}
 
         {/* 客户通讯说明标注 */}
-        {!isLoggedIn && posts.some(p => p.category === RESTRICTED_CATEGORY) && (
+        {!(isLoggedIn && userRole && PRIVILEGED_ROLES.includes(userRole)) && posts.some(p => p.category === RESTRICTED_CATEGORY) && (
           <button
             onClick={() => setLoginModalOpen(true)}
             className="ml-auto flex items-center gap-1.5 text-xs text-amber-600 hover:text-amber-800 transition-colors font-medium"
           >
             <span>🔒</span>
-            <span>客户登录后查看通讯全文</span>
+            <span>{isLoggedIn ? "升级权限以查看通讯" : "客户登录后查看通讯全文"}</span>
           </button>
         )}
       </div>
@@ -329,6 +346,7 @@ export function BlogList({ posts }: { posts: BlogPostMeta[] }) {
               key={post.slug}
               post={post}
               isLoggedIn={isLoggedIn}
+              userRole={userRole}
               onLoginRequest={() => setLoginModalOpen(true)}
             />
           ) : (

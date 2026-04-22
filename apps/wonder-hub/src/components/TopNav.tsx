@@ -41,10 +41,13 @@ function LoginModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "登录失败");
+      // 同时存 localStorage + cookie（cookie 让 SSR 可读）
       localStorage.setItem("token", data.access_token);
+      document.cookie = `token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
       onSuccess({
-        name: data.user?.display_name || data.user?.name || email.split("@")[0],
+        name: data.name || email.split("@")[0],
         email,
+        role: data.role,
       });
       onClose();
     } catch (err: unknown) {
@@ -174,6 +177,7 @@ export function TopNav({ currentPath }: { currentPath?: string }) {
 
   function handleLogout() {
     localStorage.removeItem("token");
+    document.cookie = "token=; path=/; max-age=0; SameSite=Lax";
     setUser(null);
     setMenuOpen(false);
     // 刷新页面以清除受限内容
