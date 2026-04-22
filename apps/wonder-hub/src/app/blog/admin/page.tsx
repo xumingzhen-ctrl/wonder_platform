@@ -11,11 +11,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/useAuth";
 import Link from "next/link";
 
-// 直连后端（绕过 Next.js rewrite 避免重定向丢失 Auth header）
-const API_BASE =
-  typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000")
-    : "http://localhost:8000";
+// 管理页面直连后端（绕过 Next.js rewrite 避免重定向丢失 Auth header）
+// 本地: .env.local → http://localhost:8000
+// 生产: .env.production → https://wonderwisdom.online/api
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "/api";
 
 interface Article {
   slug: string;

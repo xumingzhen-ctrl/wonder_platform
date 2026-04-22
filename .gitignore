@@ -26,3 +26,6 @@ receipts_error/
 statements_inbox/
 statements_archive/
 statements_error/
+
+# Word 源文件仅本地使用，无需同步到云端
+articles_inbox/

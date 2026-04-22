@@ -15,66 +15,93 @@ echo ""
 echo "🚀 Wonder Platform 开始部署更新..."
 echo "============================================="
 
+# ── 0. 检查 Swap（低内存服务器必须有 Swap） ─────
+if [ "$(swapon --show | wc -l)" -lt 2 ]; then
+    echo ""
+    echo "⚠️  未检测到 Swap，正在创建 1GB Swap 文件..."
+    sudo fallocate -l 1G /swapfile 2>/dev/null || sudo dd if=/dev/zero of=/swapfile bs=1M count=1024
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    # 持久化
+    grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+    echo "  ✅ Swap 已创建并启用"
+else
+    echo "  ✅ Swap 已存在：$(free -h | awk '/Swap/{print $2}')"
+fi
+
 # ── 1. 确保日志目录存在 ─────────────────────────
 mkdir -p "$LOG_DIR"
 
-# ── 2. 拉取最新代码 ─────────────────────────────
+# ── 2. 备份数据库 ────────────────────────────────
 echo ""
-echo "[1/5] 拉取最新代码 (git pull)..."
+echo "[1/7] 备份数据库..."
+if [ -f "$PROJECT_DIR/deploy/backup.sh" ]; then
+    bash "$PROJECT_DIR/deploy/backup.sh"
+else
+    echo "  ⚠️ 备份脚本不存在，跳过"
+fi
+
+# ── 3. 停止所有服务（释放内存给构建过程） ────────
+echo ""
+echo "[2/7] 停止所有服务以释放内存..."
+pm2 stop all 2>/dev/null || true
+echo "  ✅ 服务已停止，内存已释放"
+
+# ── 4. 拉取最新代码 ─────────────────────────────
+echo ""
+echo "[3/7] 拉取最新代码 (git pull)..."
 cd "$PROJECT_DIR"
 git pull origin main
 echo "  ✅ 代码已更新"
 
-# ── 3. 更新 Python 依赖 ──────────────────────────
+# ── 5. 更新 Python 依赖 + 数据库迁移 ────────────
 echo ""
-echo "[2/5] 更新 Python 依赖..."
+echo "[4/7] 更新 Python 依赖 + 数据库迁移..."
 cd "$BACKEND_DIR"
 source venv/bin/activate
 pip install -r requirements.txt --quiet
-deactivate
-echo "  ✅ Python 依赖已更新"
-# ── 4. 执行数据库迁移 ──────────────────────────
-echo ""
-echo "[3/5] 执行数据库迁移..."
-cd "$BACKEND_DIR"
-source venv/bin/activate
 python scripts/migrate_auth.py
 deactivate
-echo "  ✅ 数据库已同步"
+echo "  ✅ Python 依赖已更新，数据库已迁移"
 
-# ── 5. 安装前端依赖并构建 ────────────────────────
+# ── 6. 安装前端依赖并构建 ────────────────────────
 echo ""
-echo "[4/5] 安装前端依赖..."
+echo "[5/7] 安装前端依赖..."
 cd "$PROJECT_DIR"
 pnpm install --frozen-lockfile
 echo "  ✅ 前端依赖已安装"
 
 echo ""
-echo "[5/6] 构建前端应用..."
-# 单独构建各应用（避免 wonder-hub 的大内存消耗影响其他服务）
+echo "[6/7] 构建前端应用（逐个构建，防止内存溢出）..."
+
+# Wonder Hub（Next.js，内存消耗最大）
 cd "$PROJECT_DIR/apps/wonder-hub"
-NODE_OPTIONS="--max-old-space-size=1024" npx next build
+echo "  📦 构建 Wonder Hub..."
+NODE_OPTIONS="--max-old-space-size=768" npx next build
 echo "  ✅ Wonder Hub 构建完成"
 
+# Company Admin（Vite，内存消耗小）
 cd "$PROJECT_DIR/apps/company-admin"
+echo "  📦 构建 Company Admin..."
 npx vite build
 echo "  ✅ Company Admin 构建完成"
 
+# FIS Hub（Vite，内存消耗小）
 cd "$PROJECT_DIR/apps/fis-hub"
+echo "  📦 构建 FIS Hub..."
 npx vite build
 echo "  ✅ FIS Hub 构建完成"
 
-# ── 6. 零停机重载所有进程 ────────────────────────
+# ── 7. 启动所有服务 ──────────────────────────────
 echo ""
-echo "[6/6] 零停机重载所有服务 (pm2 reload)..."
+echo "[7/7] 启动所有服务..."
 cd "$PROJECT_DIR"
 
-# 检查 PM2 是否已在运行
-if pm2 list | grep -q "wonder-backend"; then
-    pm2 reload deploy/ecosystem.config.js --update-env
-    echo "  ✅ 所有进程已零停机重载"
+if pm2 list 2>/dev/null | grep -q "wonder-backend"; then
+    pm2 start deploy/ecosystem.config.js --update-env
+    echo "  ✅ 所有进程已启动"
 else
-    # 首次启动
     pm2 start deploy/ecosystem.config.js
     pm2 save
     echo "  ✅ 所有进程已首次启动"
@@ -85,6 +112,9 @@ echo ""
 echo "============================================="
 echo "✅ 部署完成！当前服务状态："
 pm2 status
+echo ""
+echo "💾 内存使用情况："
+free -h
 echo ""
 echo "📋 常用运维命令："
 echo "  查看实时日志：pm2 logs"
