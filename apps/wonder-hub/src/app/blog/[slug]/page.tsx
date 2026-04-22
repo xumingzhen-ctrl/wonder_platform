@@ -2,6 +2,31 @@ import Link from "next/link";
 import { getAllSlugs, getPostBySlug } from "@/lib/blog";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { notFound } from "next/navigation";
+import { cookies, headers } from "next/headers";
+import { RESTRICTED_CATEGORY } from "@/lib/constants";
+import { ArticleLoginGate } from "./ArticleLoginGate";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+
+// 微信通行证密钥（与公众号文章链接使用同一 secret）
+// 生产环境请移至 .env.local → WECHAT_TOKEN_SECRET
+const WECHAT_SECRET = process.env.WECHAT_TOKEN_SECRET ?? "wonder-wechat-2024";
+
+/**
+ * 验证微信通行 token（永久有效，无月份限制）
+ * 格式: base64url(slug::secret)
+ */
+function verifyWechatToken(token: string, slug: string): boolean {
+  try {
+    const decoded = Buffer.from(token, "base64url").toString("utf-8");
+    // 格式: slug::secret  或旧格式 slug::secret::YYYYMM（兼容旧 token）
+    const parts = decoded.split("::");
+    const [tSlug, tSecret] = parts;
+    return tSlug === slug && tSecret === WECHAT_SECRET;
+  } catch {
+    return false;
+  }
+}
 
 // 用于 Next.js 静态导出：预生成所有文章路径
 export async function generateStaticParams() {
@@ -24,169 +49,174 @@ export async function generateMetadata({
   };
 }
 
-// MDX 自定义组件映射（精美排版覆盖默认样式）
+// MDX 自定义组件映射
 const mdxComponents = {
-  // 大标题 h2 - 章节分隔
   h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2
-      className="text-3xl font-semibold text-card-foreground mt-16 mb-6 pb-4 border-b border-border/60"
-      {...props}
-    />
+    <h2 className="text-3xl font-semibold text-card-foreground mt-16 mb-6 pb-4 border-b border-border/60" {...props} />
   ),
-  // 三级标题
   h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h3
-      className="text-2xl font-semibold text-card-foreground mt-10 mb-4"
-      {...props}
-    />
+    <h3 className="text-2xl font-semibold text-card-foreground mt-10 mb-4" {...props} />
   ),
-  // 高亮引用块 - 对应"WONDER 策略观点"
   blockquote: (props: React.HTMLAttributes<HTMLQuoteElement>) => (
-    <blockquote
-      className="my-8 pl-6 border-l-4 border-primary bg-primary/5 rounded-r-2xl py-5 pr-6 text-foreground/80 italic"
-      {...props}
-    />
+    <blockquote className="my-8 pl-6 border-l-4 border-primary bg-primary/5 rounded-r-2xl py-5 pr-6 text-foreground/80 italic" {...props} />
   ),
-  // 表格
   table: (props: React.HTMLAttributes<HTMLTableElement>) => (
     <div className="my-8 overflow-x-auto rounded-2xl border border-border">
-      <table
-        className="w-full text-sm border-collapse"
-        {...props}
-      />
+      <table className="w-full text-sm border-collapse" {...props} />
     </div>
   ),
   th: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
-    <th
-      className="bg-card/80 px-6 py-3 text-left font-semibold text-card-foreground border-b border-border text-base"
-      {...props}
-    />
+    <th className="bg-muted/60 px-6 py-3 text-left font-semibold text-card-foreground border-b border-border text-sm" {...props} />
   ),
   td: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
-    <td
-      className="px-6 py-3 border-b border-border/50 text-foreground/80 text-base"
-      {...props}
-    />
+    <td className="px-6 py-3 border-b border-border/50 text-foreground/80 text-sm" {...props} />
   ),
-  // 段落
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p
-      className="text-lg leading-[1.9] text-foreground/85 mb-6"
-      {...props}
-    />
+    <p className="text-lg leading-[1.9] text-foreground/85 mb-6" {...props} />
   ),
-  // 列表
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul
-      className="my-6 space-y-3 pl-6"
-      {...props}
-    />
+    <ul className="my-6 space-y-3 pl-6" {...props} />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
-    <li
-      className="text-lg text-foreground/80 leading-relaxed list-disc marker:text-primary"
-      {...props}
-    />
+    <li className="text-lg text-foreground/80 leading-relaxed list-disc marker:text-primary" {...props} />
   ),
-  // 强调
   strong: (props: React.HTMLAttributes<HTMLElement>) => (
     <strong className="font-semibold text-card-foreground" {...props} />
   ),
-  // 水平分割线
-  hr: () => (
-    <hr className="my-14 border-border/50" />
+  hr: () => <hr className="my-14 border-border/50" />,
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className="w-full max-w-full rounded-2xl shadow-md my-8 block"
+      alt={props.alt || "图片"}
+      {...props}
+    />
   ),
 };
 
+// ─── 访问控制判断 ────────────────────────────────────────────────────────
+async function checkAccess(slug: string, searchParams: Record<string, string>): Promise<boolean> {
+  // 1. 微信 token（URL 参数 ?wc=TOKEN）
+  const wcToken = searchParams["wc"];
+  if (wcToken && verifyWechatToken(wcToken, slug)) {
+    return true;
+  }
+
+  // 2. JWT token（localStorage → 通过 cookie 传入）
+  const cookieStore = await cookies();
+  const jwtCookie = cookieStore.get("token")?.value;
+  if (jwtCookie) return true;
+
+  // 3. Authorization header（API 场景）
+  const headersList = await headers();
+  const authHeader = headersList.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) return true;
+
+  return false;
+}
+
+// ─── 页面组件 ─────────────────────────────────────────────────────────────
 export default async function BlogPost({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string>>;
 }) {
   const { slug } = await params;
+  const sp = await searchParams;
   const post = getPostBySlug(slug);
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
+
+  // 受限文章访问控制
+  const isRestricted = post.restricted || post.category === RESTRICTED_CATEGORY;
+  const hasAccess = isRestricted ? await checkAccess(slug, sp) : true;
+
+  // 文章框架（标题/摘要区始终显示）
+  const articleHeader = (
+    <header className="mb-16">
+      <div className="flex flex-wrap gap-2 mb-8">
+        {post.tags.map((tag) => (
+          <span key={tag} className="text-sm font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary">
+            {tag}
+          </span>
+        ))}
+        {isRestricted && (
+          <span className="ml-auto text-xs font-medium px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+            客户通讯
+          </span>
+        )}
+      </div>
+      <h1 className="text-4xl md:text-5xl font-semibold text-card-foreground leading-tight mb-10">
+        {post.title}
+      </h1>
+      <p className="text-xl text-foreground/70 font-light leading-relaxed mb-10 border-l-4 border-primary/30 pl-6">
+        {post.summary}
+      </p>
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-3 py-6 border-t border-b border-border text-sm font-mono text-foreground/50">
+        <span className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary inline-block" />
+          {post.author}
+        </span>
+        <span>{post.date.replace(/-/g, " · ")}</span>
+        <span>预计阅读 {post.readingTime} 分钟</span>
+      </div>
+    </header>
+  );
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Sticky top navigation bar */}
-      <div className="border-b border-border bg-card/70 backdrop-blur-md sticky top-0 z-10">
+      {/* 顶部面包屑 */}
+      <div className="border-b border-border bg-card/70 backdrop-blur-md sticky top-16 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link
-            href="/blog"
-            className="text-primary hover:text-primary/70 transition-colors text-base font-medium flex items-center gap-2"
-          >
+          <Link href="/blog" className="text-primary hover:text-primary/70 transition-colors text-base font-medium flex items-center gap-2">
             <span>←</span>
             <span>返回研究列表</span>
           </Link>
-          <Link
-            href="/"
-            className="text-foreground/50 hover:text-foreground transition-colors text-sm font-medium"
-          >
+          <Link href="/" className="text-foreground/50 hover:text-foreground transition-colors text-sm font-medium">
             WONDER
           </Link>
         </div>
       </div>
 
       <article className="max-w-4xl mx-auto px-6 pt-16 pb-32">
-        {/* Article Header */}
-        <header className="mb-16">
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-8">
-            {post.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-sm font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary"
-              >
-                {tag}
-              </span>
-            ))}
+        {articleHeader}
+
+        {hasAccess ? (
+          /* 有权限 → 显示全文 */
+          <div className="article-body prose prose-slate max-w-none">
+            <MDXRemote
+              source={post.content}
+              components={mdxComponents}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm, remarkBreaks],
+                },
+              }}
+            />
           </div>
+        ) : (
+          /* 无权限 → 显示前 200 字 + 登录门 */
+          <>
+            <div className="article-body relative">
+              <div className="text-lg leading-[1.9] text-foreground/85 mb-6 line-clamp-5">
+                {post.content.replace(/[#*`\[\]!]/g, "").slice(0, 300)}...
+              </div>
+              {/* 渐隐遮罩 */}
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+            </div>
+            {/* 客户端登录门（需要 client 组件处理 token 刷新）*/}
+            <ArticleLoginGate slug={slug} />
+          </>
+        )}
 
-          {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-semibold text-card-foreground leading-tight mb-10">
-            {post.title}
-          </h1>
-
-          {/* Summary */}
-          <p className="text-xl text-foreground/70 font-light leading-relaxed mb-10 border-l-4 border-primary/30 pl-6">
-            {post.summary}
-          </p>
-
-          {/* Meta row */}
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3 py-6 border-t border-b border-border text-sm font-mono text-foreground/50">
-            <span className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary inline-block" />
-              {post.author}
-            </span>
-            <span>{post.date.replace(/-/g, " · ")}</span>
-            <span>预计阅读 {post.readingTime} 分钟</span>
-          </div>
-        </header>
-
-        {/* Article Body */}
-        <div className="article-body">
-          <MDXRemote source={post.content} components={mdxComponents} />
-        </div>
-
-        {/* Footer Navigation */}
         <footer className="mt-24 pt-10 border-t border-border flex items-center justify-between">
-          <Link
-            href="/blog"
-            className="flex items-center gap-3 text-primary hover:text-primary/70 text-base font-medium transition-colors"
-          >
-            <span>←</span>
-            <span>返回研究列表</span>
+          <Link href="/blog" className="flex items-center gap-3 text-primary hover:text-primary/70 text-base font-medium transition-colors">
+            <span>←</span><span>返回研究列表</span>
           </Link>
-          <Link
-            href="/assessment"
-            className="flex items-center gap-3 text-foreground/60 hover:text-primary text-base font-medium transition-colors"
-          >
-            <span>开启财务诊断</span>
-            <span>→</span>
+          <Link href="/assessment" className="flex items-center gap-3 text-foreground/60 hover:text-primary text-base font-medium transition-colors">
+            <span>开启财务诊断</span><span>→</span>
           </Link>
         </footer>
       </article>

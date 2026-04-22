@@ -5,6 +5,9 @@ import matter from "gray-matter";
 // 文章目录位置
 const BLOG_DIR = path.join(process.cwd(), "src/content/blog");
 
+import { RESTRICTED_CATEGORY } from "./constants";
+export { RESTRICTED_CATEGORY };
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -14,6 +17,7 @@ export interface BlogPost {
   category: string;
   author: string;
   readingTime: number;
+  restricted: boolean;
   content: string;
 }
 
@@ -81,6 +85,8 @@ export function getAllPostsMeta(): BlogPostMeta[] {
     const raw = fs.readFileSync(path.join(BLOG_DIR, filename), "utf-8");
     const { data, content } = matter(raw);
     const slug = extractSlug(filename, data.slug);
+    const category = data.category || "未分类";
+    const restricted = data.restricted === true || category === RESTRICTED_CATEGORY;
 
     return {
       slug,
@@ -88,9 +94,10 @@ export function getAllPostsMeta(): BlogPostMeta[] {
       date: data.date || "2026-01-01",
       summary: data.summary || content.slice(0, 120) + "...",
       tags: data.tags || [],
-      category: data.category || "未分类",
+      category,
       author: data.author || "WONDER 研究团队",
       readingTime: calcReadingTime(content),
+      restricted,
     } as BlogPostMeta;
   });
 
@@ -115,15 +122,19 @@ export function getPostBySlug(slug: string): BlogPost | null {
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
 
+  const category = data.category || "未分类";
+  const restricted = data.restricted === true || category === RESTRICTED_CATEGORY;
+
   return {
     slug: decodedSlug,
     title: data.title || "无标题",
     date: data.date || "2026-01-01",
     summary: data.summary || content.slice(0, 120) + "...",
     tags: data.tags || [],
-    category: data.category || "未分类",
+    category,
     author: data.author || "WONDER 研究团队",
     readingTime: calcReadingTime(content),
+    restricted,
     content,
   };
 }

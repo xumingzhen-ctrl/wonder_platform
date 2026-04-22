@@ -47,39 +47,43 @@
 }
 
 :root {
-  /* Solarized Light Palette */
-  --background: #fdf6e3;    /* base3 */
-  --foreground: #657b83;    /* base00 */
-  --card: #eee8d5;          /* base2 */
-  --card-foreground: #586e75; /* base01 */
-  --popover: #fdf6e3;
-  --popover-foreground: #586e75;
-  --primary: #268bd2;       /* blue */
-  --primary-foreground: #fdf6e3;
-  --secondary: #eee8d5;
-  --secondary-foreground: #586e75;
-  --muted: #eee8d5;
-  --muted-foreground: #93a1a1;
-  --accent: #eee8d5;
-  --accent-foreground: #268bd2;
-  --destructive: #dc322f;
-  --border: #dcd6c3;         /* custom soft border */
-  --input: #dcd6c3;
-  --ring: #268bd2;
+  /* ── 浅色主题：柔和暖灰，降低亮度减少刺眼 ── */
+  --background: #eae7e0;         /* 暖灰奶茶底，比纯白低约 2 档 */
+  --foreground: #1a1a1a;         /* 正文深色，高对比度 */
+  --card: #f3f1ec;               /* 卡片：比底色略浅，有层次 */
+  --card-foreground: #111111;    /* 卡片标题最深 */
+  --popover: #f3f1ec;
+  --popover-foreground: #111111;
+  --primary: #2563a8;            /* 品牌蓝，稍沉稳 */
+  --primary-foreground: #ffffff;
+  --secondary: #e4e1d9;
+  --secondary-foreground: #2d2d2d;
+  --muted: #e4e1d9;
+  --muted-foreground: #5c6370;   /* 辅助文字 */
+  --accent: #dfe8f2;
+  --accent-foreground: #2563a8;
+  --destructive: #c53030;
+  --border: #d5d1c9;             /* 边框暖灰 */
+  --input: #d5d1c9;
+  --ring: #2563a8;
   --radius: 0.75rem;
-
-  /* Typography Scale Overrides */
-  --font-base: 1.125rem; /* 18px */
 }
 
 .dark {
-  /* Solarized Dark (if toggled, but will focus on light for now) */
-  --background: #002b36;
-  --foreground: #839496;
-  --card: #073642;
-  --card-foreground: #93a1a1;
-  --border: #586e75;
-  --primary: #268bd2;
+  /* ── 深色主题（可选） ── */
+  --background: #0f1117;
+  --foreground: #e8e8e8;
+  --card: #1a1d27;
+  --card-foreground: #f0f0f0;
+  --border: #2a2d3a;
+  --primary: #4d9ef5;
+  --primary-foreground: #ffffff;
+  --muted: #1e2130;
+  --muted-foreground: #9ca3af;
+  --secondary: #1e2130;
+  --secondary-foreground: #e8e8e8;
+  --accent: #1e2d4a;
+  --accent-foreground: #4d9ef5;
 }
 
 @layer base {
@@ -88,6 +92,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
   }
   html {
     @apply font-sans;
@@ -100,5 +106,185 @@
            placeholder:text-muted-foreground/60
            focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60
            transition-all duration-150;
+  }
+
+  /* ════════════════════════════════════════════════
+     文章正文排版系统 (.article-body)
+     使用 MDXRemote + remark-gfm 渲染
+  ════════════════════════════════════════════════ */
+
+  /* 段落 */
+  .article-body p {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: hsl(0 0% 20%);
+    margin-bottom: 1.4rem;
+  }
+
+  /* 标题层级 */
+  .article-body h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: hsl(0 0% 8%);
+    margin: 3rem 0 1.2rem;
+    line-height: 1.3;
+  }
+  .article-body h2 {
+    font-size: 1.55rem;
+    font-weight: 650;
+    color: hsl(0 0% 10%);
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid hsl(215 100% 50% / 0.12);
+  }
+  .article-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: hsl(0 0% 12%);
+    margin: 2rem 0 0.8rem;
+  }
+  .article-body h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: hsl(0 0% 15%);
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  /* 列表 */
+  .article-body ul,
+  .article-body ol {
+    margin: 1rem 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+  .article-body ul { list-style-type: disc; }
+  .article-body ol { list-style-type: decimal; }
+  .article-body li {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: hsl(0 0% 22%);
+    margin-bottom: 0.4rem;
+  }
+  .article-body li::marker { color: hsl(215 100% 45%); }
+
+  /* 强调 */
+  .article-body strong {
+    font-weight: 660;
+    color: hsl(0 0% 8%);
+  }
+  .article-body em { font-style: italic; color: hsl(0 0% 30%); }
+
+  /* 引用块 */
+  .article-body blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.2rem;
+    border-left: 4px solid hsl(215 100% 50% / 0.5);
+    background: hsl(30 20% 92%);
+    border-radius: 0 1rem 1rem 0;
+    color: hsl(0 0% 30%);
+    font-style: italic;
+  }
+  .article-body blockquote p { margin-bottom: 0; font-size: 1rem; }
+
+  /* 水平分割线 */
+  .article-body hr {
+    border: none;
+    border-top: 1.5px solid hsl(30 10% 80%);
+    margin: 2.5rem 0;
+  }
+
+  /* ── 图片 ── */
+  .article-body img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px hsl(0 0% 0% / 0.10);
+    margin: 2rem auto;
+    object-fit: contain;
+  }
+  .article-body figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    color: hsl(0 0% 55%);
+    margin-top: -1rem;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  /* ── 表格（remark-gfm 渲染，彻底修复） ── */
+  .article-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.8rem 0;
+    font-size: 0.92rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    /* 关键：让 border-radius 生效 */
+    border: 1px solid hsl(30 10% 80%);
+    display: table; /* 覆盖 block，让表格正常换行 */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* 窄屏滚动：用包装器 */
+  .article-body table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .article-body thead {
+    background: hsl(30 15% 88%);
+  }
+  .article-body th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: hsl(0 0% 12%);
+    border-bottom: 2px solid hsl(30 10% 75%);
+    white-space: nowrap;
+  }
+  .article-body td {
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    color: hsl(0 0% 25%);
+    border-bottom: 1px solid hsl(30 10% 84%);
+    vertical-align: top;
+  }
+  .article-body tr:nth-child(even) td {
+    background: hsl(30 15% 91%);
+  }
+  .article-body tr:last-child td { border-bottom: none; }
+  .article-body tr:hover td {
+    background: hsl(30 20% 88%);
+  }
+
+  /* ── 行内代码 ── */
+  .article-body code {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.87em;
+    background: hsl(30 12% 88%);
+    color: hsl(0 0% 20%);
+    padding: 0.15em 0.45em;
+    border-radius: 0.35rem;
+    border: 1px solid hsl(30 10% 80%);
+  }
+  /* 代码块 */
+  .article-body pre {
+    background: hsl(220 16% 15%);
+    color: hsl(0 0% 88%);
+    padding: 1.2rem 1.5rem;
+    border-radius: 1rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+  .article-body pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
   }
 }
