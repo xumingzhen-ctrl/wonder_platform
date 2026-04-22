@@ -55,7 +55,7 @@ export default function AdminArticlesPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/articles/`, {
+      const res = await fetch(`${API_BASE}/articles/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("加载失败");
@@ -111,7 +111,7 @@ export default function AdminArticlesPage() {
   async function handleDelete(slug: string, title: string) {
     if (!confirm(`确认删除文章「${title}」？此操作不可撤销。`)) return;
     try {
-      const res = await fetch(`${API_BASE}/api/articles/${slug}`, {
+      const res = await fetch(`${API_BASE}/articles/${slug}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -125,7 +125,7 @@ export default function AdminArticlesPage() {
   // 加载编辑
   async function loadForEdit(slug: string) {
     try {
-      const res = await fetch(`${API_BASE}/api/articles/${slug}`, {
+      const res = await fetch(`${API_BASE}/articles/${slug}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("加载失败");
@@ -142,7 +142,7 @@ export default function AdminArticlesPage() {
     if (!editSlug || !editData) return;
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/api/articles/${editSlug}`, {
+      const res = await fetch(`${API_BASE}/articles/${editSlug}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -175,7 +175,7 @@ export default function AdminArticlesPage() {
     }
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/api/articles/`, {
+      const res = await fetch(`${API_BASE}/articles/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
