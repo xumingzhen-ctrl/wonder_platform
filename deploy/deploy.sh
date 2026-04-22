@@ -79,7 +79,11 @@ echo "[6/7] 构建前端应用（逐个构建，防止内存溢出）..."
 cd "$PROJECT_DIR/apps/wonder-hub"
 echo "  📦 构建 Wonder Hub..."
 NODE_OPTIONS="--max-old-space-size=768" npx next build
-echo "  ✅ Wonder Hub 构建完成"
+# standalone 模式需要手动复制 static 和 public
+STANDALONE_DIR="$PROJECT_DIR/apps/wonder-hub/.next/standalone/apps/wonder-hub"
+cp -r "$PROJECT_DIR/apps/wonder-hub/.next/static" "$STANDALONE_DIR/.next/static"
+cp -r "$PROJECT_DIR/apps/wonder-hub/public" "$STANDALONE_DIR/public" 2>/dev/null || true
+echo "  ✅ Wonder Hub 构建完成（standalone + static）"
 
 # Company Admin（Vite，内存消耗小）
 cd "$PROJECT_DIR/apps/company-admin"

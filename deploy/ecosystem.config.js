@@ -29,15 +29,18 @@ module.exports = {
       watch: false,
     },
 
-    // ── 2. Wonder Hub (Next.js C端) ──────────────────────────────
+    // ── 2. Wonder Hub (Next.js C端 — standalone 模式) ─────────────
+    //    output: "standalone" 构建后，必须用 node server.js 启动
+    //    而非 npx next start，否则 _next/static/* 全部 404
     {
       name: 'wonder-hub',
-      script: 'npx',
-      args: 'next start -p 3000',
+      script: `${PROJECT_ROOT}/apps/wonder-hub/.next/standalone/apps/wonder-hub/server.js`,
       cwd: `${PROJECT_ROOT}/apps/wonder-hub`,
+      interpreter: 'node',
       env: {
         NODE_ENV: 'production',
         PORT: '3000',
+        HOSTNAME: '0.0.0.0',
       },
       out_file: `${PROJECT_ROOT}/logs/wonder_hub_out.log`,
       error_file: `${PROJECT_ROOT}/logs/wonder_hub_err.log`,
