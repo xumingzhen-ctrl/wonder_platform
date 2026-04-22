@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from services.auth import get_current_user
 
-router = APIRouter(prefix="/api/articles", tags=["Articles"])
+router = APIRouter(prefix="/articles", tags=["Articles"])
 
 # 文章目录（相对于项目根目录）
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent

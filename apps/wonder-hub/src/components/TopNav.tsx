@@ -57,11 +57,9 @@ function LoginModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
     >
       <div
         className="relative w-full max-w-md bg-card border border-border rounded-3xl p-8 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
       >
         {/* 关闭 */}
         <button
