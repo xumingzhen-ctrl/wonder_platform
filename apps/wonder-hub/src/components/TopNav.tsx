@@ -137,7 +137,7 @@ function LoginModal({
 
 // ─── 顶部导航栏 ───────────────────────────────────────────────────────────
 export function TopNav({ currentPath }: { currentPath?: string }) {
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; role?: string } | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -155,6 +155,7 @@ export function TopNav({ currentPath }: { currentPath?: string }) {
         setUser({
           name: u.display_name || u.name || u.email?.split("@")[0] || "用户",
           email: u.email || "",
+          role: u.role || "free",
         });
       })
       .catch(() => {
@@ -260,6 +261,15 @@ export function TopNav({ currentPath }: { currentPath?: string }) {
                     >
                       FIS 组合管理 →
                     </a>
+                    {user.role === "admin" && (
+                      <Link
+                        href="/blog/admin"
+                        className="block px-4 py-2.5 text-foreground/70 hover:text-foreground hover:bg-muted/50 transition-colors"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        📝 文章管理
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2.5 text-destructive/80 hover:text-destructive hover:bg-destructive/5 transition-colors"

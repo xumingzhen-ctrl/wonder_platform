@@ -546,9 +546,8 @@ def convert_docx(filepath: str) -> dict:
     if img_count:
         print(f"   🖼️  提取图片: {img_count} 张")
 
-    # 客户通讯：优先提取组合业绩数字作为摘要
-    summary = (extract_newsletter_performance(md_content)
-               if category == RESTRICTED_CATEGORY
+    # 客户通讯不显示概要（内容涉及组合表现，不适合公开摘要）
+    summary = ("" if category == RESTRICTED_CATEGORY
                else extract_summary(md_content))
 
     tags    = extract_tags_from_content(md_content, category)
