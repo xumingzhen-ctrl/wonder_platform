@@ -29,7 +29,7 @@ export default function Home() {
             href="/blog" 
             className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-16 px-10 rounded-2xl border-border bg-card/50 hover:bg-card text-foreground backdrop-blur-md text-lg font-medium flex items-center justify-center")}
           >
-            阅读专业洞察
+            投资思维与感悟
           </Link>
         </div>
       </section>
@@ -37,10 +37,10 @@ export default function Home() {
       {/* Feature Navigation Grid */}
       <section className="w-full max-w-[1400px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-32">
         {[
-          { title: "智庫洞察", desc: "深度宏觀研究與資產配置報告。", link: "/blog" },
-          { title: "財富診斷", desc: "家庭資產健康評估與現金流推演。", link: "/assessment" },
-          { title: "FIS 沙盤", desc: "獨立資產管理與 PortfolioHub 模擬系統。", link: "http://fis.wonderwisdom.online" },
-          { title: "行政中樞", desc: "企業/家族辦公室後台管理與 B 端系統。", link: "http://company.wonderwisdom.online" },
+          { title: "投资思维与感悟", desc: "聊资产配置、市场认知与家庭财富规划。", link: "/blog" },
+          { title: "财富诊断", desc: "家庭资产健康评估与现金流推演。", link: "/assessment" },
+          { title: "FIS 沙盘", desc: "独立资产管理与 PortfolioHub 模拟系统。", link: "http://fis.wonderwisdom.online" },
+          { title: "行政中枢", desc: "企业/家族办公室后台管理与 B 端系统。", link: "http://company.wonderwisdom.online" },
         ].map((item, idx) => (
           <Link href={item.link} target={item.link.startsWith('http') ? '_blank' : undefined} key={idx} className="group relative p-10 rounded-[2.5rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-2xl hover:bg-card transition-all duration-500 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
