@@ -3,8 +3,8 @@ import { getAllPostsMeta } from "@/lib/blog";
 import { BlogList } from "./blog-list";
 
 export const metadata = {
-  title: "专业洞察 | WONDER",
-  description: "WONDER 团队精选的宏观经济、资产配置与财务规划深度研究报告。",
+  title: "投资思维 | WONDER",
+  description: "分享投资路上的思考与感悟，涵盖资产配置理念、市场认知与家庭财富规划心得。",
 };
 
 export default function BlogIndex() {
@@ -23,7 +23,7 @@ export default function BlogIndex() {
             <span>WONDER</span>
           </Link>
           <span className="text-border">|</span>
-          <span className="text-foreground/60 text-base">专业研究</span>
+          <span className="text-foreground/60 text-base">投资思维与感悟</span>
         </div>
       </div>
 
@@ -31,13 +31,13 @@ export default function BlogIndex() {
         {/* Page Title */}
         <header className="mb-16">
           <p className="text-sm font-mono text-primary mb-4 tracking-widest uppercase">
-            Research & Insights
+            Investment Thinking & Insights
           </p>
           <h1 className="text-5xl md:text-6xl font-semibold tracking-tight mb-6 text-card-foreground">
-            专业洞察
+            投资思维与感悟
           </h1>
           <p className="text-xl text-foreground/70 font-light max-w-2xl leading-relaxed">
-            WONDER 团队深度研究报告，涵盖宏观经济走势、全球资产配置逻辑与家庭财富规划实践。
+            分享投资路上的真实思考，聊资产配置、市场认知与家庭财富规划——用普通人能听懂的语言。
           </p>
         </header>
 
