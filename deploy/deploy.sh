@@ -69,7 +69,7 @@ echo "  ✅ Python 依赖已更新，数据库已迁移"
 echo ""
 echo "[5/7] 安装前端依赖..."
 cd "$PROJECT_DIR"
-pnpm install --frozen-lockfile
+pnpm install --no-frozen-lockfile
 echo "  ✅ 前端依赖已安装"
 
 echo ""
