@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, ComposedChart
@@ -7,6 +7,8 @@ import {
   Activity, ArrowUpRight, Briefcase, Calendar, Camera, DollarSign, Edit3, Settings, TrendingUp, Undo2
 } from 'lucide-react';
 import { COLORS, getCurrencySymbol, fmtMoney, fmtAxis, fmtCompact } from '../utils/currency';
+import ILPSummaryCard from './ILPSummaryCard';
+import { calcILPMonthlyFee, getEnrollmentBonusRate } from '../utils/ilpImpactUtils';
 
 /**
  * PortfolioView — renders the full portfolio detail tab UI.
@@ -28,11 +30,67 @@ const PortfolioView = ({
   handleOpenCompModal, handleOpenManageDivModal,
   handleRebalancePreview, handleUndoRebalance,
   // Permissions
-  canEdit
+  canEdit,
+  // ILP
+  ilpEnabled, ilpConfig, setIlpConfig, setIlpEnabled,
+  onOpenIlpEnrollmentModal,
 }) => {
   // Re-export the formatter functions for convenience inside JSX
   const fx = data?.usd_to_base_fx || 1;
   const ccy = data?.base_currency || 'USD';
+
+  // ── ILP 应用至历史 NAV ───────────────────────────────────────────────────
+  const [applyIlpToChart, setApplyIlpToChart] = useState(false);
+
+  const ilpHistoryData = useMemo(() => {
+    if (!applyIlpToChart || !ilpEnabled || !(ilpConfig?.totalPremium > 0) || historyData.length === 0) {
+      return historyData;
+    }
+    const firstVal = historyData[0]?.value || 1;
+
+    // ── 关键修正 ────────────────────────────────────────────────────────────
+    // 1. 保费基准 = 组合初始投入（而非 ilpConfig.totalPremium），确保完全对齐
+    const effectivePremium = firstVal;
+    const bonusRate = ilpConfig.enrollmentRate ?? getEnrollmentBonusRate(ilpConfig.totalPremium || effectivePremium);
+    const enrollmentBonus = effectivePremium * bonusRate;
+
+    // 2. ILP 初始倍数 > 1：开户奖赏立即以单位方式进入，初始净值高于组合
+    //    ilp_value[0] = firstVal × (1 + bonusRate) = firstVal + enrollmentBonus
+    const initialMultiplier = (firstVal + enrollmentBonus) / firstVal; // = 1 + bonusRate
+
+    // 3. 累积折扣：每月按费用率递减（从 initialMultiplier 开始）
+    let ilpMultiplier = initialMultiplier;
+
+    return historyData.map((d, i) => {
+      if (i > 0) {
+        const growthFactor = firstVal > 0 ? d.value / firstVal : 1;
+        // 用对齐后的 effectivePremium 计算 ILP 账户价值（供 COI / 费率查表）
+        const ilpAV = effectivePremium * growthFactor;
+        const fees = calcILPMonthlyFee(i + 1, ilpAV, ilpConfig);
+        const feeRate = ilpAV > 0 ? fees.netFee / ilpAV : 0;
+        ilpMultiplier = ilpMultiplier * (1 - feeRate);
+      }
+      // ILP 净值 = 组合真实市值 × 当前 ILP 倍数
+      const ilp_value = Math.max(0, d.value * ilpMultiplier);
+      return { ...d, ilp_value, raw_value: d.value, ilp_bonus: i === 0 ? enrollmentBonus : 0 };
+    });
+  }, [applyIlpToChart, ilpEnabled, ilpConfig, historyData]);
+
+  const ilpSummary = useMemo(() => {
+    if (!applyIlpToChart || ilpHistoryData.length === 0) return null;
+    const first = ilpHistoryData[0];
+    const last  = ilpHistoryData[ilpHistoryData.length - 1];
+    const months = ilpHistoryData.length;
+    // 两条线有不同起点（ILP因奖赏更高），各自从自己的起点计算年化
+    const rawCagr = first?.value > 0 && last?.raw_value > 0
+      ? ((last.raw_value / first.value) ** (12 / months) - 1) * 100 : 0;
+    const ilpCagr = first?.ilp_value > 0 && last?.ilp_value > 0
+      ? ((last.ilp_value / first.ilp_value) ** (12 / months) - 1) * 100 : 0;
+    const drag = last?.raw_value > 0 ? ((last.raw_value - last.ilp_value) / last.raw_value) * 100 : 0;
+    const enrollmentBonus = first?.ilp_bonus ?? 0;
+    return { rawFinal: last?.raw_value, ilpFinal: last?.ilp_value, rawCagr, ilpCagr, drag, enrollmentBonus };
+  }, [applyIlpToChart, ilpHistoryData]);
+
 
   if (loading) return <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>Analyzing Data...</h2></div>;
   if (!data || !data.details) return null;
@@ -106,59 +164,122 @@ const PortfolioView = ({
 
               {activeSubTab === 'performance' ? (
                 <>
+                  {/* ILP 状态卡（紧凑模式） */}
+                  {ilpEnabled && ilpConfig && ilpConfig.totalPremium > 0 && (
+                    <ILPSummaryCard
+                      ilpConfig={ilpConfig}
+                      currentCV={data?.details?.reduce((sum, h) => sum + (h.market_value || 0), 0) || 0}
+                      currentMonth={0}
+                      compact={true}
+                      onEditConfig={onOpenIlpEnrollmentModal}
+                    />
+                  )}
                   {/* Existing Performance View (NAV Chart + Summary Stats) */}
                   <section className="glass-card" style={{marginBottom: '40px', padding: '30px', minHeight: '380px'}}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
                   <div className="stat-label" style={{fontSize: '1.2rem', color: '#fff'}}>Performance Over Time (Since Inception)</div>
-                  {historyData.length === 0 && <div style={{fontSize: '0.85rem', color: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>Syncing Market Data...</div>}
+                  <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                    {historyData.length === 0 && <div style={{fontSize: '0.85rem', color: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>Syncing Market Data...</div>}
+                    {ilpEnabled && ilpConfig?.totalPremium > 0 && historyData.length > 0 && (
+                      <button
+                        onClick={() => setApplyIlpToChart(v => !v)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '6px',
+                          padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem',
+                          fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                          background: applyIlpToChart ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${applyIlpToChart ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.12)'}`,
+                          color: applyIlpToChart ? '#818cf8' : 'rgba(255,255,255,0.55)',
+                        }}
+                      >
+                        🔗 {applyIlpToChart ? 'ILP 已应用' : '应用 ILP'}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div style={{height: '300px', width: '100%'}}>
                   {historyData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={historyData} margin={{top: 10, right: 10, left: 10, bottom: 0}}>
-                        <defs>
-                          <linearGradient id="navColor" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.5}/>
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <XAxis 
-                          dataKey="date" 
-                          stroke="rgba(255,255,255,0.1)" 
-                          tick={{fill: '#9ca3af', fontSize: 11}} 
-                          tickFormatter={(val) => val ? String(val).substring(0, 7) : ''} 
-                          minTickGap={40} 
-                        />
-                        <YAxis 
-                          domain={([dataMin, dataMax]) => {
-                            if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1000];
-                            if (dataMin === dataMax) {
-                              if (dataMin === 0) return [0, 1000];
-                              const padding = Math.abs(dataMin * 0.1);
-                              return [dataMin - padding, dataMax + padding];
-                            }
-                            return [dataMin, dataMax];
-                          }}
-                          stroke="rgba(255,255,255,0.1)" 
-                          tick={{fill: '#9ca3af', fontSize: 11}} 
-                          tickFormatter={(val) => fmtAxis(Number(val), 1, data.base_currency || 'USD')} 
-                          width={60}
-                        />
-                        <Tooltip 
-                          contentStyle={{backgroundColor: '#1e1e2f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'}}
-                          itemStyle={{color: '#10b981', fontWeight: 'bold'}}
-                          formatter={(value) => [fmtMoney(Number(value), 1, data.base_currency || 'USD'), '资产市值']}
-                          labelStyle={{color: '#9ca3af', marginBottom: '8px'}}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="#10b981" 
-                          strokeWidth={3} 
-                          fill="url(#navColor)" 
-                          animationDuration={1500}
-                        />
-                      </AreaChart>
+                      {applyIlpToChart ? (
+                        <ComposedChart data={ilpHistoryData} margin={{top: 10, right: 10, left: 10, bottom: 0}}>
+                          <defs>
+                            <linearGradient id="rawColor" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%"  stopColor="#10b981" stopOpacity={0.2}/>
+                              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                            </linearGradient>
+                            <linearGradient id="ilpColor" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%"  stopColor="#818cf8" stopOpacity={0.25}/>
+                              <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.06} />
+                          <XAxis dataKey="date" stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
+                            tickFormatter={(val) => val ? String(val).substring(0, 7) : ''} minTickGap={40} />
+                          <YAxis stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
+                            tickFormatter={(val) => fmtAxis(Number(val), 1, data.base_currency || 'USD')} width={65} />
+                          <Tooltip
+                            content={({ active, payload, label }) => {
+                              if (!active || !payload?.length) return null;
+                              const raw = payload.find(p => p.dataKey === 'raw_value')?.value;
+                              const ilp = payload.find(p => p.dataKey === 'ilp_value')?.value;
+                              const drag = raw > 0 && ilp != null ? ((raw - ilp) / raw * 100).toFixed(2) : null;
+                              return (
+                                <div style={{background: 'rgba(13,18,35,0.97)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '10px', padding: '12px 16px', fontSize: '0.8rem', minWidth: '200px'}}>
+                                  <div style={{fontWeight: 800, color: '#818cf8', marginBottom: '8px'}}>{label}</div>
+                                  {raw != null && <div style={{display: 'flex', justifyContent: 'space-between', gap: '14px', marginBottom: '4px'}}>
+                                    <span style={{color: '#10b981'}}>原始市值</span>
+                                    <span style={{color: '#10b981', fontWeight: 700, fontFamily: 'monospace'}}>{fmtMoney(raw, 1, data.base_currency || 'USD')}</span>
+                                  </div>}
+                                  {ilp != null && <div style={{display: 'flex', justifyContent: 'space-between', gap: '14px', marginBottom: '4px'}}>
+                                    <span style={{color: '#818cf8'}}>ILP 净值</span>
+                                    <span style={{color: '#818cf8', fontWeight: 700, fontFamily: 'monospace'}}>{fmtMoney(ilp, 1, data.base_currency || 'USD')}</span>
+                                  </div>}
+                                  {drag != null && <div style={{marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed rgba(255,255,255,0.1)', color: 'rgba(255,160,60,0.9)', fontSize: '0.72rem'}}>
+                                    ILP 费用拖累：{drag}%
+                                  </div>}
+                                </div>
+                              );
+                            }}
+                          />
+                          <Legend formatter={v => <span style={{fontSize: '0.73rem', color: 'rgba(255,255,255,0.65)'}}>{v}</span>} />
+                          <Area type="monotone" dataKey="raw_value" stroke="#10b981" strokeWidth={2}
+                            fill="url(#rawColor)" dot={false} name="原始市值" />
+                          <Area type="monotone" dataKey="ilp_value" stroke="#818cf8" strokeWidth={2.5}
+                            strokeDasharray="4 3" fill="url(#ilpColor)" dot={false} name="ILP 净值" />
+                        </ComposedChart>
+                      ) : (
+                        <AreaChart data={historyData} margin={{top: 10, right: 10, left: 10, bottom: 0}}>
+                          <defs>
+                            <linearGradient id="navColor" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.5}/>
+                              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <XAxis dataKey="date" stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
+                            tickFormatter={(val) => val ? String(val).substring(0, 7) : ''} minTickGap={40} />
+                          <YAxis
+                            domain={([dataMin, dataMax]) => {
+                              if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1000];
+                              if (dataMin === dataMax) {
+                                if (dataMin === 0) return [0, 1000];
+                                const padding = Math.abs(dataMin * 0.1);
+                                return [dataMin - padding, dataMax + padding];
+                              }
+                              return [dataMin, dataMax];
+                            }}
+                            stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
+                            tickFormatter={(val) => fmtAxis(Number(val), 1, data.base_currency || 'USD')} width={60}
+                          />
+                          <Tooltip
+                            contentStyle={{backgroundColor: '#1e1e2f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'}}
+                            itemStyle={{color: '#10b981', fontWeight: 'bold'}}
+                            formatter={(value) => [fmtMoney(Number(value), 1, data.base_currency || 'USD'), '资产市值']}
+                            labelStyle={{color: '#9ca3af', marginBottom: '8px'}}
+                          />
+                          <Area type="monotone" dataKey="value" stroke="#10b981" strokeWidth={3}
+                            fill="url(#navColor)" animationDuration={1500} />
+                        </AreaChart>
+                      )}
                     </ResponsiveContainer>
                   ) : (
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'gray', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px'}}>
@@ -166,7 +287,36 @@ const PortfolioView = ({
                     </div>
                   )}
                 </div>
+
+                {/* ILP 对比摘要条 */}
+                {applyIlpToChart && ilpSummary && (
+                  <div style={{
+                    marginTop: '16px', padding: '14px 16px', borderRadius: '10px',
+                    background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)',
+                  }}>
+                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', marginBottom: '10px'}}>
+                      {[
+                        { label: '🎁 开户奖赏（期初计入）', val: `+${fmtMoney(ilpSummary.enrollmentBonus, 1, ccy)}`, color: '#f59e0b', sub: 'ILP曲线期初高于原始曲线' },
+                        { label: '当前原始市值', val: fmtMoney(ilpSummary.rawFinal, 1, ccy), color: '#10b981' },
+                        { label: '当前 ILP 净值', val: fmtMoney(ilpSummary.ilpFinal, 1, ccy), color: '#818cf8' },
+                        { label: '历史年化（原始）', val: `${ilpSummary.rawCagr.toFixed(2)}%`, color: '#60a5fa' },
+                        { label: '历史年化（ILP）', val: `${ilpSummary.ilpCagr.toFixed(2)}%`, color: '#a78bfa' },
+                        { label: 'ILP 净值拖累', val: `${ilpSummary.drag >= 0 ? '-' : '+'}${Math.abs(ilpSummary.drag).toFixed(2)}%`, color: ilpSummary.drag >= 0 ? '#fca5a5' : '#34d399' },
+                      ].map((c, i) => (
+                        <div key={i}>
+                          <div style={{fontSize: '0.67rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px'}}>{c.label}</div>
+                          <div style={{fontSize: '0.9rem', fontWeight: 700, color: c.color}}>{c.val}</div>
+                          {c.sub && <div style={{fontSize: '0.6rem', color: 'rgba(255,255,255,0.28)', marginTop: '2px'}}>{c.sub}</div>}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{fontSize: '0.68rem', color: 'rgba(255,255,255,0.3)', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '8px', lineHeight: 1.5}}>
+                      📌 ILP 曲线期初值 = 组合初始投入 + 开户奖赏（以基金单位计入）· 之后逐月扣减前期费 / 户口价值费 / COI（账户价值 ≥ 保额后 COI = 0）· 第6年起享有长期客户奖赏
+                    </div>
+                  </div>
+                )}
               </section>
+
 
               <section className="stats-grid">
                 <div className="glass-card" title={fmtMoney(data.total_market_value || data.total_nav, 1, data.base_currency || 'USD')}>

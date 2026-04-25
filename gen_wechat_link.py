@@ -26,7 +26,7 @@ import glob
 WECHAT_SECRET = os.environ.get("WECHAT_TOKEN_SECRET", "wonder-wechat-2024")
 
 # 生产环境域名
-HUB_BASE_URL = "https://hub.wonderwisdom.online"
+HUB_BASE_URL = "https://wonderwisdom.online"
 
 BLOG_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),

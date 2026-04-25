@@ -271,10 +271,29 @@ class SaveScenarioRequest(BaseModel):
     mc_settings: dict                 # labMcSettings from frontend
     summary: dict                     # key stats: sharpe, irr_p50, success_rate, etc.
     chart_data: list                  # monte_carlo.chart array (compact, ~50 rows)
+    # ── ILP 投连险配置 ───────────────────────────────────────────────────
+    ilp_enabled: Optional[bool] = None
+    ilp_config:  Optional[dict] = None
+    # ── 储蓄险配置 ───────────────────────────────────────────────────────
+    insurance_enabled:    Optional[bool]  = None
+    insurance_plan:       Optional[dict]  = None
+    insurance_alpha_low:  Optional[float] = None
+    insurance_alpha_high: Optional[float] = None
 
 @router.post("/lab/scenarios/save")
 def save_scenario(req: SaveScenarioRequest):
     """Persist a completed Strategy Lab analysis snapshot to SQLite."""
+    # 将 ILP / 储蓄险配置合并进 settings_json，无需改表结构
+    settings_ext = dict(req.mc_settings)
+    if req.ilp_enabled is not None:
+        settings_ext['_ilp_enabled']    = req.ilp_enabled
+        settings_ext['_ilp_config']     = req.ilp_config
+    if req.insurance_enabled is not None:
+        settings_ext['_ins_enabled']    = req.insurance_enabled
+        settings_ext['_ins_plan']       = req.insurance_plan
+        settings_ext['_ins_alpha_low']  = req.insurance_alpha_low
+        settings_ext['_ins_alpha_high'] = req.insurance_alpha_high
+
     conn = sqlite3.connect(DB_PATH)
     try:
         cursor = conn.cursor()
@@ -285,7 +304,7 @@ def save_scenario(req: SaveScenarioRequest):
             req.name.strip(),
             json.dumps(req.assets, ensure_ascii=False),
             json.dumps(req.custom_weights, ensure_ascii=False),
-            json.dumps(req.mc_settings, ensure_ascii=False),
+            json.dumps(settings_ext, ensure_ascii=False),
             json.dumps(req.summary, ensure_ascii=False),
             json.dumps(req.chart_data, ensure_ascii=False),
         ))
@@ -335,15 +354,28 @@ def load_scenario(scenario_id: int):
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Scenario not found")
+
+        settings_raw = json.loads(row[5])
+        # 提取和剖离 ILP / 储蓄险配置（以 _ 开头的扩展字段）
+        mc_settings = {k: v for k, v in settings_raw.items() if not k.startswith('_')}
+
         return {
             "id": row[0],
             "name": row[1],
             "created_at": row[2],
             "assets": json.loads(row[3]),
             "weights": json.loads(row[4]),
-            "mc_settings": json.loads(row[5]),
+            "mc_settings": mc_settings,
             "summary": json.loads(row[6]),
             "chart_data": json.loads(row[7]),
+            # ILP 投连险配置
+            "ilp_enabled": settings_raw.get('_ilp_enabled'),
+            "ilp_config":  settings_raw.get('_ilp_config'),
+            # 储蓄险配置
+            "insurance_enabled":    settings_raw.get('_ins_enabled'),
+            "insurance_plan":       settings_raw.get('_ins_plan'),
+            "insurance_alpha_low":  settings_raw.get('_ins_alpha_low'),
+            "insurance_alpha_high": settings_raw.get('_ins_alpha_high'),
         }
     finally:
         conn.close()
@@ -1698,3 +1730,110 @@ def public_portfolios():
         return [dict(r) for r in rows]
     finally:
         conn.close()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ██  ILP CONFIG  ── 用户投连险配置（持久化，用户级别）
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _ensure_ilp_table():
+    """确保 user_ilp_config 表存在（首次启动自动建表）"""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_ilp_config (
+                user_id        TEXT PRIMARY KEY,
+                age            INTEGER DEFAULT 35,
+                gender         TEXT DEFAULT 'male',
+                smoker         INTEGER DEFAULT 0,
+                premium        REAL DEFAULT 0,
+                currency       TEXT DEFAULT 'USD',
+                enrollment_rate REAL,
+                updated_at     TEXT
+            )
+        """)
+        conn.commit()
+    finally:
+        conn.close()
+
+_ensure_ilp_table()
+
+
+class ILPConfigRequest(BaseModel):
+    age: int = 35
+    gender: str = "male"          # 'male' | 'female'
+    smoker: bool = False
+    premium: float = 0
+    currency: str = "USD"
+    enrollment_rate: Optional[float] = None  # None = 使用系统推荐
+
+
+def _get_ilp_config(user_id: str) -> dict:
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        row = conn.execute(
+            "SELECT * FROM user_ilp_config WHERE user_id=?", (user_id,)
+        ).fetchone()
+        if row:
+            d = dict(row)
+            d["smoker"] = bool(d.get("smoker", 0))
+            return d
+        return {
+            "user_id": user_id, "age": 35, "gender": "male",
+            "smoker": False, "premium": 0, "currency": "USD",
+            "enrollment_rate": None, "updated_at": None
+        }
+    finally:
+        conn.close()
+
+
+def _save_ilp_config(user_id: str, req: ILPConfigRequest):
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("""
+            INSERT INTO user_ilp_config (user_id, age, gender, smoker, premium, currency, enrollment_rate, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                age=excluded.age, gender=excluded.gender, smoker=excluded.smoker,
+                premium=excluded.premium, currency=excluded.currency,
+                enrollment_rate=excluded.enrollment_rate, updated_at=excluded.updated_at
+        """, (
+            user_id, req.age, req.gender, 1 if req.smoker else 0,
+            req.premium, req.currency, req.enrollment_rate,
+            datetime.now().isoformat()
+        ))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+@router.get("/ilp/config", tags=["ilp"])
+def get_my_ilp_config(user: dict = Depends(get_current_user)):
+    """当前用户：获取自己的 ILP 配置"""
+    return _get_ilp_config(user["id"])
+
+
+@router.put("/ilp/config", tags=["ilp"])
+def update_my_ilp_config(req: ILPConfigRequest, user: dict = Depends(get_current_user)):
+    """当前用户：保存自己的 ILP 配置（全局生效于所有组合）"""
+    _save_ilp_config(user["id"], req)
+    return {"status": "success", "message": "ILP 配置已保存"}
+
+
+@router.get("/ilp/config/{target_user_id}", tags=["ilp"])
+def get_client_ilp_config(target_user_id: str, user: dict = Depends(require_role("advisor"))):
+    """顾问/Admin：查看指定客户的 ILP 配置"""
+    if user["role"] != "admin":
+        assert_advisor_owns_client(user["id"], target_user_id)
+    return _get_ilp_config(target_user_id)
+
+
+@router.put("/ilp/config/{target_user_id}", tags=["ilp"])
+def update_client_ilp_config(target_user_id: str, req: ILPConfigRequest, user: dict = Depends(require_role("advisor"))):
+    """顾问/Admin：修改指定客户的 ILP 配置"""
+    if user["role"] != "admin":
+        assert_advisor_owns_client(user["id"], target_user_id)
+    _save_ilp_config(target_user_id, req)
+    return {"status": "success", "message": f"客户 {target_user_id} 的 ILP 配置已更新"}
+

@@ -14,11 +14,18 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5174,http://localhost:5175"
 
     # ── AI 服务配置 ──────────────────────────────────────────────
-    DEEPSEEK_API_KEY: str = ""
+    # ── OpenRouter（仅用于 Vision 图片识别任务）──────────────────
     OPENROUTER_API_KEY: str = ""
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
-    OPENROUTER_MODEL_FREE: str = "qwen/qwen2.5-vl-72b-instruct"
-    OPENROUTER_MODEL_PAID: str = "qwen/qwen2.5-vl-72b-instruct"
+    OPENROUTER_MODEL_FREE: str = "qwen/qwen2.5-vl-72b-instruct:free"  # 免费视觉模型
+    OPENROUTER_MODEL_PAID: str = "qwen/qwen2.5-vl-72b-instruct"       # 付费视觉模型（回退）
+    # ── DeepSeek 直连（文本推理、报告生成、合规分析）─────────────
+    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_BASE_URL: str = "https://api.deepseek.com"
+    DEEPSEEK_MODEL: str = "deepseek-chat"           # DeepSeek-V3-0324（最新稳定版）
+    DEEPSEEK_MODEL_REASONER: str = "deepseek-reasoner"  # DeepSeek-R1（复杂推理备用）
+    # ── OpenRouter DeepSeek（DEEPSEEK_API_KEY 不可用时的回退）────
+    OPENROUTER_DEEPSEEK_MODEL: str = "deepseek/deepseek-chat-v3-5"
     
     # ── 数据源配置 (Financial Data Providers) ───────────────────
     EODHD_API_KEY: str = ""

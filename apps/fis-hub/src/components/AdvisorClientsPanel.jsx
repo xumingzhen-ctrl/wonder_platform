@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { authHeaders } from '../utils/auth';
+import ILPSettingsModal from './ILPSettingsModal';
 
 const API = '/api';
 
@@ -17,9 +18,11 @@ export default function AdvisorClientsPanel({ currentUser, onAssignPortfolio }) 
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [expandedId, setExpandedId] = useState(null); // 展开的客户 id
-  const [clientPortfolios, setClientPortfolios] = useState({}); // { clientId: [...portfolios] }
+  const [expandedId, setExpandedId] = useState(null);
+  const [clientPortfolios, setClientPortfolios] = useState({});
   const [portfolioLoading, setPortfolioLoading] = useState({});
+  // ILP 弹窗状态
+  const [ilpModal, setIlpModal] = useState({ open: false, userId: null, userName: '', userEmail: '' });
 
   const fetchClients = useCallback(async () => {
     setLoading(true);
@@ -240,12 +243,37 @@ export default function AdvisorClientsPanel({ currentUser, onAssignPortfolio }) 
                       ))}
                     </div>
                   )}
+
+                  {/* ILP 配置入口 */}
+                  <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <button
+                      onClick={() => setIlpModal({ open: true, userId: client.id, userName: client.display_name || client.email, userEmail: client.email })}
+                      style={{
+                        padding: '8px 18px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                        background: 'rgba(99,102,241,0.1)',
+                        border: '1px solid rgba(99,102,241,0.3)',
+                        color: '#818cf8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                      }}
+                    >
+                      🔗 ILP 投连险配置
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           ))}
         </div>
       )}
+
+      <ILPSettingsModal
+        open={ilpModal.open}
+        onClose={() => setIlpModal({ open: false, userId: null, userName: '', userEmail: '' })}
+        onSaved={() => setIlpModal({ open: false, userId: null, userName: '', userEmail: '' })}
+        targetUserId={ilpModal.userId}
+        targetUserName={ilpModal.userName}
+        targetUserEmail={ilpModal.userEmail}
+        isAdvisorMode={true}
+      />
     </div>
   );
 }

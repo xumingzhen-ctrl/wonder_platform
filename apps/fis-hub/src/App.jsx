@@ -14,6 +14,7 @@ import ManageDivModal from './components/modals/ManageDivModal';
 import CompositionModal from './components/modals/CompositionModal';
 import McDocModal from './components/modals/McDocModal';
 import ClientInfoModal from './components/ClientInfoModal';
+import ILPEnrollmentBonusModal from './components/ILPEnrollmentBonusModal';
 import { authStorage, authHeaders } from './utils/auth';
 import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
@@ -122,6 +123,59 @@ function App() {
   const [scenarioName, setScenarioName] = useState('');
   const [scenarioSaving, setScenarioSaving] = useState(false);
 
+  // ── ILP 投连险 State ────────────────────────────────────────────────────
+  const [ilpEnabled, setIlpEnabled] = useState(false);
+  const [ilpConfig, setIlpConfig] = useState({
+    age: 35,
+    gender: 'male',
+    smoker: false,
+    totalPremium: 0,
+    currency: 'USD',
+    enrollmentRate: null,
+  });
+  const [ilpEnrollmentModalOpen, setIlpEnrollmentModalOpen] = useState(false);
+
+  // ── ILP ↔ MC 双向联动 ─────────────────────────────────────────────────────
+  // 规则：ILP 是整付保费产品，保费 = Initial Capital，Annual Add = 0
+
+  // 1. 开启 ILP 时：capital → 保费，强制 contribution = 0
+  useEffect(() => {
+    if (!ilpEnabled) return;
+    const capital = parseFloat(labMcSettings.capital) || 0;
+    setIlpConfig(prev => ({
+      ...prev,
+      totalPremium: capital,
+    }));
+    setLabMcSettings(prev =>
+      prev.contribution !== 0 ? { ...prev, contribution: 0 } : prev
+    );
+  }, [ilpEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 2. ILP 启用状态下，capital 改变 → 同步到保费
+  useEffect(() => {
+    if (!ilpEnabled) return;
+    const capital = parseFloat(labMcSettings.capital) || 0;
+    setIlpConfig(prev =>
+      prev.totalPremium !== capital ? { ...prev, totalPremium: capital } : prev
+    );
+    // 同时确保 contribution 保持 0
+    setLabMcSettings(prev =>
+      prev.contribution !== 0 ? { ...prev, contribution: 0 } : prev
+    );
+  }, [labMcSettings.capital, ilpEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 3. ILP 启用状态下，保费改变 → 同步到 capital
+  useEffect(() => {
+    if (!ilpEnabled) return;
+    const premium = parseFloat(ilpConfig.totalPremium) || 0;
+    if (premium <= 0) return;
+    setLabMcSettings(prev =>
+      prev.capital !== premium ? { ...prev, capital: premium, contribution: 0 } : prev
+    );
+  }, [ilpConfig.totalPremium, ilpEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+
   // ── Undo Confirm Dialog State ────────────────────────────────────────────
   const [undoConfirmOpen, setUndoConfirmOpen] = useState(false);
 
@@ -168,6 +222,28 @@ function App() {
   useEffect(() => {
     fetchPortfolios();
   }, []);
+
+  // ── 登录后自动加载 ILP 配置 ──────────────────────────────────────────────────
+  useEffect(() => {
+    if (!currentUser) return;
+    fetch('/api/ilp/config', { headers: authHeaders() })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && (data.premium > 0 || data.age)) {
+          setIlpConfig({
+            age: data.age ?? 35,
+            gender: data.gender ?? 'male',
+            smoker: data.smoker ?? false,
+            totalPremium: data.premium ?? 0,
+            currency: data.currency ?? 'USD',
+            enrollmentRate: data.enrollment_rate ?? null,
+          });
+          if (data.premium > 0) setIlpEnabled(true);
+        }
+      })
+      .catch(() => {});
+  }, [currentUser]);
+
 
   // Process data for Ghostfolio Asset Allocation Widgets
   const sectorData = React.useMemo(() => {
@@ -830,6 +906,14 @@ function App() {
           mc_settings: labMcSettings,
           summary,
           chart_data: mc?.chart || [],
+          // ── ILP 投连险配置 ──────────────────────────────────────────────
+          ilp_enabled: ilpEnabled,
+          ilp_config: ilpEnabled ? ilpConfig : null,
+          // ── 储蓄险配置 ──────────────────────────────────────────────────
+          insurance_enabled: insuranceEnabled,
+          insurance_plan: insuranceEnabled ? insurancePlan : null,
+          insurance_alpha_low: insuranceEnabled ? insuranceAlphaLow : null,
+          insurance_alpha_high: insuranceEnabled ? insuranceAlphaHigh : null,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -872,6 +956,18 @@ function App() {
         },
         _restored_from: data.name,
       }));
+      // ── 恢复 ILP 投连险配置 ──────────────────────────────────────────────
+      if (data.ilp_enabled != null) {
+        setIlpEnabled(!!data.ilp_enabled);
+        if (data.ilp_config) setIlpConfig(data.ilp_config);
+      }
+      // ── 恢复储蓄险配置 ──────────────────────────────────────────────────
+      if (data.insurance_enabled != null) {
+        setInsuranceEnabled(!!data.insurance_enabled);
+        if (data.insurance_plan)       setInsurancePlan(data.insurance_plan);
+        if (data.insurance_alpha_low  != null) setInsuranceAlphaLow(data.insurance_alpha_low);
+        if (data.insurance_alpha_high != null) setInsuranceAlphaHigh(data.insurance_alpha_high);
+      }
       setScenariosDrawer(false);
     } catch (e) {
       alert('加载失败: ' + e.message);
@@ -1070,6 +1166,17 @@ function App() {
         setDeleteCandidate={setDeleteCandidate} setShowDeleteModal={setShowDeleteModal}
         savedScenarios={savedScenarios} handleLoadScenario={handleLoadScenario} handleDeleteScenario={handleDeleteScenario}
         currentUser={currentUser} canEditPortfolio={canEditPortfolio}
+        onIlpSaved={(cfg) => {
+          setIlpConfig({
+            age: cfg.age ?? 35,
+            gender: cfg.gender ?? 'male',
+            smoker: cfg.smoker ?? false,
+            totalPremium: parseFloat(cfg.premium) || 0,
+            currency: cfg.currency ?? 'USD',
+            enrollmentRate: cfg.enrollment_rate ?? null,
+          });
+          if (parseFloat(cfg.premium) > 0) setIlpEnabled(true);
+        }}
       />
 
       {/* Main Content */}
@@ -1111,6 +1218,9 @@ function App() {
               reportLoading={reportLoading} handleGenerateReport={handleGenerateReport}
               handleGenerateWordReport={handleGenerateWordReport}
               labSum={labSum} isLabReady={isLabReady}
+              ilpEnabled={ilpEnabled} setIlpEnabled={setIlpEnabled}
+              ilpConfig={ilpConfig} setIlpConfig={setIlpConfig}
+              onOpenIlpEnrollmentModal={() => setIlpEnrollmentModalOpen(true)}
             />
           </FeatureLock>
         ) : activeTab === 'portfolios' && activeId ? (
@@ -1128,6 +1238,9 @@ function App() {
               handleOpenCompModal={handleOpenCompModal} handleOpenManageDivModal={handleOpenManageDivModal}
               handleRebalancePreview={handleRebalancePreview} handleUndoRebalance={handleUndoRebalance}
               canEdit={canEditActive}
+              ilpEnabled={ilpEnabled} ilpConfig={ilpConfig}
+              setIlpConfig={setIlpConfig} setIlpEnabled={setIlpEnabled}
+              onOpenIlpEnrollmentModal={() => setIlpEnrollmentModalOpen(true)}
             />
           ) : (
             <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>Data Unavailable</h2><p>Please select a different portfolio.</p></div>
@@ -1197,6 +1310,16 @@ function App() {
       )}
       <BrokerSync show={showBrokerSync} onClose={() => setShowBrokerSync(false)} onImported={fetchPortfolios} />
       <BrokerImport show={showBrokerImport} onClose={() => setShowBrokerImport(false)} onImported={fetchPortfolios} />
+      <ILPEnrollmentBonusModal
+        open={ilpEnrollmentModalOpen}
+        onClose={() => setIlpEnrollmentModalOpen(false)}
+        totalPremium={ilpConfig.totalPremium}
+        currentRate={ilpConfig.enrollmentRate}
+        onConfirm={(rate) => {
+          setIlpConfig(prev => ({ ...prev, enrollmentRate: rate }));
+          setIlpEnrollmentModalOpen(false);
+        }}
+      />
 
       {/* ── Undo Trades Confirm Dialog ── */}
       {undoConfirmOpen && (

@@ -7,6 +7,9 @@ import {
   AlertTriangle, HelpCircle, History, Info, Plus, Search, Target, Trash2, Zap
 } from 'lucide-react';
 import InsurancePlanPanel from './InsurancePlanPanel';
+import ILPConfigPanel from './ILPConfigPanel';
+import ILPSummaryCard from './ILPSummaryCard';
+import ILPImpactPanel from './ILPImpactPanel';
 import NumberInputWithCommas from './NumberInput';
 import { CombinedCashFlowTooltip } from '../utils/chartHelpers';
 
@@ -45,6 +48,10 @@ const StrategyLabView = ({
   reportLoading, handleGenerateReport, handleGenerateWordReport,
   // Computed
   labSum, isLabReady,
+  // ILP
+  ilpEnabled, setIlpEnabled,
+  ilpConfig, setIlpConfig,
+  onOpenIlpEnrollmentModal,
 }) => {
   return (
           <>
@@ -527,19 +534,60 @@ const StrategyLabView = ({
 
                     </div>
                     <div style={{display: 'flex', gap: '15px', flexWrap: 'wrap'}}>
+                      {/* Initial Capital — ILP 启用时显示联动标识 */}
                       <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
-                        <span style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)'}}>Initial Capital ($)</span>
-                        <NumberInputWithCommas value={labMcSettings.capital} onChange={v => setLabMcSettings({...labMcSettings, capital: v})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '100px'}} />
+                        <span style={{fontSize: '0.75rem', color: ilpEnabled ? '#818cf8' : 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                          {ilpEnabled && <span title="已与ILP保费联动" style={{fontSize: '0.7rem'}}>🔗</span>}
+                          Initial Capital ($)
+                          {ilpEnabled && <span style={{fontSize: '0.62rem', color: 'rgba(99,102,241,0.7)'}}>= 整付保费</span>}
+                        </span>
+                        <NumberInputWithCommas
+                          value={labMcSettings.capital}
+                          onChange={v => setLabMcSettings({...labMcSettings, capital: v})}
+                          style={{
+                            background: ilpEnabled ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.05)',
+                            border: `1px solid ${ilpEnabled ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                            color: '#fff', borderRadius: '4px', padding: '6px', width: '100px'
+                          }}
+                        />
                       </div>
+
+                      {/* Annual Add — ILP 启用时锁定为 0 */}
                       <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
-                        <span style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)'}}>Annual Add ($) | Yr Start-End</span>
+                        <span style={{fontSize: '0.75rem', color: ilpEnabled ? 'rgba(255,160,60,0.8)' : 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                          {ilpEnabled && <span style={{fontSize: '0.7rem'}}>🔒</span>}
+                          Annual Add ($) | Yr Start-End
+                          {ilpEnabled && <span style={{fontSize: '0.62rem', color: 'rgba(255,160,60,0.7)'}}>已锁定 = 0</span>}
+                        </span>
                         <div style={{display: 'flex', gap: '5px'}}>
-                          <NumberInputWithCommas value={labMcSettings.contribution} onChange={v => setLabMcSettings({...labMcSettings, contribution: v})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '80px'}} />
-                          <input type="number" value={labMcSettings.contribution_start} onChange={e => setLabMcSettings({...labMcSettings, contribution_start: e.target.value})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '40px'}} title="Start Year" />
+                          <NumberInputWithCommas
+                            value={ilpEnabled ? 0 : labMcSettings.contribution}
+                            onChange={v => !ilpEnabled && setLabMcSettings({...labMcSettings, contribution: v})}
+                            style={{
+                              background: ilpEnabled ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)',
+                              border: `1px solid ${ilpEnabled ? 'rgba(255,160,60,0.2)' : 'rgba(255,255,255,0.1)'}`,
+                              color: ilpEnabled ? 'rgba(255,255,255,0.3)' : '#fff',
+                              borderRadius: '4px', padding: '6px', width: '80px',
+                              cursor: ilpEnabled ? 'not-allowed' : 'text',
+                            }}
+                          />
+                          <input type="number" value={labMcSettings.contribution_start}
+                            onChange={e => !ilpEnabled && setLabMcSettings({...labMcSettings, contribution_start: e.target.value})}
+                            disabled={ilpEnabled}
+                            style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: ilpEnabled ? 'rgba(255,255,255,0.3)' : '#fff', borderRadius: '4px', padding: '6px', width: '40px', cursor: ilpEnabled ? 'not-allowed' : 'text'}} title="Start Year" />
                           <span style={{color: 'rgba(255,255,255,0.5)', alignSelf: 'center'}}>-</span>
-                          <input type="number" value={labMcSettings.contribution_years} onChange={e => setLabMcSettings({...labMcSettings, contribution_years: e.target.value})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '40px'}} title="End Year" />
+                          <input type="number" value={labMcSettings.contribution_years}
+                            onChange={e => !ilpEnabled && setLabMcSettings({...labMcSettings, contribution_years: e.target.value})}
+                            disabled={ilpEnabled}
+                            style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: ilpEnabled ? 'rgba(255,255,255,0.3)' : '#fff', borderRadius: '4px', padding: '6px', width: '40px', cursor: ilpEnabled ? 'not-allowed' : 'text'}} title="End Year" />
                         </div>
+                        {ilpEnabled && (
+                          <span style={{fontSize: '0.62rem', color: 'rgba(255,160,60,0.6)', lineHeight: 1.4}}>
+                            ILP 为整付保费产品，无后续追加
+                          </span>
+                        )}
                       </div>
+
                       <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
                         <span style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)'}}>Annual Draw ($) | Yr Start-End</span>
                         <div style={{display: 'flex', gap: '5px'}}>
@@ -559,6 +607,49 @@ const StrategyLabView = ({
                       </div>
 
                     </div>
+                  </div>
+
+                  {/* ILP 投连险 Toggle（位于 Block 1 末尾） */}
+                  <div style={{
+                    marginTop: '14px', paddingTop: '14px',
+                    borderTop: '1px solid rgba(255,255,255,0.08)'
+                  }}>
+                    <div
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        cursor: 'pointer', padding: '8px 12px', borderRadius: '8px',
+                        background: ilpEnabled ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${ilpEnabled ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                        transition: '0.2s'
+                      }}
+                      onClick={() => setIlpEnabled(!ilpEnabled)}
+                    >
+                      <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        <span style={{fontSize: '1.1rem'}}>🔗</span>
+                        <span style={{fontWeight: 600, color: ilpEnabled ? '#818cf8' : 'rgba(255,255,255,0.7)'}}>通过投连险（ILP）实现本组合</span>
+                        <span style={{fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)'}}>费用自动从回报中扣减，叠加奖赏收益</span>
+                      </div>
+                      <div style={{
+                        width: '40px', height: '22px', borderRadius: '11px',
+                        background: ilpEnabled ? '#818cf8' : 'rgba(255,255,255,0.2)',
+                        position: 'relative', transition: 'background 0.2s'
+                      }}>
+                        <div style={{
+                          width: '18px', height: '18px', borderRadius: '50%', background: '#fff',
+                          position: 'absolute', top: '2px', left: ilpEnabled ? '20px' : '2px',
+                          transition: 'left 0.2s'
+                        }} />
+                      </div>
+                    </div>
+
+                    {ilpEnabled && (
+                      <ILPConfigPanel
+                        ilpConfig={ilpConfig}
+                        onConfigChange={setIlpConfig}
+                        onOpenEnrollmentModal={onOpenIlpEnrollmentModal}
+                        initialCapital={parseFloat(labMcSettings.capital) || 0}
+                      />
+                    )}
                   </div>
 
                   {/* Block 2: 稳健保险配置 (Insurance Configuration) */}
@@ -1055,6 +1146,37 @@ const StrategyLabView = ({
                       </div>
                     )}
                   </>
+                )}
+
+                {/* ILP 保障与传承展示区块 */}
+                {ilpEnabled && ilpConfig && ilpConfig.totalPremium > 0 && (
+                  <ILPSummaryCard
+                    ilpConfig={ilpConfig}
+                    currentCV={(() => {
+                      const mc = labData?.monte_carlo?.chart;
+                      if (!mc || mc.length === 0) return parseFloat(labMcSettings.capital) || 0;
+                      return mc[mc.length - 1]?.p50 || parseFloat(labMcSettings.capital) || 0;
+                    })()}
+                    currentMonth={(() => {
+                      const mc = labData?.monte_carlo?.chart;
+                      if (!mc || mc.length === 0) return 0;
+                      return (mc[mc.length - 1]?.year || 0) * 12;
+                    })()}
+                    p50EstimateEnd={(() => {
+                      const mc = labData?.monte_carlo?.chart;
+                      if (!mc || mc.length === 0) return 0;
+                      return mc[mc.length - 1]?.p50 || 0;
+                    })()}
+                  />
+                )}
+
+                {/* ILP 费用影响分析面板 */}
+                {ilpEnabled && ilpConfig && ilpConfig.totalPremium > 0 && labData?.monte_carlo?.chart && (
+                  <ILPImpactPanel
+                    mcChart={labData.monte_carlo.chart}
+                    ilpConfig={ilpConfig}
+                    labMcSettings={labMcSettings}
+                  />
                 )}
               </div>
             )}

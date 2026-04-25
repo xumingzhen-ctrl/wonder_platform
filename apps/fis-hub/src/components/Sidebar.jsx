@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Briefcase, Activity, Plus, Trash2, Users, UserCheck, GripVertical } from 'lucide-react';
+import { Briefcase, Activity, Plus, Trash2, Users, UserCheck, GripVertical, Link } from 'lucide-react';
+import ILPSettingsModal from './ILPSettingsModal';
 
 /**
  * Sidebar component — tabs, portfolio list (with drag-to-reorder), actions, scenarios drawer, and role-aware nav.
@@ -10,10 +11,14 @@ const Sidebar = ({
   setShowModal, setShowBrokerImport, setShowBrokerSync,
   setDeleteCandidate, setShowDeleteModal,
   savedScenarios, handleLoadScenario, handleDeleteScenario,
-  currentUser, canEditPortfolio
+  currentUser, canEditPortfolio,
+  onIlpSaved,
 }) => {
   const isAdmin   = currentUser?.role === 'admin';
   const isAdvisor = currentUser?.role === 'advisor' || isAdmin;
+
+  // ── ILP 设置弹窗 ──────────────────────────────────────────────────
+  const [ilpModalOpen, setIlpModalOpen] = useState(false);
 
   // ── 拖拽排序状态 ──────────────────────────────────────────────
   const dragId    = useRef(null);   // 正在拖动的组合 id
@@ -220,6 +225,38 @@ const Sidebar = ({
           ))}
         </nav>
       )}
+      {/* ── ILP 设置入口（左侧边栏底部）── */}
+      {currentUser && (
+        <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <button
+            onClick={() => setIlpModalOpen(true)}
+            style={{
+              width: '100%', padding: '9px 12px',
+              background: 'rgba(99,102,241,0.06)',
+              border: '1px solid rgba(99,102,241,0.15)',
+              borderRadius: '9px', color: 'rgba(255,255,255,0.6)',
+              cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500,
+              display: 'flex', alignItems: 'center', gap: '7px',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = '#818cf8'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+          >
+            <Link size={13} />
+            <span>ILP 投连险配置</span>
+          </button>
+        </div>
+      )}
+
+      {/* ILP 设置弹窗 */}
+      <ILPSettingsModal
+        open={ilpModalOpen}
+        onClose={() => setIlpModalOpen(false)}
+        onSaved={(cfg) => {
+          onIlpSaved && onIlpSaved(cfg);
+        }}
+        isAdvisorMode={false}
+      />
     </aside>
   );
 };

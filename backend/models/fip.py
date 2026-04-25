@@ -142,3 +142,15 @@ class LabScenario(Base):
     settings_json = Column(Text, nullable=False)
     summary_json = Column(Text, nullable=False)
     chart_json = Column(Text, nullable=False)
+
+class UserILPConfig(Base):
+    __tablename__ = "user_ilp_config"
+    user_id = Column(String(36), ForeignKey('users.id'), primary_key=True)
+    age = Column(Integer, default=35)
+    gender = Column(String(10), default='male')
+    smoker = Column(Integer, default=0)
+    premium = Column(Float, default=0)
+    currency = Column(String(10), default='USD')
+    enrollment_rate = Column(Float, nullable=True)   # NULL = 使用系统推荐
+    updated_at = Column(String(50))
+

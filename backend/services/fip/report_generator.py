@@ -28,20 +28,42 @@ from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-# ── LLM (OpenRouter) 客户端 ────────────────────────────────────────────
-_llm_client = None
+from config import settings
 
-def _get_client() -> OpenAI:
-    global _llm_client
-    if _llm_client is None:
-        api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key:
-            raise RuntimeError("OPENROUTER_API_KEY 未配置，请在 .env 中设置。")
+# ── LLM 客户端：优先 DeepSeek 直连，回退 OpenRouter DeepSeek-V3 ──────────
+_llm_client = None
+_llm_model  = None
+
+def _get_client() -> tuple:
+    """
+    返回 (OpenAI_client, model_name)。
+    优先顺序：
+      1. DeepSeek 直连 API（DEEPSEEK_API_KEY）
+      2. OpenRouter 路由 DeepSeek-V3（OPENROUTER_API_KEY）
+    """
+    global _llm_client, _llm_model
+    if _llm_client is not None:
+        return _llm_client, _llm_model
+
+    if settings.DEEPSEEK_API_KEY:
         _llm_client = OpenAI(
-            api_key=api_key,
-            base_url="https://openrouter.ai/api/v1"
+            api_key=settings.DEEPSEEK_API_KEY,
+            base_url=settings.DEEPSEEK_BASE_URL,
         )
-    return _llm_client
+        _llm_model = settings.DEEPSEEK_MODEL
+        print(f"[ReportGenerator] 使用 DeepSeek 直连: {_llm_model}")
+    elif settings.OPENROUTER_API_KEY:
+        _llm_client = OpenAI(
+            api_key=settings.OPENROUTER_API_KEY,
+            base_url=settings.OPENROUTER_BASE_URL,
+        )
+        _llm_model = settings.OPENROUTER_DEEPSEEK_MODEL
+        print(f"[ReportGenerator] 回退 OpenRouter DeepSeek: {_llm_model}")
+    else:
+        raise RuntimeError("无可用 LLM API Key，请在 .env 配置 DEEPSEEK_API_KEY 或 OPENROUTER_API_KEY")
+
+    return _llm_client, _llm_model
+
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -463,10 +485,10 @@ def call_llm(prompt: str, timeout: int = 60) -> dict:
         "recommendations": "请保持战略耐心。每季度或每半年度进行一次账户再平衡检视即可，严守长期投资纪律，拒绝市场短期杂音干扰；若遇流动性突发诉求，优选无损方式调用工具。"
     }
 
-    model_name = os.getenv("LLM_MODEL", "anthropic/claude-3.5-sonnet")
+    model_name = None
 
     try:
-        client = _get_client()
+        client, model_name = _get_client()
         response = client.chat.completions.create(
             model=model_name,
             messages=[
