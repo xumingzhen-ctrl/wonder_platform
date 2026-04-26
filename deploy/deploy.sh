@@ -30,6 +30,12 @@ else
     echo "  ✅ Swap 已存在：$(free -h | awk '/Swap/{print $2}')"
 fi
 
+# ── 确认当前可用内存 ────────────────────────────
+echo ""
+echo "📊 当前内存状态："
+free -h
+echo "  (构建 Next.js 约需 1–1.5GB，Swap 已作为后备)"
+
 # ── 1. 确保日志目录存在 ─────────────────────────
 mkdir -p "$LOG_DIR"
 
@@ -78,7 +84,9 @@ echo "[6/7] 构建前端应用（逐个构建，防止内存溢出）..."
 # Wonder Hub（Next.js，内存消耗最大）
 cd "$PROJECT_DIR/apps/wonder-hub"
 echo "  📦 构建 Wonder Hub..."
-NODE_OPTIONS="--max-old-space-size=768" npx next build
+echo "  可用内存：$(free -m | awk '/Mem/{print $7}') MB (物理) + Swap"
+# 1280MB：给 Next.js 静态生成足够空间，Swap 1GB 作兜底
+NODE_OPTIONS="--max-old-space-size=1280" npx next build
 # standalone 模式需要手动同步 static 和 public（先删后复制，防止旧 BUILD_ID 残留）
 STANDALONE_DIR="$PROJECT_DIR/apps/wonder-hub/.next/standalone/apps/wonder-hub"
 rm -rf "$STANDALONE_DIR/.next/static"
