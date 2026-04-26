@@ -208,7 +208,11 @@ export default async function BlogPost({
         </div>
       </div>
 
-      <article className="max-w-4xl mx-auto px-6 pt-16 pb-32">
+      <article
+        className="max-w-4xl mx-auto px-6 pt-16 pb-32"
+        dir={post.dir || "ltr"}
+        lang={post.lang || "zh"}
+      >
         {articleHeader}
 
         {hasAccess ? (

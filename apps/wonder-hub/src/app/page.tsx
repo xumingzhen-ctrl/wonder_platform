@@ -41,6 +41,7 @@ export default function Home() {
           { title: "财富诊断", desc: "家庭资产健康评估与现金流推演。", link: "/assessment" },
           { title: "FIS 沙盘", desc: "独立资产管理与 PortfolioHub 模拟系统。", link: "http://fis.wonderwisdom.online" },
           { title: "行政中枢", desc: "企业/家族办公室后台管理与 B 端系统。", link: "http://company.wonderwisdom.online" },
+          { title: "香港投资移民", desc: "New CIES 专题：资格评估、ILI投资方案与顾问预约。", link: "/immigration" },
         ].map((item, idx) => (
           <Link href={item.link} target={item.link.startsWith('http') ? '_blank' : undefined} key={idx} className="group relative p-10 rounded-[2.5rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-2xl hover:bg-card transition-all duration-500 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

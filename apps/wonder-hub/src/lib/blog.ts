@@ -19,6 +19,8 @@ export interface BlogPost {
   readingTime: number;
   restricted: boolean;
   content: string;
+  lang?: string;   // e.g. "zh" | "en" | "ar"
+  dir?: string;    // e.g. "ltr" | "rtl"
 }
 
 export interface BlogPostMeta extends Omit<BlogPost, "content"> {}
@@ -136,6 +138,8 @@ export function getPostBySlug(slug: string): BlogPost | null {
     readingTime: calcReadingTime(content),
     restricted,
     content,
+    lang: data.lang,
+    dir: data.dir,
   };
 }
 

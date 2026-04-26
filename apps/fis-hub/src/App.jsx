@@ -20,6 +20,7 @@ import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
 import AdvisorClientsPanel from './components/AdvisorClientsPanel';
 import FeatureLock from './components/FeatureLock';
+import ImmigrationShowcase from './components/ImmigrationShowcase';
 
 
 // ── 角色颜色/标签映射（全局复用）──
@@ -34,6 +35,8 @@ import { VerifyEmailOverlay, ResetPasswordOverlay } from './components/AuthOverl
 
 function App() {
   const [urlParams] = useState(new URLSearchParams(window.location.search));
+  const mode = urlParams.get('mode');
+  const urlLang = urlParams.get('lang') || 'zh';
   const [authAction, setAuthAction] = useState(() => {
     if (window.location.pathname === '/verify-email') return 'verify';
     if (window.location.pathname === '/reset-password') return 'reset';
@@ -1097,6 +1100,11 @@ function App() {
   };
   const activePf = portfolios.find(p => p.id === activeId);
   const canEditActive = canEditPortfolio(activePf);
+
+  // ── 移民展示模式：?mode=immigration 直接渲染，无需登录 ──────────────
+  if (mode === 'immigration') {
+    return <ImmigrationShowcase lang={urlLang} onBack={() => window.history.back()} />;
+  }
 
   return (
     <div className="app-layout">
