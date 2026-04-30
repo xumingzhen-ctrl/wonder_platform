@@ -693,7 +693,8 @@ const StrategyLabView = ({
                            divOffset: divOff,
                            divReinvested: divRe,
                            cumReinvestedValue: cumReinvested,
-                           cumReinvestedPct: initialCapital > 0 ? (cumReinvested / initialCapital) * 100 : 0
+                           cumReinvestedPct: initialCapital > 0 ? (cumReinvested / initialCapital) * 100 : 0,
+                           yoc: initialCapital > 0 ? (divGen / initialCapital) * 100 : 0
                          });
                       });
                     }
@@ -740,39 +741,43 @@ const StrategyLabView = ({
                           
                           {showDivDoc && (
                             <div style={{background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', padding: '12px 16px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.6}}>
-                              <strong style={{color: '#60a5fa'}}>💡 累计复投差额比 (vs Capital %)</strong><br />
-                              它表示<strong style={{color: '#10b981'}}>【未被提取，而重新买入组合资产的内生分红总额】</strong>占<strong style={{color: '#a855f7'}}>【初始总投资本金】</strong>的百分比。<br />
-                              由于每年产生的分红会优先抵扣您设定的“提款需求 (Annual Draw)”，如果分红有盈余，就会“滚雪球”般重新买入底仓资产。<br/>
-                              这个指标直观地展现了：随着时间推移，<strong>单靠分红盈余的“利滚利”，就已经收回了多少初始投资本金</strong>（如果达到 100%，意味着仅靠复投的分红就翻倍了初始本金）。
+                              <strong style={{color: '#60a5fa'}}>💡 财务指标与内生分红追踪指南</strong><br />
+                              <ul style={{margin: '8px 0 0 20px', padding: 0}}>
+                                <li style={{marginBottom: '4px'}}><strong style={{color: '#10b981'}}>期末成本收益率 (YOC)</strong>: 模拟期末当年的总分红金额，占最初投入总本金的比例。它直观反映了随时间推移，资产自身持续派息能力的成长情况。</li>
+                                <li style={{marginBottom: '4px'}}><strong style={{color: '#3b82f6'}}>分红复合增长率 (DGR)</strong>: 模拟周期内，每年分红金额的年化复合增长率。体现了这套方案的被动收入抵抗真实世界通货膨胀的能力。</li>
+                                <li style={{marginBottom: '4px'}}><strong style={{color: '#f59e0b'}}>期末目标支出覆盖率</strong>: 期末当年的总分红除以您设定的年度提款需求。若达到或超过 100%，意味着仅靠分红就足以完全覆盖您的日常目标开销。</li>
+                                <li style={{marginBottom: '4px'}}><strong style={{color: '#a855f7'}}>零成本拐点 (Breakeven)</strong>: 累计未提取并重新买入底仓的内生分红总额，达到初始投入本金所需的年数。意味着光靠“利滚利”就能收回最初本金。</li>
+                                <li><strong style={{color: '#3b82f6'}}>累计复投差额比 (vs Capital %)</strong>: 图表蓝线，表示上述累计滚雪球复投的总额占初始本金的实时百分比。</li>
+                              </ul>
                             </div>
                           )}
 
                           <div style={{display: 'flex', gap: '15px', marginBottom: '15px', flexWrap: 'wrap'}}>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #10b981'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'}} onClick={() => setShowDivDoc(!showDivDoc)}>
                                  期末成本收益率 (YOC)
-                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Yield On Cost: 模拟期末当年的总分红金额，占最初投入总本金的比例。它直观反映了随时间推移，资产持续派息能力的成长情况。" />
+                                 <HelpCircle size={12} />
                                </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#10b981'}}>{yocFinal.toFixed(2)}%</div>
                             </div>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #3b82f6'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'}} onClick={() => setShowDivDoc(!showDivDoc)}>
                                  分红复合增长率 (DGR)
-                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Dividend Growth Rate: 模拟周期内，每年分红金额的年化复合增长率。它体现了这套方案被动收入抵抗真实世界通胀的能力。" />
+                                 <HelpCircle size={12} />
                                </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#3b82f6'}}>{dgr.toFixed(2)}%</div>
                             </div>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #f59e0b'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'}} onClick={() => setShowDivDoc(!showDivDoc)}>
                                  期末目标支出覆盖率
-                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Income Replacement Ratio: 期末当年的总分红除以设定的年度提款需求。若达到或超过 100%，意味着仅靠分红就足以完全覆盖您的日常目标开销。" />
+                                 <HelpCircle size={12} />
                                </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#f59e0b'}}>{targetWithdrawal > 0 ? incomeReplacement.toFixed(1) + '%' : 'N/A'}</div>
                             </div>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'}} onClick={() => setShowDivDoc(!showDivDoc)}>
                                  零成本拐点 (Breakeven)
-                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Breakeven Timeline: 累计未提取并重新买入底仓的内生分红总额，达到初始投入本金所需的年数。意味着光靠“利滚利”就能收回最初本金。" />
+                                 <HelpCircle size={12} />
                                </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#a855f7'}}>{breakevenText}</div>
                             </div>
@@ -786,7 +791,7 @@ const StrategyLabView = ({
                                  <YAxis yAxisId="left" stroke="rgba(255,255,255,0.5)" fontSize={12} tickFormatter={(v)=>'$'+(v/1000).toFixed(0)+'k'} />
                                  <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.5)" fontSize={12} tickFormatter={(v)=>v.toFixed(1)+'%'} />
                                  <Tooltip contentStyle={{backgroundColor: '#1f2937', borderColor: '#374151', color: '#fff'}} formatter={(val, name) => {
-                                    if(name.includes('比')) return val.toFixed(1) + '%';
+                                    if(name.includes('比') || name.includes('YOC')) return val.toFixed(1) + '%';
                                     return '$' + Math.abs(val).toLocaleString();
                                  }} />
                                  <Legend wrapperStyle={{fontSize: '0.85rem'}} />
@@ -794,6 +799,7 @@ const StrategyLabView = ({
                                  <Bar yAxisId="left" dataKey="divReinvested" stackId="div" fill="#10b981" name="滚雪球复投 (Reinvested)" />
                                  <Line yAxisId="right" type="monotone" dataKey="cumReinvestedPct" stroke="#3b82f6" strokeWidth={2} dot={false} name="累计复投差额比 (vs Capital %)" />
                                  <Line yAxisId="left" type="monotone" dataKey="cumReinvestedValue" stroke="rgba(59,130,246,0.3)" strokeDasharray="3 3" dot={false} name="累计绝对差额 ($)" />
+                                 <Line yAxisId="right" type="monotone" dataKey="yoc" stroke="transparent" dot={false} activeDot={false} isAnimationActive={false} name="当年分红占初始投入 (YOC)" />
                               </ComposedChart>
                             </ResponsiveContainer>
                           </div>
