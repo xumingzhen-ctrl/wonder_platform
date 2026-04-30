@@ -799,7 +799,7 @@ const StrategyLabView = ({
                                  <Bar yAxisId="left" dataKey="divReinvested" stackId="div" fill="#10b981" name="滚雪球复投 (Reinvested)" />
                                  <Line yAxisId="right" type="monotone" dataKey="cumReinvestedPct" stroke="#3b82f6" strokeWidth={2} dot={false} name="累计复投差额比 (vs Capital %)" />
                                  <Line yAxisId="left" type="monotone" dataKey="cumReinvestedValue" stroke="rgba(59,130,246,0.3)" strokeDasharray="3 3" dot={false} name="累计绝对差额 ($)" />
-                                 <Line yAxisId="right" type="monotone" dataKey="yoc" stroke="transparent" dot={false} activeDot={false} isAnimationActive={false} name="当年分红占初始投入 (YOC)" />
+                                 <Line yAxisId="right" type="monotone" dataKey="yoc" stroke="#10b981" strokeWidth={0} dot={false} activeDot={false} isAnimationActive={false} legendType="none" name="当年分红占初始投入 (YOC)" />
                               </ComposedChart>
                             </ResponsiveContainer>
                           </div>
