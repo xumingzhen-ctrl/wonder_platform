@@ -749,19 +749,31 @@ const StrategyLabView = ({
 
                           <div style={{display: 'flex', gap: '15px', marginBottom: '15px', flexWrap: 'wrap'}}>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #10b981'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>期末成本收益率 (YOC)</div>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                 期末成本收益率 (YOC)
+                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Yield On Cost: 模拟期末当年的总分红金额，占最初投入总本金的比例。它直观反映了随时间推移，资产持续派息能力的成长情况。" />
+                               </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#10b981'}}>{yocFinal.toFixed(2)}%</div>
                             </div>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #3b82f6'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>分红复合增长率 (DGR)</div>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                 分红复合增长率 (DGR)
+                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Dividend Growth Rate: 模拟周期内，每年分红金额的年化复合增长率。它体现了这套方案被动收入抵抗真实世界通胀的能力。" />
+                               </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#3b82f6'}}>{dgr.toFixed(2)}%</div>
                             </div>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #f59e0b'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>期末目标支出覆盖率</div>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                 期末目标支出覆盖率
+                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Income Replacement Ratio: 期末当年的总分红除以设定的年度提款需求。若达到或超过 100%，意味着仅靠分红就足以完全覆盖您的日常目标开销。" />
+                               </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#f59e0b'}}>{targetWithdrawal > 0 ? incomeReplacement.toFixed(1) + '%' : 'N/A'}</div>
                             </div>
                             <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7'}}>
-                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>零成本拐点 (Breakeven)</div>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                 零成本拐点 (Breakeven)
+                                 <HelpCircle size={12} style={{cursor: 'help'}} title="Breakeven Timeline: 累计未提取并重新买入底仓的内生分红总额，达到初始投入本金所需的年数。意味着光靠“利滚利”就能收回最初本金。" />
+                               </div>
                                <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#a855f7'}}>{breakevenText}</div>
                             </div>
                           </div>
