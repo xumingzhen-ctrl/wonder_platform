@@ -522,7 +522,70 @@ const PortfolioView = ({
 
                   {/* Projection Chart */}
                   <section className="glass-card" style={{marginBottom: '40px', padding: '30px'}}>
+                    {/* ── Historical Dividend Section ──────────────────────────── */}
+                    {divProjData.historical_dividends && (
+                      <div style={{marginBottom: '32px'}}>
+                        <div className="stat-label" style={{fontSize: '1rem', color: '#fff', marginBottom: '20px'}}>
+                          📊 Dividend History
+                        </div>
+
+                        {/* Past 12 months — monthly bar chart */}
+                        {divProjData.historical_dividends.monthly?.length > 0 && (
+                          <>
+                            <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginBottom: '10px', letterSpacing: '0.05em', textTransform: 'uppercase'}}>
+                              Past 12 Months (by month)
+                            </div>
+                            <div style={{height: '200px', width: '100%', marginBottom: '24px'}}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={divProjData.historical_dividends.monthly}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                                  <XAxis dataKey="month" stroke="rgba(255,255,255,0.15)" tick={{fill: '#9ca3af', fontSize: 10}} />
+                                  <YAxis stroke="rgba(255,255,255,0.15)" tick={{fill: '#9ca3af', fontSize: 10}}
+                                    tickFormatter={(val) => fmtAxis(Number(val), 1, data?.base_currency || 'USD')} />
+                                  <Tooltip
+                                    cursor={{fill: 'rgba(255,255,255,0.04)'}}
+                                    contentStyle={{backgroundColor: '#1e1e2f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: '0.82rem'}}
+                                    formatter={(val) => [fmtMoney(Number(val), 1, data?.base_currency || 'USD'), 'Received']}
+                                  />
+                                  <Bar dataKey="amount" fill="#10b981" radius={[3, 3, 0, 0]} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Earlier years — annual summary cards */}
+                        {divProjData.historical_dividends.annual?.length > 0 && (
+                          <>
+                            <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginBottom: '10px', letterSpacing: '0.05em', textTransform: 'uppercase'}}>
+                              Previous Calendar Years (Full Year Total)
+                            </div>
+                            <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '8px'}}>
+                              {divProjData.historical_dividends.annual.map(yr => (
+                                <div key={yr.year} style={{
+                                  flex: '1', minWidth: '110px', maxWidth: '160px',
+                                  padding: '12px 14px', borderRadius: '10px',
+                                  background: 'rgba(255,255,255,0.03)',
+                                  border: '1px solid rgba(255,255,255,0.07)'
+                                }}>
+                                  <div style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginBottom: '6px'}}>{yr.year}</div>
+                                  <div style={{fontSize: '1rem', fontWeight: 700, color: '#fbbf24'}}>
+                                    {fmtMoney(yr.amount, 1, data?.base_currency || 'USD')}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Divider before projection */}
+                        <div style={{borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: '24px', marginBottom: '0'}} />
+                      </div>
+                    )}
+
+                    {/* ── 12-Month Projection ──────────────────────────────────── */}
                     <div className="stat-label" style={{fontSize: '1.2rem', color: '#fff', marginBottom: '20px'}}>12-Month Expected Cash Flow</div>
+
                     <div style={{height: '300px', width: '100%'}}>
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={divProjData.chart_data}>

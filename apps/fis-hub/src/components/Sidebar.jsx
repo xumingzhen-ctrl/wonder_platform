@@ -10,7 +10,7 @@ const Sidebar = ({
   portfolios, setPortfolios, activeId, setActiveId,
   setShowModal, setShowBrokerImport, setShowBrokerSync,
   setDeleteCandidate, setShowDeleteModal,
-  savedScenarios, handleLoadScenario, handleDeleteScenario,
+  savedScenarios, handleLoadScenario, handleDeleteScenario, handleRenameScenario,
   currentUser, canEditPortfolio,
   onIlpSaved,
 }) => {
@@ -19,6 +19,10 @@ const Sidebar = ({
 
   // ── ILP 设置弹窗 ──────────────────────────────────────────────────
   const [ilpModalOpen, setIlpModalOpen] = useState(false);
+
+  // ── 方案重命名状态 ──────────────────────────────────────────────────
+  const [editingScenarioId, setEditingScenarioId] = useState(null);
+  const [editScenarioName, setEditScenarioName] = useState('');
 
   // ── 拖拽排序状态 ──────────────────────────────────────────────
   const dragId    = useRef(null);   // 正在拖动的组合 id
@@ -206,7 +210,44 @@ const Sidebar = ({
                  onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(16,185,129,0.4)'}
                  onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
                  onClick={() => handleLoadScenario(sc.id)}>
-              <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#10b981', marginBottom: '4px', paddingRight: '24px', lineHeight: 1.2 }}>{sc.name}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                {editingScenarioId === sc.id ? (
+                  <div style={{ flex: 1, display: 'flex', gap: '4px', marginRight: '24px' }}>
+                    <input 
+                      autoFocus
+                      value={editScenarioName}
+                      onChange={e => setEditScenarioName(e.target.value)}
+                      onClick={e => e.stopPropagation()}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                          e.stopPropagation();
+                          if (editScenarioName.trim()) {
+                            handleRenameScenario(sc.id, editScenarioName);
+                          }
+                          setEditingScenarioId(null);
+                        }
+                        if (e.key === 'Escape') {
+                          e.stopPropagation();
+                          setEditingScenarioId(null);
+                        }
+                      }}
+                      style={{ flex: 1, width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid #10b981', color: '#fff', borderRadius: '4px', padding: '2px 4px', fontSize: '0.85rem' }}
+                    />
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (editScenarioName.trim()) {
+                          handleRenameScenario(sc.id, editScenarioName);
+                        }
+                        setEditingScenarioId(null);
+                      }}
+                      style={{ background: '#10b981', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer', padding: '0 6px' }}
+                    >✓</button>
+                  </div>
+                ) : (
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#10b981', paddingRight: '40px', lineHeight: 1.2 }}>{sc.name}</div>
+                )}
+              </div>
               <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginBottom: '8px' }}>{new Date(sc.created_at).toLocaleDateString('zh-CN')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
                 {sc.assets.map(a => <span key={a} style={{ background: 'rgba(129,140,248,0.12)', color: '#818cf8', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 600 }}>{a}</span>)}
@@ -215,12 +256,20 @@ const Sidebar = ({
                 <div><span style={{color: 'rgba(255,255,255,0.4)'}}>本金: </span><span>${(sc.summary.capital/1000).toFixed(0)}k</span></div>
                 <div><span style={{color: 'rgba(255,255,255,0.4)'}}>年提: </span><span style={{color: '#f59e0b'}}>${((sc.summary.withdrawal||0)/1000).toFixed(0)}k</span></div>
               </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); handleDeleteScenario(sc.id); }}
-                style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.2)', border: 'none', borderRadius: '6px', color: 'rgba(244,63,94,0.6)', cursor: 'pointer', padding: '4px' }}
-                title="删除">
-                <Trash2 size={12} />
-              </button>
+              <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '4px' }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setEditScenarioName(sc.name); setEditingScenarioId(sc.id); }}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: 'none', borderRadius: '6px', color: 'rgba(16,185,129,0.6)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px' }}
+                  title="重命名">
+                  <span style={{ fontSize: '12px', lineHeight: 1 }}>✎</span>
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDeleteScenario(sc.id); }}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: 'none', borderRadius: '6px', color: 'rgba(244,63,94,0.6)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px' }}
+                  title="删除">
+                  <Trash2 size={12} />
+                </button>
+              </div>
             </div>
           ))}
         </nav>

@@ -380,6 +380,23 @@ def load_scenario(scenario_id: int):
     finally:
         conn.close()
 
+@router.put("/lab/scenarios/{scenario_id}")
+def rename_scenario(scenario_id: int, payload: dict):
+    """Rename a saved scenario by ID."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        new_name = payload.get("name")
+        if not new_name:
+            raise HTTPException(status_code=400, detail="Name is required")
+        cursor = conn.cursor()
+        cursor.execute("UPDATE lab_scenarios SET name = ? WHERE id = ?", (new_name, scenario_id))
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Scenario not found")
+        return {"message": "方案名称已更新"}
+    finally:
+        conn.close()
+
 @router.delete("/lab/scenarios/{scenario_id}")
 def delete_scenario(scenario_id: int):
     """Delete a saved scenario by ID."""

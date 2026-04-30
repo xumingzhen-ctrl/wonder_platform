@@ -31,6 +31,107 @@ const ROLE_META = {
   free:    { label: '普通用户', color: '#6b7280' },
 };
 
+// ── 合规确认弹窗（首次进入时展示）──────────────────────────────────────────
+function ComplianceGateModal({ onAcknowledge }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 99999,
+      background: 'rgba(0,0,0,0.75)',
+      backdropFilter: 'blur(10px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '16px',
+    }}>
+      <div style={{
+        background: 'linear-gradient(145deg, #0f1629 0%, #111827 100%)',
+        border: '1px solid rgba(99,102,241,0.3)',
+        borderRadius: '20px',
+        padding: '36px 32px',
+        maxWidth: '540px',
+        width: '100%',
+        boxShadow: '0 32px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.1)',
+      }}>
+        {/* 标题 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: '12px',
+            background: 'rgba(251,191,36,0.12)',
+            border: '1px solid rgba(251,191,36,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '20px', flexShrink: 0,
+          }}>⚠️</div>
+          <div>
+            <h2 style={{ color: '#f1f5f9', fontSize: '17px', fontWeight: 700, margin: 0, lineHeight: 1.3 }}>
+              使用须知 / Terms of Use
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '3px 0 0' }}>
+              请在继续前阅读以下声明 · Please read before proceeding
+            </p>
+          </div>
+        </div>
+
+        {/* 核心声明 */}
+        <div style={{
+          background: 'rgba(251,191,36,0.06)',
+          border: '1px solid rgba(251,191,36,0.18)',
+          borderRadius: '12px',
+          padding: '16px 18px',
+          marginBottom: '16px',
+        }}>
+          <p style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.75, margin: 0 }}>
+            <strong style={{ color: '#fbbf24' }}>本平台由 Wonder Wisdom. 运营，</strong>
+            未持有香港证监会（SFC）任何类别牌照。平台所有内容（包括数据、模拟、回测及现金流推演）
+            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>仅供信息参考与学习之用</strong>，
+            不构成任何投资、保险、税务或法律建议，亦不代表任何产品要约。
+            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>过往表现不代表未来结果。</strong>
+          </p>
+        </div>
+
+        <div style={{
+          background: 'rgba(99,102,241,0.06)',
+          border: '1px solid rgba(99,102,241,0.18)',
+          borderRadius: '12px',
+          padding: '12px 18px',
+          marginBottom: '24px',
+        }}>
+          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, margin: 0 }}>
+            This platform is operated by Wonder Wisdom. and is not licensed by the SFC of Hong Kong.
+            All information is for educational purposes only and does not constitute investment, insurance,
+            legal or tax advice. Consult a licensed advisor before making financial decisions.
+            Wonder Wisdom. accepts no liability for any loss arising from reliance on this information.
+          </p>
+        </div>
+
+        {/* 确认按钮 */}
+        <button
+          id="compliance-acknowledge-btn"
+          onClick={onAcknowledge}
+          style={{
+            width: '100%',
+            padding: '14px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+            border: 'none',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(99,102,241,0.4)',
+            transition: 'all 0.2s',
+            letterSpacing: '0.01em',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+        >
+          我已阅读并了解，进入平台 →
+        </button>
+        <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginTop: '12px', marginBottom: 0 }}>
+          继续使用即表示您同意上述条款 · Continuing constitutes acceptance of the above terms
+        </p>
+      </div>
+    </div>
+  );
+}
+
 import { VerifyEmailOverlay, ResetPasswordOverlay } from './components/AuthOverlays';
 
 function App() {
@@ -47,6 +148,15 @@ function App() {
   const closeAuthAction = () => {
     setAuthAction(null);
     window.history.replaceState({}, '', '/');
+  };
+
+  // ── 合规确认状态（localStorage 持久化）──
+  const [complianceAcked, setComplianceAcked] = useState(
+    () => !!localStorage.getItem('ww_compliance_acked')
+  );
+  const handleComplianceAcknowledge = () => {
+    localStorage.setItem('ww_compliance_acked', '1');
+    setComplianceAcked(true);
   };
 
   const [portfolios, setPortfolios] = useState([]);
@@ -982,6 +1092,20 @@ function App() {
     await fetch(`/api/lab/scenarios/${id}`, { method: 'DELETE' });
     fetchSavedScenarios();
   };
+
+  const handleRenameScenario = async (id, newName) => {
+    try {
+      const res = await fetch(`/api/lab/scenarios/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName })
+      });
+      if (!res.ok) throw new Error("Rename failed");
+      fetchSavedScenarios();
+    } catch (e) {
+      alert('重命名失败: ' + e.message);
+    }
+  };
   // ───────────────────────────────────────────────────────────────────────────
 
   const handleRunLabAnalysis = async () => {
@@ -1106,6 +1230,11 @@ function App() {
     return <ImmigrationShowcase lang={urlLang} onBack={() => window.history.back()} />;
   }
 
+  // ── 合规确认 Gate ──────────────────────────────────────────────────────────
+  if (!complianceAcked) {
+    return <ComplianceGateModal onAcknowledge={handleComplianceAcknowledge} />;
+  }
+
   return (
     <div className="app-layout">
       {/* ── Top Header Bar ── */}
@@ -1172,7 +1301,7 @@ function App() {
         portfolios={portfolios} setPortfolios={setPortfolios} activeId={activeId} setActiveId={setActiveId}
         setShowModal={setShowModal} setShowBrokerImport={setShowBrokerImport} setShowBrokerSync={setShowBrokerSync}
         setDeleteCandidate={setDeleteCandidate} setShowDeleteModal={setShowDeleteModal}
-        savedScenarios={savedScenarios} handleLoadScenario={handleLoadScenario} handleDeleteScenario={handleDeleteScenario}
+        savedScenarios={savedScenarios} handleLoadScenario={handleLoadScenario} handleDeleteScenario={handleDeleteScenario} handleRenameScenario={handleRenameScenario}
         currentUser={currentUser} canEditPortfolio={canEditPortfolio}
         onIlpSaved={(cfg) => {
           setIlpConfig({
@@ -1388,6 +1517,37 @@ function App() {
       {authAction === 'reset' && (
         <ResetPasswordOverlay token={token} onClose={closeAuthAction} />
       )}
+
+      {/* ── 极简合规页脚 ── */}
+      <footer style={{
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        background: 'transparent',
+        padding: '14px 24px',
+        marginTop: '48px',
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', margin: 0 }}>
+            © Wonder Wisdom. · 本平台内容仅供参考，不构成投资建议 · For informational purposes only
+          </p>
+          <button
+            onClick={() => {
+              localStorage.removeItem('ww_compliance_acked');
+              setComplianceAcked(false);
+            }}
+            style={{
+              background: 'none', border: 'none',
+              color: 'rgba(255,255,255,0.2)',
+              fontSize: '11px', cursor: 'pointer',
+              textDecoration: 'underline', padding: 0,
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
+          >
+            查看免责声明
+          </button>
+        </div>
+      </footer>
     </div>
   );
 }

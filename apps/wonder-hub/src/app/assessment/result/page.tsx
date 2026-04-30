@@ -172,10 +172,65 @@ function HealthRow({label,value,statusLabel}:{label:string;value:string;statusLa
 
 
 
+// ─── 合规确认弹窗（首次进入时展示）─────────────────────────────────
+function ComplianceGateModal({ onAcknowledge }: { onAcknowledge: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+      <div className="bg-card border border-border rounded-2xl shadow-2xl max-w-lg w-full p-8 space-y-5">
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl flex-shrink-0">
+            ⚠️
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-card-foreground leading-tight">使用须知 / Terms of Use</h2>
+            <p className="text-xs text-foreground/40 mt-0.5">请在继续前阅读以下声明 · Please read before proceeding</p>
+          </div>
+        </div>
+        <div className="bg-amber-500/6 border border-amber-500/20 rounded-xl px-4 py-4">
+          <p className="text-[12.5px] text-foreground/70 leading-relaxed">
+            <strong className="text-amber-500">本平台由 Wonder Wisdom. 运营，</strong>
+            未持有香港证监会（SFC）任何类别牌照。平台所有内容（包括数据、分析、模型测算及组合参考）
+            <strong className="text-foreground/85">仅供信息分享与学习参考之用</strong>，
+            不构成任何投资、保险、税务或法律建议，亦不代表任何产品要约。
+            <strong className="text-foreground/85">过往表现不代表未来结果。</strong>
+          </p>
+        </div>
+        <div className="bg-primary/5 border border-primary/15 rounded-xl px-4 py-3">
+          <p className="text-[11px] text-foreground/45 leading-relaxed">
+            This platform is operated by Wonder Wisdom. and is not licensed by the SFC of Hong Kong.
+            All information is for educational purposes only and does not constitute investment, insurance,
+            legal or tax advice. Consult a licensed advisor before making financial decisions.
+            Wonder Wisdom. accepts no liability for any loss from reliance on this information.
+          </p>
+        </div>
+        <button
+          id="compliance-acknowledge-btn"
+          onClick={onAcknowledge}
+          className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+        >
+          我已阅读并了解，进入平台 →
+        </button>
+        <p className="text-center text-[11px] text-foreground/25">
+          继续使用即表示您同意上述条款 · Continuing constitutes acceptance of the above terms
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function ResultPage() {
   const [result,setResult]=useState<AssessmentResult|null>(null)
   const [sub,setSub]=useState<Record<string,string>>({})
   const [loading,setLoading]=useState(true)
+
+  // ── 合规确认状态（与 FIS Hub 共用同一 localStorage key）──
+  const [complianceAcked, setComplianceAcked] = useState(
+    () => typeof window !== 'undefined' && !!localStorage.getItem('ww_compliance_acked')
+  )
+  const handleComplianceAcknowledge = () => {
+    localStorage.setItem('ww_compliance_acked', '1')
+    setComplianceAcked(true)
+  }
 
   useEffect(()=>{
     const raw=sessionStorage.getItem("assessment_result")
@@ -184,6 +239,11 @@ export default function ResultPage() {
     if(rawSub){try{setSub(JSON.parse(rawSub))}catch{}}
     setLoading(false)
   },[])
+
+  // ── 合规确认 Gate ──
+  if (!complianceAcked) {
+    return <ComplianceGateModal onAcknowledge={handleComplianceAcknowledge} />
+  }
 
   if(loading) return (
     <main className="min-h-screen bg-background flex items-center justify-center">
@@ -412,6 +472,24 @@ export default function ResultPage() {
         </section>
 
       </div>
+
+      {/* 极简合规页脚 */}
+      <footer className="border-t border-border/30 px-6 py-4 mt-8">
+        <div className="max-w-3xl mx-auto flex items-center justify-between flex-wrap gap-3">
+          <p className="text-[11px] text-foreground/25">
+            © Wonder Wisdom. · 本平台内容仅供参考，不构成投资建议 · For informational purposes only
+          </p>
+          <button
+            onClick={() => {
+              localStorage.removeItem('ww_compliance_acked')
+              setComplianceAcked(false)
+            }}
+            className="text-[11px] text-foreground/25 underline hover:text-foreground/50 transition-colors"
+          >
+            查看免责声明
+          </button>
+        </div>
+      </footer>
     </main>
   )
 }

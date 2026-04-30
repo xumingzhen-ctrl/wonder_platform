@@ -107,39 +107,29 @@ class PortfolioOptimizer:
         # Correlation matrix
         corr_matrix = returns_df.corr()
         
-        # ── Dividend Yield: 5-Year Historical Average ─────────────────────────
-        # For each asset, fetch up to 5 years of dividend records.
-        # Compute annual dividend sum / annual average price for each year,
-        # then average across available years for a stable representative yield.
+        # ── Dividend Yield: TTM (Trailing 12-Month) ────────────────────────────
+        # Use trailing 12-month dividends / current price — consistent with the
+        # Portfolio View's "Current Yield" metric. Avoids confusion from showing
+        # different numbers for the same asset in different parts of the UI.
         div_yields = {}
         from datetime import datetime, timedelta
-        start_5y = (datetime.now() - timedelta(days=5 * 365)).strftime('%Y-%m-%d')
-        
-        # Build a year -> annual_avg_price map from prices_df (already in memory, free!)
-        prices_df_copy = prices_df.copy()
-        prices_df_copy.index = pd.to_datetime(prices_df_copy.index)
-        prices_df_copy['_year'] = prices_df_copy.index.year
-        annual_avg_prices = prices_df_copy.groupby('_year').mean(numeric_only=True)  # DataFrame: year x isin
+        start_ttm = (datetime.now() - timedelta(days=366)).strftime('%Y-%m-%d')
 
         for isin in prices_df.columns:
             try:
-                div_history = RealTime.get_dividend_history(isin, start_5y)  # pd.Series, index=date, value=div_per_share
+                div_history = RealTime.get_dividend_history(isin, start_ttm)  # pd.Series, index=date, value=div_per_share
                 if div_history.empty:
                     div_yields[isin] = 0.0
                     continue
-                
+
                 div_history.index = pd.to_datetime(div_history.index)
-                annual_divs = div_history.groupby(div_history.index.year).sum()  # Series: year -> total_div
-                
-                yearly_yields = []
-                for year, annual_div in annual_divs.items():
-                    if year in annual_avg_prices.index and isin in annual_avg_prices.columns:
-                        avg_price = annual_avg_prices.loc[year, isin]
-                        if avg_price > 0 and annual_div > 0:
-                            yearly_yields.append(annual_div / avg_price)
-                
-                if yearly_yields:
-                    div_yields[isin] = float(sum(yearly_yields) / len(yearly_yields))
+                ttm_total_div = float(div_history.sum())  # Total dividends per share in past 12 months
+
+                # Use current price (last available price in prices_df for this ISIN)
+                curr_price = float(prices_df[isin].dropna().iloc[-1]) if isin in prices_df.columns else 0.0
+
+                if curr_price > 0 and ttm_total_div > 0:
+                    div_yields[isin] = ttm_total_div / curr_price
                 else:
                     div_yields[isin] = 0.0
             except Exception:

@@ -99,9 +99,11 @@ class AKShareGateway:
     @classmethod
     def get_dividend_history(cls, isin: str) -> pd.Series:
         """
-        Fetches dividend history for A-shares (specifically handling clean absolute prices).
-        Returns a Pandas Series with index=Datetime, value=dividend_amount_per_share
-        Returns empty Series if unsupported or fails.
+        Fetches dividend history for A-shares / HK-shares.
+        Strategy:
+          1. Try fund_open_fund_distribution_em (best for ETFs & open-end funds)
+          2. Fallback to stock_history_dividend_detail (for individual A-shares)
+        Returns a Pandas Series with index=Datetime, value=dividend_amount_per_share.
         """
         if not _AKSHARE_AVAILABLE or not cls.is_target_market(isin):
             return pd.Series(dtype=float)
@@ -109,39 +111,61 @@ class AKShareGateway:
         symbol = cls._strip_suffix(isin)
         series_dict = {}
 
+        if isin.upper().endswith('.HK'):
+            # HK: akshare HK dividend support is limited; return empty to fall through to yfinance
+            return pd.Series(dtype=float)
+
+        # ── Priority 1: Fund distribution interface (ETF / open-end fund) ──────
+        # Covers: 510300, 159915, 513050, 000001 (场外基金代码), etc.
         try:
-            if isin.endswith('.HK'):
-                # akshare may not have a reliable hk dividend fast spot, leaving to yfinance fallback
-                # but we will try if it ever gets added. Currently, fallback to empty is safer.
-                pass
-            else:
-                # A-share specific dividend details
-                df_div = ak.stock_history_dividend_detail(symbol=symbol)
-                if not df_div.empty and '派息' in df_div.columns and '除权除息日' in df_div.columns:
-                    for _, row in df_div.iterrows():
-                        ex_date = row['除权除息日']
-                        # Some ex_dates are NaT or None if not yet executed but announced
-                        if pd.isna(ex_date) or row['进度'] != '实施':
-                            continue
-                            
-                        # akshare's 派息 is generally "per 10 shares" (每10股派息) for A-shares.
-                        # We must divide by 10 to match standard "per share" logic of Live Portfolio.
+            df_fund = ak.fund_open_fund_distribution_em(fund=symbol)
+            if df_fund is not None and not df_fund.empty:
+                # Detect amount column and date column from headers
+                div_col  = next((c for c in df_fund.columns
+                                 if '派息' in c or ('分红' in c and '金额' in c)), None)
+                date_col = next((c for c in df_fund.columns
+                                 if '除息' in c or '权益登记' in c), None)
+                if div_col and date_col:
+                    for _, row in df_fund.iterrows():
                         try:
-                            amount_per_10 = float(row['派息'])
-                            if amount_per_10 > 0:
-                                parsed_date = pd.to_datetime(ex_date)
-                                series_dict[parsed_date] = amount_per_10 / 10.0
+                            ex_date = pd.to_datetime(row[date_col])
+                            amount  = float(row[div_col])
+                            if amount > 0 and not pd.isna(ex_date):
+                                series_dict[ex_date] = amount
                         except Exception:
                             pass
-                            
+                if series_dict:
+                    logger.info(f"[AKShare] Fund distribution: {len(series_dict)} records for {symbol}")
+                    ser = pd.Series(series_dict, dtype=float)
+                    ser.index = pd.to_datetime(ser.index)
+                    return ser.sort_index()
+        except Exception as e_fund:
+            logger.debug(f"[AKShare] fund_open_fund_distribution_em failed for {symbol}: {e_fund}")
+
+        # ── Priority 2: A-share stock dividend detail ─────────────────────────
+        try:
+            df_div = ak.stock_history_dividend_detail(symbol=symbol)
+            if not df_div.empty and '派息' in df_div.columns and '除权除息日' in df_div.columns:
+                for _, row in df_div.iterrows():
+                    ex_date = row['除权除息日']
+                    if pd.isna(ex_date) or row.get('进度') != '实施':
+                        continue
+                    try:
+                        amount_per_10 = float(row['派息'])
+                        if amount_per_10 > 0:
+                            parsed_date = pd.to_datetime(ex_date)
+                            series_dict[parsed_date] = amount_per_10 / 10.0
+                    except Exception:
+                        pass
         except Exception as e:
-            logger.debug(f"[AKShare] get_dividend_history failed for {isin}: {e}")
+            logger.debug(f"[AKShare] stock_history_dividend_detail failed for {symbol}: {e}")
 
         if series_dict:
             ser = pd.Series(series_dict, dtype=float)
             ser.index = pd.to_datetime(ser.index)
-            # Sort chronologically to be safe
             return ser.sort_index()
 
         return pd.Series(dtype=float)
+
+
 

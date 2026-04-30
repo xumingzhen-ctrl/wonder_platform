@@ -879,6 +879,8 @@ class PortfolioEngine:
             current_yield = (float(local_trailing_sum or 0) / float(curr_price or 1) * 100) if curr_price and curr_price > 0 else 0
             yoc = (float(local_trailing_sum or 0) / float(avg_cost or 1) * 100) if avg_cost and avg_cost > 0 else 0
 
+            data['projected_annual_income'] = asset_projected_annual_income
+
             assets_metrics.append({
                 "isin": isin,
                 "name": market_data.get('name', isin) if market_data else isin,
@@ -902,6 +904,61 @@ class PortfolioEngine:
         for m in sorted(projection_months.keys()):
             chart_data.append({"month": m, "amount": round(projection_months[m], 2)})
 
+        # ── Historical Dividend Aggregation (past 5 years, based on CURRENT holdings) ──
+        historical_dividends = {"monthly": [], "annual": []}
+        try:
+            hist_monthly = {}   # 'YYYY-MM' -> float
+            hist_annual  = {}   # int(year) -> float
+            five_years_ago  = today - timedelta(days=365 * 5)
+            one_year_ago_dt = today - timedelta(days=365)
+
+            for isin, data in holdings.items():
+                if isin.startswith('CASH_') or data['shares'] <= 0:
+                    continue
+                
+                shares = data['shares']
+                asset_ccy = RealTime.guess_currency_from_isin(isin)
+                fx_h = RealTime.get_fx_rate(asset_ccy, base_ccy)
+
+                if isin in manual_divs_by_isin:
+                    # Extrapolate manual dividends backwards for the full 5 years
+                    annual_amt = data.get('projected_annual_income', 0.0)
+                    monthly_amt = annual_amt / 12.0
+                    
+                    for i in range(1, 6):
+                        yr = today.year - i
+                        hist_annual[yr] = hist_annual.get(yr, 0.0) + annual_amt
+                        
+                    for i in range(1, 13):
+                        m = today.month - i
+                        y = today.year
+                        if m <= 0:
+                            m += 12
+                            y -= 1
+                        mk = f"{y}-{m:02d}"
+                        hist_monthly[mk] = hist_monthly.get(mk, 0.0) + monthly_amt
+                else:
+                    div_history = RealTime.get_dividend_history(isin, five_years_ago.strftime('%Y-%m-%d'))
+                    for date, amt in div_history.items():
+                        if date < five_years_ago:
+                            continue
+                        amt_base = amt * shares * fx_h
+                        if date >= one_year_ago_dt:
+                            mk = date.strftime('%Y-%m')
+                            hist_monthly[mk] = hist_monthly.get(mk, 0.0) + amt_base
+                        yr = date.year
+                        if yr < today.year:
+                            hist_annual[yr] = hist_annual.get(yr, 0.0) + amt_base
+
+            historical_dividends = {
+                "monthly": [{"month": k, "amount": round(v, 2)}
+                             for k, v in sorted(hist_monthly.items())],
+                "annual":  [{"year": k, "amount": round(v, 2)}
+                             for k, v in sorted(hist_annual.items(), reverse=True)]
+            }
+        except Exception as e_hist:
+            logger.warning(f"Historical dividend aggregation failed: {e_hist}")
+
         return {
             "portfolio_metrics": {
                 "total_annual_income": round(total_annual_income, 2),
@@ -909,7 +966,8 @@ class PortfolioEngine:
                 "portfolio_yoc": round((total_annual_income / total_cost_basis * 100), 2) if total_cost_basis > 0 else 0
             },
             "chart_data": chart_data,
-            "assets": sorted(assets_metrics, key=lambda x: x['est_annual_income'], reverse=True)
+            "assets": sorted(assets_metrics, key=lambda x: x['est_annual_income'], reverse=True),
+            "historical_dividends": historical_dividends
         }
     def get_historical_chart_data(self):
         # Builds a historical month-end NAV array matched to base currency
