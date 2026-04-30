@@ -54,6 +54,7 @@ const StrategyLabView = ({
   onOpenIlpEnrollmentModal,
 }) => {
   const [showDivDoc, setShowDivDoc] = React.useState(false);
+  const [showDdDoc, setShowDdDoc] = React.useState(false);
   return (
           <>
           <div className="strategy-lab-scope" style={{padding: '20px', maxWidth: '1200px'}}>
@@ -1108,7 +1109,23 @@ const StrategyLabView = ({
 
                 {labData.monte_carlo.drawdown && (
                   <>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginTop: '20px', padding: '14px 18px', background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.15)', borderRadius: '10px'}}>
+                    <div 
+                      style={{marginTop: '25px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#f43f5e', fontSize: '0.9rem', fontWeight: 600, width: 'fit-content'}} 
+                      onClick={() => setShowDdDoc(!showDdDoc)}
+                    >
+                      如何理解最大回撤 (Max Drawdown)? <HelpCircle size={15} />
+                    </div>
+                    
+                    {showDdDoc && (
+                      <div style={{background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.3)', padding: '12px 16px', borderRadius: '8px', marginTop: '10px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.6}}>
+                        <strong style={{color: '#fb7185'}}>💡 最大回撤 (Max Drawdown)</strong><br />
+                        它衡量的是在整个投资周期内，账户从<strong style={{color: '#f43f5e'}}>“历史最高峰”跌至“谷底”的最大幅度</strong>，代表了您在最坏情况下需要承受的**“账面浮亏心理极限”**。<br/>
+                        把它想象成投资旅途中的“最大过山车落差”。例如，-40% 意味着如果运气极差在最高点买入，您的账户中途会缩水四成。经验表明，回撤超过 -30% 就会导致多数普通投资者恐慌性“割肉”离场，从而彻底倒在黎明前。<br/>
+                        这也是为什么我们同时展示<strong style={{color: '#f59e0b'}}>合并组合 (Combined)</strong>的原因——将高波动的基金与零波动的保险资产合并计算后，通常能大幅缓冲整体回撤，提供必要的“情绪价值”，帮您在熊市中拿得住资产。
+                      </div>
+                    )}
+
+                    <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginTop: '10px', padding: '14px 18px', background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.15)', borderRadius: '10px'}}>
                       <div style={{color: '#f43f5e', fontWeight: 600, fontSize: '0.85rem', minWidth: '130px'}}>📉 Max Drawdown<br/><span style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)'}}>(波动组合 Volatile)</span></div>
                       {[
                         { label: '悲观 (10th)', key: 'p10', tip: 'Worst 10% of paths' },
