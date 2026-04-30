@@ -664,12 +664,29 @@ const StrategyLabView = ({
 
                     const divData = [];
                     let cumReinvested = 0;
+                    let breakevenYear = null;
+                    let firstYearDiv = 0;
+                    let lastYearDiv = 0;
+                    let maxDivYears = 0;
+                    const targetWithdrawal = parseFloat(labMcSettings.withdrawal) || 0;
+                    
                     if (labData?.monte_carlo?.chart) {
                       labData.monte_carlo.chart.forEach((d, i) => {
                          if (i === 0) return; // Skip year 0
+                         maxDivYears = i;
                          const divOff = d.div_offset || 0;
                          const divRe = d.div_reinvested || 0;
+                         const divGen = divOff + divRe;
+                         
+                         if (i === 1) firstYearDiv = divGen;
+                         lastYearDiv = divGen;
+                         
                          cumReinvested += divRe;
+                         
+                         if (breakevenYear === null && initialCapital > 0 && cumReinvested >= initialCapital) {
+                           breakevenYear = d.year;
+                         }
+                         
                          divData.push({
                            name: `Yr ${d.year}`,
                            divOffset: divOff,
@@ -679,6 +696,11 @@ const StrategyLabView = ({
                          });
                       });
                     }
+                    
+                    const yocFinal = initialCapital > 0 ? (lastYearDiv / initialCapital) * 100 : 0;
+                    const incomeReplacement = targetWithdrawal > 0 ? (lastYearDiv / targetWithdrawal) * 100 : 0;
+                    const dgr = (firstYearDiv > 0 && maxDivYears > 1) ? (Math.pow(lastYearDiv / firstYearDiv, 1 / (maxDivYears - 1)) - 1) * 100 : 0;
+                    const breakevenText = breakevenYear ? `第 ${breakevenYear} 年` : `> ${maxDivYears} 年`;
                     
 
                     return (
@@ -723,6 +745,26 @@ const StrategyLabView = ({
                               这个指标直观地展现了：随着时间推移，<strong>单靠分红盈余的“利滚利”，就已经收回了多少初始投资本金</strong>（如果达到 100%，意味着仅靠复投的分红就翻倍了初始本金）。
                             </div>
                           )}
+
+                          <div style={{display: 'flex', gap: '15px', marginBottom: '15px', flexWrap: 'wrap'}}>
+                            <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #10b981'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>期末成本收益率 (YOC)</div>
+                               <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#10b981'}}>{yocFinal.toFixed(2)}%</div>
+                            </div>
+                            <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #3b82f6'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>分红复合增长率 (DGR)</div>
+                               <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#3b82f6'}}>{dgr.toFixed(2)}%</div>
+                            </div>
+                            <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #f59e0b'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>期末目标支出覆盖率</div>
+                               <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#f59e0b'}}>{targetWithdrawal > 0 ? incomeReplacement.toFixed(1) + '%' : 'N/A'}</div>
+                            </div>
+                            <div style={{flex: 1, minWidth: '130px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7'}}>
+                               <div style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>零成本拐点 (Breakeven)</div>
+                               <div style={{fontSize: '1.25rem', fontWeight: 600, color: '#a855f7'}}>{breakevenText}</div>
+                            </div>
+                          </div>
+
                           <div style={{ height: 220, width: '100%' }}>
                             <ResponsiveContainer width="100%" height="100%">
                               <ComposedChart data={divData}>
