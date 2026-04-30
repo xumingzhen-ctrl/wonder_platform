@@ -11,10 +11,10 @@ const CompositionModal = ({
   if (!showCompModal) return null;
   return (
         <div className="modal-overlay" onClick={() => setShowCompModal(false)}>
-          <div className="glass-card modal-content" style={{maxWidth: '960px'}} onClick={e => e.stopPropagation()}>
-            <h2 style={{marginTop: 0}}>Portfolio Composition</h2>
+          <div className="glass-card modal-content" style={{maxWidth: '1000px'}} onClick={e => e.stopPropagation()}>
+            <h2 style={{marginTop: 0}}>Trading Manager (Asset Ledger)</h2>
             <p style={{color: 'rgba(255,255,255,0.5)', marginBottom: '20px', fontSize: '0.85rem'}}>
-              Edit the ISIN, shares, price, and target weight of each holding. Changes are saved individually.
+              Edit the exact Inception Date, Initial Shares, Average Cost, and Target Weight of each holding. These values override market data.
             </p>
             
             <div className="table-container" style={{maxHeight: '400px', overflowY: 'auto', marginBottom: '20px'}}>
@@ -26,7 +26,7 @@ const CompositionModal = ({
                     <th>ISIN</th>
                     <th>NAME</th>
                     <th>SHARES</th>
-                    <th>PRICE</th>
+                    <th title="Manual override. This locks your cost basis and won't be overwritten by daily sync.">AVG COST 🔒</th>
                     <th>TARGET %</th>
                     <th>ACTIONS</th>
                   </tr>
@@ -37,9 +37,16 @@ const CompositionModal = ({
                     const isEdited = Object.keys(edits).length > 0;
                     return (
                       <tr key={tx.id}>
-                        <td>{tx.date}</td>
                         <td>
-                          <span style={{padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', background: tx.type === 'BUY' ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)', color: tx.type === 'BUY' ? '#10b981' : '#f43f5e'}}>
+                          <input
+                            type="date"
+                            value={edits.date !== undefined ? edits.date : tx.date}
+                            onChange={e => handleCompEdit(tx.id, 'date', e.target.value)}
+                            style={{width: '120px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 8px', color: '#fff', fontSize: '0.85rem'}}
+                          />
+                        </td>
+                        <td>
+                          <span style={{padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', background: tx.type === 'BUY' ? 'rgba(16,185,129,0.2)' : (tx.type === 'CASH_IN' ? 'rgba(99,102,241,0.2)' : 'rgba(244,63,94,0.2)'), color: tx.type === 'BUY' ? '#10b981' : (tx.type === 'CASH_IN' ? '#818cf8' : '#f43f5e')}}>
                             {tx.type}
                           </span>
                         </td>
@@ -56,7 +63,7 @@ const CompositionModal = ({
                             type="number"
                             value={edits.shares !== undefined ? edits.shares : tx.shares}
                             onChange={e => handleCompEdit(tx.id, 'shares', parseFloat(e.target.value))}
-                            style={{width: '80px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 8px', color: '#fff', fontSize: '0.85rem'}}
+                            style={{width: '90px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 8px', color: '#fff', fontSize: '0.85rem'}}
                           />
                         </td>
                         <td>
@@ -65,7 +72,7 @@ const CompositionModal = ({
                             step="0.01"
                             value={edits.price !== undefined ? edits.price : tx.price}
                             onChange={e => handleCompEdit(tx.id, 'price', parseFloat(e.target.value))}
-                            style={{width: '90px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 8px', color: '#fff', fontSize: '0.85rem'}}
+                            style={{width: '90px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 8px', color: '#f59e0b', fontSize: '0.85rem', fontWeight: 600}}
                           />
                         </td>
                         <td>

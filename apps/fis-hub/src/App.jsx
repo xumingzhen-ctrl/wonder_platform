@@ -765,6 +765,7 @@ function App() {
       if (edits.isin !== undefined) txUpdate.isin = edits.isin;
       if (edits.shares !== undefined) txUpdate.shares = edits.shares;
       if (edits.price !== undefined) txUpdate.price = edits.price;
+      if (edits.date !== undefined) txUpdate.date = edits.date;
       if (Object.keys(txUpdate).length > 0) {
         await fetch(`/api/portfolios/transactions/${txId}`, {
           method: 'PUT',

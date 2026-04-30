@@ -148,6 +148,7 @@ class UpdateTransactionRequest(BaseModel):
     isin: Optional[str] = None
     shares: Optional[float] = None
     price: Optional[float] = None
+    date: Optional[str] = None
 
 class AddAssetRequest(BaseModel):
     isin: str
@@ -614,6 +615,9 @@ def update_transaction(tx_id: int, req: UpdateTransactionRequest, user: dict = D
     if req.price is not None:
         updates.append("price = ?")
         params.append(req.price)
+    if req.date is not None:
+        updates.append("date = ?")
+        params.append(req.date)
     if updates:
         params.append(tx_id)
         cursor.execute(f"UPDATE transactions SET {', '.join(updates)} WHERE id = ?", params)

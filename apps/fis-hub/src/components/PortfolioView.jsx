@@ -4,7 +4,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, ComposedChart
 } from 'recharts';
 import {
-  Activity, ArrowUpRight, Briefcase, Calendar, Camera, DollarSign, Edit3, Settings, TrendingUp, Undo2
+  Activity, ArrowUpRight, Briefcase, Calendar, Camera, ChevronDown, DollarSign, Edit3, MoreHorizontal, Settings, TrendingUp, Undo2
 } from 'lucide-react';
 import { COLORS, getCurrencySymbol, fmtMoney, fmtAxis, fmtCompact } from '../utils/currency';
 import ILPSummaryCard from './ILPSummaryCard';
@@ -41,6 +41,7 @@ const PortfolioView = ({
 
   // ── ILP 应用至历史 NAV ───────────────────────────────────────────────────
   const [applyIlpToChart, setApplyIlpToChart] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const ilpHistoryData = useMemo(() => {
     if (!applyIlpToChart || !ilpEnabled || !(ilpConfig?.totalPremium > 0) || historyData.length === 0) {
@@ -97,54 +98,134 @@ const PortfolioView = ({
 
   return (
     <div className="portfolio-view-scope">
-      <header style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px'}}>
-                <div>
-                  <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                    <h1 style={{textAlign: 'left', margin: 0}}>{portfolios.find(p => p.id === activeId)?.name}</h1>
-                    {canEdit && (
-                      <button
-                        title="Rename portfolio"
-                        onClick={() => { setRenameDraft(portfolios.find(p => p.id === activeId)?.name || ''); setShowRenameModal(true); }}
-                        style={{background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#818cf8', display: 'flex', alignItems: 'center'}}
-                      >
-                        <Edit3 size={16} />
-                      </button>
-                    )}
-                  </div>
-                  <p className="header-subtitle">
-                    <Calendar size={14} /> 
-                    Strategy Start: {data.start_date} | Results as of: {data.report_date}
-                    {data.wallet_balance !== undefined && ` | Wallet: ${fmtMoney(data.wallet_balance, 1, data.base_currency || 'USD')}`}
-                  </p>
-                </div>
-                <div style={{display: 'flex', gap: '12px'}}>
-                  <button onClick={handleExportCSV} className="action-btn-secondary" title="Export Holdings to CSV">
-                    <Camera size={16} /> Export Holdings
+      <header style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px', paddingTop: '10px'}}>
+        <div style={{maxWidth: '60%'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px'}}>
+            <h1 style={{
+              textAlign: 'left', 
+              margin: 0, 
+              fontSize: '2.4rem', 
+              fontWeight: 800, 
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(to bottom, #ffffff, #94a3b8)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              {portfolios.find(p => p.id === activeId)?.name}
+            </h1>
+            {canEdit && (
+              <button
+                title="Rename portfolio"
+                onClick={() => { setRenameDraft(portfolios.find(p => p.id === activeId)?.name || ''); setShowRenameModal(true); }}
+                style={{
+                  background: 'rgba(129, 140, 248, 0.1)', 
+                  border: '1px solid rgba(129, 140, 248, 0.2)', 
+                  borderRadius: '8px',
+                  cursor: 'pointer', 
+                  padding: '6px', 
+                  color: '#818cf8', 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(129, 140, 248, 0.2)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(129, 140, 248, 0.1)'}
+              >
+                <Edit3 size={16} />
+              </button>
+            )}
+          </div>
+          <div className="header-subtitle" style={{
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            alignItems: 'center', 
+            gap: '12px',
+            color: 'rgba(255,255,255,0.45)',
+            fontSize: '0.9rem',
+            lineHeight: 1.6,
+            marginTop: '12px'
+          }}>
+            <span style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
+              <Calendar size={14} strokeWidth={2.5} /> 
+              Strategy Start: <span style={{color: 'rgba(255,255,255,0.7)'}}>{data.start_date}</span>
+            </span>
+            <span style={{color: 'rgba(255,255,255,0.15)'}}>|</span>
+            <span>Results as of: <span style={{color: 'rgba(255,255,255,0.7)'}}>{data.report_date}</span></span>
+            
+            {data.wallet_balance !== undefined && (
+              <span style={{
+                background: 'rgba(255,255,255,0.05)', 
+                padding: '4px 10px', 
+                borderRadius: '6px', 
+                color: '#818cf8',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                border: '1px solid rgba(129, 140, 248, 0.2)',
+                marginLeft: '8px'
+              }}>
+                Wallet: {fmtMoney(data.wallet_balance, 1, data.base_currency || 'USD')}
+              </span>
+            )}
+          </div>
+        </div>
+        
+        <div style={{display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end', maxWidth: '45%'}}>
+          {/* Row 1: Core Actions + More */}
+          <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+            {canEdit && (
+              <>
+                <button onClick={handleOpenCompModal} className="action-btn-secondary" title="Trading Manager">
+                  <Briefcase size={14} /> Trading Manager
+                </button>
+                <button onClick={handleRebalancePreview} className="action-btn-secondary">
+                  <TrendingUp size={14} /> Rebalance
+                </button>
+                <button onClick={handleUndoRebalance} className="action-btn-secondary" title="Undo Latest Trades">
+                  <Undo2 size={14} /> Undo
+                </button>
+              </>
+            )}
+            
+            {/* More Menu */}
+            <div style={{position: 'relative'}}>
+              <button 
+                onClick={() => setShowMoreMenu(!showMoreMenu)}
+                className="action-btn-secondary"
+                style={{padding: '6px 10px', background: showMoreMenu ? 'rgba(255,255,255,0.1)' : 'transparent'}}
+              >
+                <MoreHorizontal size={16} />
+              </button>
+              {showMoreMenu && (
+                <div style={{
+                  position: 'absolute', top: '110%', right: 0, zIndex: 100,
+                  background: '#1e1e2f', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '10px', padding: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                  minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '4px'
+                }}>
+                  <button onClick={() => { handleExportCSV(); setShowMoreMenu(false); }} className="more-menu-item" style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', textAlign: 'left', fontSize: '0.85rem', borderRadius: '6px'}}>
+                    <Camera size={14} /> Export Holdings
                   </button>
-                  <button onClick={handleExportDividendsCSV} className="action-btn-secondary" title="Export Dividends to CSV">
-                    <Camera size={16} /> Export Dividends
+                  <button onClick={() => { handleExportDividendsCSV(); setShowMoreMenu(false); }} className="more-menu-item" style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', textAlign: 'left', fontSize: '0.85rem', borderRadius: '6px'}}>
+                    <Camera size={14} /> Div Export
                   </button>
-                  {canEdit && (
-                    <>
-                      <button onClick={handleRebalancePreview} className="action-btn-secondary">
-                        <TrendingUp size={16} /> Rebalance
-                      </button>
-                      <button onClick={handleUndoRebalance} className="action-btn-secondary" title="Undo Latest Trades">
-                        <Undo2 size={16} /> Undo Trades
-                      </button>
-                      <button onClick={handleOpenCompModal} className="action-btn-secondary" title="Portfolio Composition Management">
-                        <Briefcase size={16} /> Composition
-                      </button>
-                      <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title="Dividend Management">
-                        <Settings size={16} /> Dividends
-                      </button>
-                      <button onClick={() => setShowDivModal(true)} className="action-btn-secondary">
-                        <DollarSign size={16} /> Add Dividend
-                      </button>
-                    </>
-                  )}
                 </div>
-              </header>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Dividend Management */}
+          {canEdit && (
+            <div style={{display: 'flex', gap: '8px'}}>
+              <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title="Dividend Management">
+                <Settings size={14} /> Div Manage
+              </button>
+              <button onClick={() => setShowDivModal(true)} className="action-btn-secondary" style={{background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.3)', color: '#10b981'}}>
+                <DollarSign size={14} /> Add Div
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
 
               {/* Sub-Tabs Navigation */}
               <div style={{display: 'flex', gap: '20px', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.05)'}}>
