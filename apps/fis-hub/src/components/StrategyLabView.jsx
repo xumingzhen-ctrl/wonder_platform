@@ -53,6 +53,7 @@ const StrategyLabView = ({
   ilpConfig, setIlpConfig,
   onOpenIlpEnrollmentModal,
 }) => {
+  const [showDivDoc, setShowDivDoc] = React.useState(false);
   return (
           <>
           <div className="strategy-lab-scope" style={{padding: '20px', maxWidth: '1200px'}}>
@@ -703,7 +704,25 @@ const StrategyLabView = ({
                       
                       {divData.length > 0 && (
                         <div style={{background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)'}}>
-                          <h3 style={{margin: '0 0 15px 0', fontSize: '1rem', color: '#10b981'}}>4. 内生分红与复投追踪 (Dividend Lifecycle)</h3>
+                          <h3 style={{margin: '0 0 15px 0', fontSize: '1rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                            4. 内生分红与复投追踪 (Dividend Lifecycle)
+                            <button
+                              onClick={() => setShowDivDoc(!showDivDoc)}
+                              style={{background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', padding: 0, display: 'flex', transition: 'color 0.2s'}}
+                              title="什么是累计复投差额比？"
+                            >
+                              <HelpCircle size={16} />
+                            </button>
+                          </h3>
+                          
+                          {showDivDoc && (
+                            <div style={{background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', padding: '12px 16px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.6}}>
+                              <strong style={{color: '#60a5fa'}}>💡 累计复投差额比 (vs Capital %)</strong><br />
+                              它表示<strong style={{color: '#10b981'}}>【未被提取，而重新买入组合资产的内生分红总额】</strong>占<strong style={{color: '#a855f7'}}>【初始总投资本金】</strong>的百分比。<br />
+                              由于每年产生的分红会优先抵扣您设定的“提款需求 (Annual Draw)”，如果分红有盈余，就会“滚雪球”般重新买入底仓资产。<br/>
+                              这个指标直观地展现了：随着时间推移，<strong>单靠分红盈余的“利滚利”，就已经收回了多少初始投资本金</strong>（如果达到 100%，意味着仅靠复投的分红就翻倍了初始本金）。
+                            </div>
+                          )}
                           <div style={{ height: 220, width: '100%' }}>
                             <ResponsiveContainer width="100%" height="100%">
                               <ComposedChart data={divData}>
