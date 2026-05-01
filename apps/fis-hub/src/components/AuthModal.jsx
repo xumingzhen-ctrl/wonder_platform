@@ -1,31 +1,36 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { authStorage } from '../utils/auth';
+import { useLang } from '../i18n/LangContext';
+
 
 const API = '/api';
 
 /* ── 密码强度计算 ─────────────────────────────────────────────────── */
-function calcStrength(pwd) {
-  if (!pwd) return { score: 0, label: '', color: '#334155' };
-  let score = 0;
-  if (pwd.length >= 8) score++;
-  if (pwd.length >= 12) score++;
-  if (/[A-Z]/.test(pwd)) score++;
-  if (/[0-9]/.test(pwd)) score++;
-  if (/[^A-Za-z0-9]/.test(pwd)) score++;
-  const levels = [
-    { label: '非常弱', color: '#ef4444' },
-    { label: '弱',     color: '#f97316' },
-    { label: '一般',   color: '#eab308' },
-    { label: '强',     color: '#22c55e' },
-    { label: '非常强', color: '#10b981' },
-  ];
-  const lvl = levels[Math.min(score, 4)];
-  return { score, label: lvl.label, color: lvl.color };
-}
+
 
 /* ── 主组件 ──────────────────────────────────────────────────────── */
 export default function AuthModal({ onSuccess, onClose }) {
+  const { t } = useLang();
   const [mode, setMode] = useState('login'); // 'login' | 'register'
+
+  const calcStrength = (pwd) => {
+    if (!pwd) return { score: 0, label: '', color: '#334155' };
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (pwd.length >= 12) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    const levels = [
+      { label: t('auth.pwdVeryWeak'), color: '#ef4444' },
+      { label: t('auth.pwdWeak'),     color: '#f97316' },
+      { label: t('auth.pwdNormal'),   color: '#eab308' },
+      { label: t('auth.pwdStrong'),   color: '#22c55e' },
+      { label: t('auth.pwdVeryStrong'), color: '#10b981' },
+    ];
+    const lvl = levels[Math.min(score, 4)];
+    return { score, label: lvl.label, color: lvl.color };
+  };
 
   // ── 登录字段 ──
   const [loginEmail, setLoginEmail] = useState('');
@@ -79,20 +84,20 @@ export default function AuthModal({ onSuccess, onClose }) {
 
   /* ── 校验 ── */
   const validateLogin = () => {
-    if (!loginEmail.trim())      return '请输入邮箱地址';
-    if (!/\S+@\S+\.\S+/.test(loginEmail)) return '请输入有效的邮箱格式';
-    if (!loginPwd)               return '请输入密码';
+    if (!loginEmail.trim())      return t('auth.errEmailReq');
+    if (!/\S+@\S+\.\S+/.test(loginEmail)) return t('auth.errEmailInvalid');
+    if (!loginPwd)               return t('auth.errPwdReq');
     return null;
   };
 
   const validateRegister = () => {
-    if (!regName.trim())         return '请输入您的姓名／显示名称';
-    if (!regEmail.trim())        return '请输入邮箱地址';
-    if (!/\S+@\S+\.\S+/.test(regEmail)) return '请输入有效的邮箱格式';
-    if (regPwd.length < 6)       return '密码至少需要 6 位字符';
-    if (regPwd !== regPwd2)      return '两次输入的密码不一致';
-    if (regType === 'premium' && !advisorId) return '请选择您的专属顾问';
-    if (!agreedTerms)             return '请阅读并同意用户服务协议';
+    if (!regName.trim())         return t('auth.errNameReq');
+    if (!regEmail.trim())        return t('auth.errEmailReq');
+    if (!/\S+@\S+\.\S+/.test(regEmail)) return t('auth.errEmailInvalid');
+    if (regPwd.length < 6)       return t('auth.errPwdMin');
+    if (regPwd !== regPwd2)      return t('auth.errPwdMatch');
+    if (regType === 'premium' && !advisorId) return t('auth.errAdvisorReq');
+    if (!agreedTerms)             return t('auth.errTermsReq');
     return null;
   };
 
@@ -125,7 +130,7 @@ export default function AuthModal({ onSuccess, onClose }) {
       data = await res.json();
       
       if (!res.ok) {
-        setError(data.detail || (mode === 'login' ? '邮箱或密码错误，请重试' : '注册失败，邮箱可能已存在'));
+        setError(data.detail || (mode === 'login' ? t('auth.errLoginFail') : t('auth.errRegFail')));
         return;
       }
 
@@ -138,13 +143,13 @@ export default function AuthModal({ onSuccess, onClose }) {
         });
         data = await loginRes.json();
         if (!loginRes.ok) {
-          setError('注册成功，但自动登录失败，请手动登录');
+          setError(t('auth.errAutoLoginFail'));
           return;
         }
       }
 
       const tokenValue = data.access_token || data.token;
-      if (!tokenValue) { setError('未收到登录凭证，请稍后重试'); return; }
+      if (!tokenValue) { setError(t('auth.errNoToken')); return; }
       authStorage.setToken(tokenValue);
 
       // 获取完整用户信息
@@ -165,13 +170,13 @@ export default function AuthModal({ onSuccess, onClose }) {
       authStorage.setUser(user);
 
       if (mode === 'register') {
-        setSuccess(`🎉 账号注册成功！欢迎加入，${user.display_name}`);
+        setSuccess(`${t('auth.regSuccess')}${user.display_name}`);
         setTimeout(() => onSuccess(user), 1200);
       } else {
         onSuccess(user);
       }
     } catch {
-      setError('网络错误，请检查后端服务是否正在运行');
+      setError(t('auth.errNetwork'));
     } finally {
       setLoading(false);
     }
@@ -197,10 +202,10 @@ export default function AuthModal({ onSuccess, onClose }) {
             {mode === 'login' ? '🔐' : '✨'}
           </div>
           <h2 style={{ margin: 0, fontSize: 21, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.5px' }}>
-            {mode === 'login' ? '欢迎回来' : '创建新账号'}
+            {mode === 'login' ? t('auth.welcome') : t('auth.createAccount')}
           </h2>
           <p style={{ margin: '5px 0 0', color: 'rgba(255,255,255,0.38)', fontSize: 13 }}>
-            PortfolioHub 财富管理平台
+            {t('auth.platformTitle')}
           </p>
         </div>
 
@@ -217,7 +222,7 @@ export default function AuthModal({ onSuccess, onClose }) {
                 borderBottom: mode === m ? '2px solid #818cf8' : '2px solid transparent',
               }}
             >
-              {m === 'login' ? '登 录' : m === 'register' ? '注 册' : '找回密码'}
+              {m === 'login' ? t('auth.tabLogin') : m === 'register' ? t('auth.tabRegister') : t('auth.tabForgot')}
             </button>
           ))}
         </div>
@@ -228,7 +233,7 @@ export default function AuthModal({ onSuccess, onClose }) {
             e.preventDefault();
             setError('');
             setSuccess('');
-            if (!loginEmail.trim()) { setError('请输入邮箱地址'); return; }
+            if (!loginEmail.trim()) { setError(t('auth.errEmailReq')); return; }
             setLoading(true);
             try {
               const res = await fetch(`${API}/auth/forgot-password`, {
@@ -241,7 +246,7 @@ export default function AuthModal({ onSuccess, onClose }) {
               });
               const data = await res.json();
               if (res.ok) {
-                setSuccess('重置链接已发送到您的邮箱，请查收');
+                setSuccess(t('auth.forgotSuccess'));
               } else {
                 setError(data.detail || '请求失败');
               }
@@ -252,23 +257,23 @@ export default function AuthModal({ onSuccess, onClose }) {
             }
           }} noValidate style={{ marginTop: 20 }}>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginBottom: 16 }}>
-              请输入您的邮箱，我们将向您发送重置密码的链接。
+              {t('auth.forgotDesc')}
             </p>
-            <Field label="邮箱地址">
+            <Field label={t('auth.emailLabel')}>
               <input
                 autoFocus
                 type="email"
                 value={loginEmail}
                 onChange={e => setLoginEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 style={inputStyle}
               />
             </Field>
             <ErrorBox msg={error} />
             <SuccessBox msg={success} />
-            <SubmitBtn loading={loading} label="发送重置链接" loadingLabel="发送中…" />
+            <SubmitBtn loading={loading} label={t('auth.btnForgot')} loadingLabel={t('auth.btnSending')} />
             <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <button type="button" onClick={() => setMode('login')} style={linkBtnStyle}>返回登录</button>
+              <button type="button" onClick={() => setMode('login')} style={linkBtnStyle}>{t('auth.backToLogin')}</button>
             </div>
           </form>
         )}
@@ -276,18 +281,18 @@ export default function AuthModal({ onSuccess, onClose }) {
         {/* ══════════════════ 登录表单 ══════════════════ */}
         {mode === 'login' && (
           <form onSubmit={handleSubmit} noValidate style={{ marginTop: 20 }}>
-            <Field label="邮箱地址">
+            <Field label={t('auth.emailLabel')}>
               <input
                 autoFocus
                 type="email"
                 value={loginEmail}
                 onChange={e => setLoginEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 style={inputStyle}
               />
             </Field>
 
-            <Field label="密码" extra={
+            <Field label={t('auth.pwdLabel')} extra={
               <button type="button" onClick={() => setShowLoginPwd(!showLoginPwd)} style={eyeBtnStyle}>
                 {showLoginPwd ? '🙈' : '👁'}
               </button>
@@ -296,20 +301,20 @@ export default function AuthModal({ onSuccess, onClose }) {
                 type={showLoginPwd ? 'text' : 'password'}
                 value={loginPwd}
                 onChange={e => setLoginPwd(e.target.value)}
-                placeholder="输入密码"
+                placeholder={t('auth.pwdPlaceholder')}
                 style={{ ...inputStyle, paddingRight: 40 }}
               />
             </Field>
 
             <div style={{ textAlign: 'right', marginTop: -8, marginBottom: 16 }}>
               <button type="button" onClick={() => setMode('forgot')} style={{ ...linkBtnStyle, fontSize: 12, textDecoration: 'none' }}>
-                忘记密码？
+                {t('auth.forgotPwd')}
               </button>
             </div>
 
             <ErrorBox msg={error} />
 
-            <SubmitBtn loading={loading} label="登 录" loadingLabel="登录中…" />
+            <SubmitBtn loading={loading} label={t('auth.btnLogin')} loadingLabel={t('auth.btnLoggingIn')} />
           </form>
         )}
 
@@ -318,30 +323,30 @@ export default function AuthModal({ onSuccess, onClose }) {
           <form onSubmit={handleSubmit} noValidate style={{ marginTop: 20 }}>
 
             {/* 姓名 */}
-            <Field label="您的姓名 / 显示名称">
+            <Field label={t('auth.regNameLabel')}>
               <input
                 autoFocus
                 type="text"
                 value={regName}
                 onChange={e => setRegName(e.target.value)}
-                placeholder="例：Derek Wong"
+                placeholder={t('auth.regNamePlaceholder')}
                 style={inputStyle}
               />
             </Field>
 
             {/* 邮箱 */}
-            <Field label="邮箱地址">
+            <Field label={t('auth.emailLabel')}>
               <input
                 type="email"
                 value={regEmail}
                 onChange={e => setRegEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 style={inputStyle}
               />
             </Field>
 
             {/* 密码 */}
-            <Field label="登录密码" extra={
+            <Field label={t('auth.pwdLabel')} extra={
               <button type="button" onClick={() => setShowRegPwd(!showRegPwd)} style={eyeBtnStyle}>
                 {showRegPwd ? '🙈' : '👁'}
               </button>
@@ -350,7 +355,7 @@ export default function AuthModal({ onSuccess, onClose }) {
                 type={showRegPwd ? 'text' : 'password'}
                 value={regPwd}
                 onChange={e => setRegPwd(e.target.value)}
-                placeholder="至少 6 位，建议包含大写字母和数字"
+                placeholder={t('auth.regPwdPlaceholder')}
                 style={{ ...inputStyle, paddingRight: 40 }}
               />
               {/* 密码强度条 */}
@@ -366,14 +371,14 @@ export default function AuthModal({ onSuccess, onClose }) {
                     ))}
                   </div>
                   <span style={{ fontSize: 11, color: pwdStrength.color, marginTop: 3, display: 'block' }}>
-                    密码强度：{pwdStrength.label}
+                    {t('auth.pwdStrength')}{pwdStrength.label}
                   </span>
                 </div>
               )}
             </Field>
 
             {/* 确认密码 */}
-            <Field label="确认密码" extra={
+            <Field label={t('auth.regConfirmPwd')} extra={
               <button type="button" onClick={() => setShowRegPwd2(!showRegPwd2)} style={eyeBtnStyle}>
                 {showRegPwd2 ? '🙈' : '👁'}
               </button>
@@ -382,7 +387,7 @@ export default function AuthModal({ onSuccess, onClose }) {
                 type={showRegPwd2 ? 'text' : 'password'}
                 value={regPwd2}
                 onChange={e => setRegPwd2(e.target.value)}
-                placeholder="再次输入相同密码"
+                placeholder={t('auth.regConfirmPlaceholder')}
                 style={{
                   ...inputStyle,
                   paddingRight: 40,
@@ -398,7 +403,7 @@ export default function AuthModal({ onSuccess, onClose }) {
                   fontSize: 11, marginTop: 3, display: 'block',
                   color: pwdMatch ? '#4ade80' : '#f87171',
                 }}>
-                  {pwdMatch ? '✓ 密码一致' : '✗ 两次密码不一致'}
+                  {pwdMatch ? t('auth.pwdMatch') : t('auth.pwdMismatch')}
                 </span>
               )}
             </Field>
@@ -416,29 +421,31 @@ export default function AuthModal({ onSuccess, onClose }) {
                 style={{ marginTop: 2, accentColor: '#6366f1', width: 16, height: 16, flexShrink: 0 }}
               />
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
-                我已阅读并同意{' '}
-                <a href="#" style={{ color: '#818cf8', textDecoration: 'none' }}>《用户服务协议》</a>
-                {' '}与{' '}
-                <a href="#" style={{ color: '#818cf8', textDecoration: 'none' }}>《隐私政策》</a>
-                ，并确认所提交信息真实有效
+                {t('auth.termsLead')}
+                <a href="#" style={{ color: '#818cf8', textDecoration: 'none' }}>{t('auth.termsProtocol')}</a>
+                {t('auth.termsAnd')}
+                <a href="#" style={{ color: '#818cf8', textDecoration: 'none' }}>{t('auth.termsPrivacy')}</a>
+                {t('auth.termsConfirm')}
               </span>
             </label>
 
             <ErrorBox  msg={error}   />
             <SuccessBox msg={success} />
-            <SubmitBtn loading={loading} label="创建账号" loadingLabel="注册中…" />
+            <SubmitBtn loading={loading} label={t('auth.btnRegister')} loadingLabel={t('auth.btnRegistering')} />
           </form>
         )}
 
         {/* 底部切换 */}
         <div style={{ textAlign: 'center', marginTop: 18, fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>
           {mode === 'login' ? (
-            <>还没有账号？{' '}
-              <button onClick={() => switchMode('register')} style={linkBtnStyle}>免费注册</button>
+            <>
+              {t('auth.noAccount')}{' '}
+              <button onClick={() => switchMode('register')} style={linkBtnStyle}>{t('auth.freeRegister')}</button>
             </>
           ) : (
-            <>已有账号？{' '}
-              <button onClick={() => switchMode('login')} style={linkBtnStyle}>返回登录</button>
+            <>
+              {t('auth.hasAccount')}{' '}
+              <button onClick={() => switchMode('login')} style={linkBtnStyle}>{t('auth.backToLogin')}</button>
             </>
           )}
         </div>

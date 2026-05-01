@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLang } from './i18n/LangContext';
 import BrokerSync from './components/BrokerSync';
 import BrokerImport from './components/BrokerImport';
 import WealthReport from './components/WealthReport';
@@ -23,16 +24,17 @@ import FeatureLock from './components/FeatureLock';
 import ImmigrationShowcase from './components/ImmigrationShowcase';
 
 
-// ── 角色颜色/标签映射（全局复用）──
+// ── 角色颜色映射（颜色固定，标签由 i18n 提供）──
 const ROLE_META = {
-  admin:   { label: '管理员', color: '#ef4444' },
-  advisor: { label: '财务顾问', color: '#3b82f6' },
-  premium: { label: '付费会员', color: '#f59e0b' },
-  free:    { label: '普通用户', color: '#6b7280' },
+  admin:   { color: '#ef4444' },
+  advisor: { color: '#3b82f6' },
+  premium: { color: '#f59e0b' },
+  free:    { color: '#6b7280' },
 };
 
 // ── 合规确认弹窗（首次进入时展示）──────────────────────────────────────────
 function ComplianceGateModal({ onAcknowledge }) {
+  const { t } = useLang();
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 99999,
@@ -61,10 +63,10 @@ function ComplianceGateModal({ onAcknowledge }) {
           }}>⚠️</div>
           <div>
             <h2 style={{ color: '#f1f5f9', fontSize: '17px', fontWeight: 700, margin: 0, lineHeight: 1.3 }}>
-              使用须知 / Terms of Use
+              {t('compliance.title')}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '3px 0 0' }}>
-              请在继续前阅读以下声明 · Please read before proceeding
+              {t('compliance.subtitle')} · Please read before proceeding
             </p>
           </div>
         </div>
@@ -78,11 +80,11 @@ function ComplianceGateModal({ onAcknowledge }) {
           marginBottom: '16px',
         }}>
           <p style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.75, margin: 0 }}>
-            <strong style={{ color: '#fbbf24' }}>本平台由 Wonder Wisdom. 运营，</strong>
-            未持有香港证监会（SFC）任何类别牌照。平台所有内容（包括数据、模拟、回测及现金流推演）
-            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>仅供信息参考与学习之用</strong>，
-            不构成任何投资、保险、税务或法律建议，亦不代表任何产品要约。
-            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>过往表现不代表未来结果。</strong>
+            <strong style={{ color: '#fbbf24' }}>Wonder Wisdom. · </strong>
+            {t('compliance.body')}
+            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>{t('compliance.bodyBold1')}</strong>
+            {t('compliance.bodyMid')}
+            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>{t('compliance.bodyBold2')}</strong>
           </p>
         </div>
 
@@ -94,10 +96,7 @@ function ComplianceGateModal({ onAcknowledge }) {
           marginBottom: '24px',
         }}>
           <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, margin: 0 }}>
-            This platform is operated by Wonder Wisdom. and is not licensed by the SFC of Hong Kong.
-            All information is for educational purposes only and does not constitute investment, insurance,
-            legal or tax advice. Consult a licensed advisor before making financial decisions.
-            Wonder Wisdom. accepts no liability for any loss arising from reliance on this information.
+            {t('compliance.bodyEn')}
           </p>
         </div>
 
@@ -122,10 +121,10 @@ function ComplianceGateModal({ onAcknowledge }) {
           onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
         >
-          我已阅读并了解，进入平台 →
+          {t('compliance.btn')}
         </button>
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginTop: '12px', marginBottom: 0 }}>
-          继续使用即表示您同意上述条款 · Continuing constitutes acceptance of the above terms
+          {t('compliance.footer')} · Continuing constitutes acceptance of the above terms
         </p>
       </div>
     </div>
@@ -135,6 +134,7 @@ function ComplianceGateModal({ onAcknowledge }) {
 import { VerifyEmailOverlay, ResetPasswordOverlay } from './components/AuthOverlays';
 
 function App() {
+  const { lang, toggleLang, t } = useLang();
   const [urlParams] = useState(new URLSearchParams(window.location.search));
   const mode = urlParams.get('mode');
   const urlLang = urlParams.get('lang') || 'zh';
@@ -1250,9 +1250,28 @@ function App() {
         justifyContent: 'space-between',
       }}>
         <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
-          {currentUser ? `欢迎回来，${currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0] || '用户'}` : 'PortfolioHub 财富管理平台'}
+          {currentUser ? `${t('header.welcome')}${currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0] || t('role.' + currentUser.role)}` : t('header.platform')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* ── 语言切换按钮 ── */}
+          <button
+            onClick={toggleLang}
+            title={lang === 'zh' ? 'Switch to English' : '切换为中文'}
+            style={{
+              padding: '4px 12px', borderRadius: 8,
+              background: 'rgba(99,102,241,0.12)',
+              border: '1px solid rgba(99,102,241,0.35)',
+              color: '#818cf8', cursor: 'pointer',
+              fontSize: 12, fontWeight: 700,
+              letterSpacing: '0.05em',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.25)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.12)'; }}
+          >
+            {t('header.langBtn')}
+          </button>
+
           {currentUser ? (
             <>
               {/* 角色徽章 */}
@@ -1261,11 +1280,11 @@ function App() {
                 background: ROLE_META[currentUser.role]?.color || '#6b7280',
                 color: '#fff', letterSpacing: '0.02em',
               }}>
-                {ROLE_META[currentUser.role]?.label || currentUser.role}
+                {t('role.' + currentUser.role) || currentUser.role}
               </span>
               {/* 用户名 */}
               <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 500 }}>
-                {currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0] || '用户'}
+                {currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0]}
               </span>
               {/* 登出按钮 */}
               <button
@@ -1278,7 +1297,7 @@ function App() {
                 }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(71,85,105,0.6)'; e.currentTarget.style.color = '#94a3b8'; }}
-              >登出</button>
+              >{t('header.logout')}</button>
             </>
           ) : (
             <button
@@ -1291,7 +1310,7 @@ function App() {
                 boxShadow: '0 4px 14px rgba(99,102,241,0.4)',
                 transition: 'all 0.2s',
               }}
-            >登录 / 注册</button>
+            >{t('header.login')}</button>
           )}
         </div>
       </header>
@@ -1386,7 +1405,7 @@ function App() {
         ) : (
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '16px', color: 'rgba(255,255,255,0.3)'}}>
             <div style={{fontSize: '3rem'}}>📊</div>
-            <div>Select a portfolio from the sidebar or create a new one</div>
+            <div>{t('empty.selectPortfolio')}</div>
           </div>
         )}
       </main>
@@ -1474,12 +1493,12 @@ function App() {
           }} onClick={e => e.stopPropagation()}>
             <div style={{fontSize: '2rem', marginBottom: '12px', textAlign: 'center'}}>↩️</div>
             <h3 style={{color: '#fff', marginBottom: '12px', textAlign: 'center', fontSize: '1.1rem'}}>
-              Undo Latest Trades
+              {t('undo.title')}
             </h3>
             <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '24px', textAlign: 'center'}}>
-              This will revert the latest batch of transactions (e.g. your last Rebalance). Historical records will be permanently removed.
+              {t('undo.body')}
               <br/><br/>
-              <span style={{color: '#ef4444', fontWeight: 600}}>This action cannot be undone.</span>
+              <span style={{color: '#ef4444', fontWeight: 600}}>{t('undo.warning')}</span>
             </p>
             <div style={{display: 'flex', gap: '12px', justifyContent: 'center'}}>
               <button
@@ -1489,7 +1508,7 @@ function App() {
                   color: 'rgba(255,255,255,0.7)', borderRadius: '8px', padding: '10px 24px',
                   cursor: 'pointer', fontWeight: 500
                 }}
-              >Cancel</button>
+              >{t('undo.cancel')}</button>
               <button
                 onClick={handleUndoConfirmed}
                 style={{
@@ -1497,7 +1516,7 @@ function App() {
                   border: 'none', color: '#fff', borderRadius: '8px', padding: '10px 24px',
                   cursor: 'pointer', fontWeight: 600, boxShadow: '0 4px 12px rgba(239,68,68,0.4)'
                 }}
-              >↩️ Confirm Undo</button>
+              >{t('undo.confirm')}</button>
             </div>
           </div>
         </div>
@@ -1528,7 +1547,7 @@ function App() {
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
           <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', margin: 0 }}>
-            © Wonder Wisdom. · 本平台内容仅供参考，不构成投资建议 · For informational purposes only
+            {t('footer.copy')}
           </p>
           <button
             onClick={() => {
@@ -1545,7 +1564,7 @@ function App() {
             onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
             onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
           >
-            查看免责声明
+            {t('footer.disclaimer')}
           </button>
         </div>
       </footer>

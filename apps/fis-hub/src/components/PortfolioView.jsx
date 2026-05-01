@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useLang } from '../i18n/LangContext';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, ComposedChart
@@ -35,6 +36,7 @@ const PortfolioView = ({
   ilpEnabled, ilpConfig, setIlpConfig, setIlpEnabled,
   onOpenIlpEnrollmentModal,
 }) => {
+  const { t } = useLang();
   // Re-export the formatter functions for convenience inside JSX
   const fx = data?.usd_to_base_fx || 1;
   const ccy = data?.base_currency || 'USD';
@@ -93,7 +95,7 @@ const PortfolioView = ({
   }, [applyIlpToChart, ilpHistoryData]);
 
 
-  if (loading) return <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>Analyzing Data...</h2></div>;
+  if (loading) return <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>{t('empty.analyzingData')}</h2></div>;
   if (!data || !data.details) return null;
 
   return (
@@ -147,10 +149,10 @@ const PortfolioView = ({
           }}>
             <span style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
               <Calendar size={14} strokeWidth={2.5} /> 
-              Strategy Start: <span style={{color: 'rgba(255,255,255,0.7)'}}>{data.start_date}</span>
+              {t('portfolio.strategyStart')}: <span style={{color: 'rgba(255,255,255,0.7)'}}>{data.start_date}</span>
             </span>
             <span style={{color: 'rgba(255,255,255,0.15)'}}>|</span>
-            <span>Results as of: <span style={{color: 'rgba(255,255,255,0.7)'}}>{data.report_date}</span></span>
+            <span>{t('portfolio.resultsAsOf')}: <span style={{color: 'rgba(255,255,255,0.7)'}}>{data.report_date}</span></span>
             
             {data.wallet_balance !== undefined && (
               <span style={{
@@ -163,7 +165,7 @@ const PortfolioView = ({
                 border: '1px solid rgba(129, 140, 248, 0.2)',
                 marginLeft: '8px'
               }}>
-                Wallet: {fmtMoney(data.wallet_balance, 1, data.base_currency || 'USD')}
+                {t('portfolio.wallet')}: {fmtMoney(data.wallet_balance, 1, data.base_currency || 'USD')}
               </span>
             )}
           </div>
@@ -174,14 +176,14 @@ const PortfolioView = ({
           <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
             {canEdit && (
               <>
-                <button onClick={handleOpenCompModal} className="action-btn-secondary" title="Trading Manager">
-                  <Briefcase size={14} /> Trading Manager
+                <button onClick={handleOpenCompModal} className="action-btn-secondary" title={t('portfolio.tradingManager')}>
+                  <Briefcase size={14} /> {t('portfolio.tradingManager')}
                 </button>
-                <button onClick={handleRebalancePreview} className="action-btn-secondary">
-                  <TrendingUp size={14} /> Rebalance
+                <button onClick={handleRebalancePreview} className="action-btn-secondary" title={t('portfolio.rebalance')}>
+                  <TrendingUp size={14} /> {t('portfolio.rebalance')}
                 </button>
-                <button onClick={handleUndoRebalance} className="action-btn-secondary" title="Undo Latest Trades">
-                  <Undo2 size={14} /> Undo
+                <button onClick={handleUndoRebalance} className="action-btn-secondary" title={t('portfolio.undo')}>
+                  <Undo2 size={14} /> {t('portfolio.undo')}
                 </button>
               </>
             )}
@@ -203,10 +205,10 @@ const PortfolioView = ({
                   minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '4px'
                 }}>
                   <button onClick={() => { handleExportCSV(); setShowMoreMenu(false); }} className="more-menu-item" style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', textAlign: 'left', fontSize: '0.85rem', borderRadius: '6px'}}>
-                    <Camera size={14} /> Export Holdings
+                    <Camera size={14} /> {t('portfolio.exportHoldings')}
                   </button>
                   <button onClick={() => { handleExportDividendsCSV(); setShowMoreMenu(false); }} className="more-menu-item" style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', textAlign: 'left', fontSize: '0.85rem', borderRadius: '6px'}}>
-                    <Camera size={14} /> Div Export
+                    <Camera size={14} /> {t('portfolio.exportDiv')}
                   </button>
                 </div>
               )}
@@ -216,11 +218,11 @@ const PortfolioView = ({
           {/* Row 2: Dividend Management */}
           {canEdit && (
             <div style={{display: 'flex', gap: '8px'}}>
-              <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title="Dividend Management">
-                <Settings size={14} /> Div Manage
+              <button onClick={handleOpenManageDivModal} className="action-btn-secondary" title={t('portfolio.divManage')}>
+                <Settings size={14} /> {t('portfolio.divManage')}
               </button>
               <button onClick={() => setShowDivModal(true)} className="action-btn-secondary" style={{background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.3)', color: '#10b981'}}>
-                <DollarSign size={14} /> Add Div
+                <DollarSign size={14} /> {t('portfolio.addDiv')}
               </button>
             </div>
           )}
@@ -233,13 +235,13 @@ const PortfolioView = ({
                   onClick={() => setActiveSubTab('performance')}
                   style={{paddingBottom: '10px', background: 'transparent', border: 'none', borderBottom: activeSubTab === 'performance' ? '2px solid #818cf8' : '2px solid transparent', color: activeSubTab === 'performance' ? '#818cf8' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'}}
                 >
-                  Holdings & Performance
+                   {t('portfolio.tabPerformance')}
                 </button>
                 <button 
                   onClick={() => setActiveSubTab('dividends')}
                   style={{paddingBottom: '10px', background: 'transparent', border: 'none', borderBottom: activeSubTab === 'dividends' ? '2px solid #818cf8' : '2px solid transparent', color: activeSubTab === 'dividends' ? '#818cf8' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'}}
                 >
-                  Income & Projections
+                   {t('portfolio.tabIncome')}
                 </button>
               </div>
 
@@ -258,9 +260,9 @@ const PortfolioView = ({
                   {/* Existing Performance View (NAV Chart + Summary Stats) */}
                   <section className="glass-card" style={{marginBottom: '40px', padding: '30px', minHeight: '380px'}}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                  <div className="stat-label" style={{fontSize: '1.2rem', color: '#fff'}}>Performance Over Time (Since Inception)</div>
+                  <div className="stat-label" style={{fontSize: '1.2rem', color: '#fff'}}>{t('portfolio.performanceOverTime')}</div>
                   <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                    {historyData.length === 0 && <div style={{fontSize: '0.85rem', color: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>Syncing Market Data...</div>}
+                    {historyData.length === 0 && <div style={{fontSize: '0.85rem', color: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>{t('portfolio.syncingData')}</div>}
                     {ilpEnabled && ilpConfig?.totalPremium > 0 && historyData.length > 0 && (
                       <button
                         onClick={() => setApplyIlpToChart(v => !v)}
@@ -273,7 +275,7 @@ const PortfolioView = ({
                           color: applyIlpToChart ? '#818cf8' : 'rgba(255,255,255,0.55)',
                         }}
                       >
-                        🔗 {applyIlpToChart ? 'ILP 已应用' : '应用 ILP'}
+                        🔗 {applyIlpToChart ? t('portfolio.ilpApplied') : t('portfolio.applyIlp')}
                       </button>
                     )}
                   </div>
@@ -308,25 +310,25 @@ const PortfolioView = ({
                                 <div style={{background: 'rgba(13,18,35,0.97)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '10px', padding: '12px 16px', fontSize: '0.8rem', minWidth: '200px'}}>
                                   <div style={{fontWeight: 800, color: '#818cf8', marginBottom: '8px'}}>{label}</div>
                                   {raw != null && <div style={{display: 'flex', justifyContent: 'space-between', gap: '14px', marginBottom: '4px'}}>
-                                    <span style={{color: '#10b981'}}>原始市值</span>
+                                     <span style={{color: '#10b981'}}>{t('portfolio.ilpTooltipRaw')}</span>
                                     <span style={{color: '#10b981', fontWeight: 700, fontFamily: 'monospace'}}>{fmtMoney(raw, 1, data.base_currency || 'USD')}</span>
                                   </div>}
                                   {ilp != null && <div style={{display: 'flex', justifyContent: 'space-between', gap: '14px', marginBottom: '4px'}}>
-                                    <span style={{color: '#818cf8'}}>ILP 净值</span>
+                                     <span style={{color: '#818cf8'}}>{t('portfolio.ilpTooltipNet')}</span>
                                     <span style={{color: '#818cf8', fontWeight: 700, fontFamily: 'monospace'}}>{fmtMoney(ilp, 1, data.base_currency || 'USD')}</span>
                                   </div>}
                                   {drag != null && <div style={{marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed rgba(255,255,255,0.1)', color: 'rgba(255,160,60,0.9)', fontSize: '0.72rem'}}>
-                                    ILP 费用拖累：{drag}%
+                                     {t('portfolio.ilpTooltipDrag')}：{drag}%
                                   </div>}
                                 </div>
                               );
                             }}
                           />
                           <Legend formatter={v => <span style={{fontSize: '0.73rem', color: 'rgba(255,255,255,0.65)'}}>{v}</span>} />
-                          <Area type="monotone" dataKey="raw_value" stroke="#10b981" strokeWidth={2}
-                            fill="url(#rawColor)" dot={false} name="原始市值" />
+                           <Area type="monotone" dataKey="raw_value" stroke="#10b981" strokeWidth={2} name={t('portfolio.ilpTooltipRaw')}
+                             fill="url(#rawColor)" dot={false} />
                           <Area type="monotone" dataKey="ilp_value" stroke="#818cf8" strokeWidth={2.5}
-                            strokeDasharray="4 3" fill="url(#ilpColor)" dot={false} name="ILP 净值" />
+                             strokeDasharray="4 3" fill="url(#ilpColor)" dot={false} name={t('portfolio.ilpTooltipNet')} />
                         </ComposedChart>
                       ) : (
                         <AreaChart data={historyData} margin={{top: 10, right: 10, left: 10, bottom: 0}}>
@@ -364,7 +366,7 @@ const PortfolioView = ({
                     </ResponsiveContainer>
                   ) : (
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'gray', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px'}}>
-                      Constructing localized month-end time series...
+                      {t('portfolio.buildingTimeSeries')}
                     </div>
                   )}
                 </div>
@@ -401,12 +403,12 @@ const PortfolioView = ({
 
               <section className="stats-grid">
                 <div className="glass-card" title={fmtMoney(data.total_market_value || data.total_nav, 1, data.base_currency || 'USD')}>
-                  <div className="stat-label">资产市值 <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data.base_currency || 'USD'}</span></div>
+                  <div className="stat-label">{t('portfolio.statMarketValue')} <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data.base_currency || 'USD'}</span></div>
                   <div className="stat-value">{fmtCompact(data.total_market_value || data.total_nav, 1, data.base_currency || 'USD')}</div>
-                  <div className="positive"><TrendingUp size={16} /> Market Value</div>
+                  <div className="positive"><TrendingUp size={16} /> {t('portfolio.statMarketValueSub')}</div>
                 </div>
                 <div className="glass-card">
-                  <div className="stat-label">Cumulative ROI</div>
+                  <div className="stat-label">{t('portfolio.sectorExposure')}</div>
                   <div className="stat-value" style={{color: '#818cf8'}}>{data.cumulative_roi}%</div>
                   <div className="positive"><TrendingUp size={16} /> Growth</div>
                 </div>
@@ -458,7 +460,7 @@ const PortfolioView = ({
                 </div>
 
                 <div className="glass-card" style={{flex: 1}}>
-                  <div className="stat-label" style={{marginBottom: '20px'}}>Top 10 Holdings</div>
+                  <div className="stat-label" style={{marginBottom: '20px'}}>{t('portfolio.top10Holdings')}</div>
                   <div style={{height: '250px'}}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
@@ -556,7 +558,7 @@ const PortfolioView = ({
               {/* Toolbar */}
               <div style={{display: 'flex', gap: '20px', marginBottom: '20px', alignItems: 'center'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  <label style={{fontSize: '0.85rem', color: '#9ca3af'}}>Withholding Tax:</label>
+                  <label style={{fontSize: '0.85rem', color: '#9ca3af'}}>{t('portfolio.withholdingTax')}:</label>
                   <select 
                     style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '6px 12px', borderRadius: '8px', outline: 'none'}}
                     value={taxRate} 
@@ -570,7 +572,7 @@ const PortfolioView = ({
                 </div>
                 
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  <label style={{fontSize: '0.85rem', color: '#9ca3af'}} title="Model long-term reinvestment compounding">DRIP Simulation:</label>
+                  <label style={{fontSize: '0.85rem', color: '#9ca3af'}}>{t('portfolio.dripSimulation')}:</label>
                   <label className="switch">
                     <input type="checkbox" checked={dripMode} onChange={e => setDripMode(e.target.checked)} />
                     <span className="slider round"></span>
@@ -579,25 +581,25 @@ const PortfolioView = ({
               </div>
 
               {divLoading ? (
-                <div style={{textAlign: 'center', padding: '100px'}}><h2>Calculating Projections...</h2></div>
+                <div style={{textAlign: 'center', padding: '100px'}}><h2>{t('portfolio.calcProjections')}</h2></div>
               ) : divProjData && (divProjData.portfolio_metrics?.total_annual_income > 0 || divProjData.assets?.some(a => a.est_annual_income > 0 || a.source === 'manual_extrapolation')) ? (
                 <>
                   {/* Dividend Summary Cards */}
                   <section className="stats-grid" style={{marginBottom: '40px'}}>
                     <div className="glass-card" title={fmtMoney(divProjData?.portfolio_metrics?.total_annual_income || 0, 1, data?.base_currency || 'USD')}>
-                      <div className="stat-label">Est. Annual Income <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data?.base_currency || 'USD'}</span></div>
+                      <div className="stat-label">{t('portfolio.estAnnualIncome')} <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data?.base_currency || 'USD'}</span></div>
                       <div className="stat-value" style={{color: '#10b981'}}>{fmtCompact(divProjData?.portfolio_metrics?.total_annual_income || 0, 1, data?.base_currency || 'USD')}</div>
-                      <div className="positive"><DollarSign size={16} /> Projected (12M)</div>
+                      <div className="positive"><DollarSign size={16} /> {t('portfolio.projected12m')}</div>
                     </div>
                     <div className="glass-card">
-                      <div className="stat-label">Portfolio YOC</div>
+                      <div className="stat-label">{t('portfolio.portfolioYoc')}</div>
                       <div className="stat-value" style={{color: '#818cf8'}}>{divProjData?.portfolio_metrics?.portfolio_yoc || '0'}%</div>
-                      <div className="positive"><ArrowUpRight size={16} /> Yield on Cost</div>
+                      <div className="positive"><ArrowUpRight size={16} /> {t('portfolio.yieldOnCost')}</div>
                     </div>
                     <div className="glass-card">
-                      <div className="stat-label">Current Yield</div>
+                      <div className="stat-label">{t('portfolio.currentYield')}</div>
                       <div className="stat-value" style={{color: '#f59e0b'}}>{divProjData?.portfolio_metrics?.portfolio_current_yield || '0'}%</div>
-                      <div className="positive"><Activity size={16} /> Market Pricing</div>
+                      <div className="positive"><Activity size={16} /> {t('portfolio.marketPricing')}</div>
                     </div>
                   </section>
 
@@ -781,7 +783,7 @@ const PortfolioView = ({
                   border: '1px dashed rgba(255,255,255,0.1)'
                 }}>
                   <div style={{fontSize: '2.5rem', marginBottom: '16px'}}>📭</div>
-                  <h3 style={{color: '#9ca3af', marginBottom: '8px'}}>No Dividend Data Available</h3>
+                   <h3 style={{color: '#9ca3af', marginBottom: '8px'}}>{t('portfolio.noDivTitle')}</h3>
                   <p style={{color: 'rgba(255,255,255,0.3)', maxWidth: '480px', margin: '0 auto 20px', fontSize: '0.9rem', lineHeight: 1.6}}>
                     This portfolio's holdings (e.g. LU-ISIN funds) are not covered by the automatic dividend data source (yfinance).
                     {canEdit && <><br/>You can manually record dividends using the <strong style={{color: '#818cf8'}}>Dividends → Add Dividend</strong> button above.</>}
@@ -791,7 +793,7 @@ const PortfolioView = ({
                       onClick={() => setShowDivModal(true)}
                       style={{background: 'linear-gradient(135deg, #6366f1, #a855f7)', border: 'none', borderRadius: '8px', padding: '10px 24px', color: '#fff', cursor: 'pointer', fontWeight: 600}}
                     >
-                      + Add Manual Dividend
+                      {t('portfolio.addManualDiv')}
                     </button>
                   )}
                 </div>

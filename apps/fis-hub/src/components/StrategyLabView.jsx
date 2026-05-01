@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLang } from '../i18n/LangContext';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, Area, ComposedChart, ReferenceLine
@@ -53,6 +54,7 @@ const StrategyLabView = ({
   ilpConfig, setIlpConfig,
   onOpenIlpEnrollmentModal,
 }) => {
+  const { t } = useLang();
   const [showDivDoc, setShowDivDoc] = React.useState(false);
   const [showDdDoc, setShowDdDoc] = React.useState(false);
   return (
@@ -60,8 +62,8 @@ const StrategyLabView = ({
           <div className="strategy-lab-scope" style={{padding: '20px', maxWidth: '1200px'}}>
             <header style={{marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <div>
-                <h1 style={{margin: '0 0 10px 0'}}>Strategy Lab</h1>
-                <p style={{color: 'rgba(255,255,255,0.6)', margin: 0}}>Create, test and optimize your asset allocations using Modern Portfolio Theory (MPT).</p>
+                <h1 style={{margin: '0 0 10px 0'}}>{t('lab.title')}</h1>
+                <p style={{color: 'rgba(255,255,255,0.6)', margin: 0}}>{t('lab.subtitle')}</p>
               </div>
               <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
                 <div style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif', fontWeight: 900, fontSize: '1.4rem', letterSpacing: '2px', background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'flex', alignItems: 'center'}}>
@@ -72,8 +74,8 @@ const StrategyLabView = ({
 
             <div className="glass-card" style={{marginBottom: '20px'}}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
-                <h3 style={{margin: 0}}><Target size={18} style={{verticalAlign: 'middle', marginRight: '8px'}}/>Asset Sandbox — Custom Weights</h3>
-                <span style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)', padding: '3px 10px', borderRadius: '20px'}}>Custom Portfolio</span>
+                <h3 style={{margin: 0}}><Target size={18} style={{verticalAlign: 'middle', marginRight: '8px'}}/>{t('lab.assetSandbox')}</h3>
+                <span style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)', padding: '3px 10px', borderRadius: '20px'}}>{t('lab.customPortfolio')}</span>
               </div>
 
               <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '15px'}}>
@@ -123,17 +125,17 @@ const StrategyLabView = ({
               </div>
               <div style={{display: 'flex', gap: '15px', marginBottom: '15px', flexWrap: 'wrap', alignItems: 'center'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  <span style={{fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)'}}>Template:</span>
+                  <span style={{fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)'}}>{t('lab.template')}:</span>
                   <button onClick={() => applyLabTemplate(['VTI', 'TLT', 'IEF', 'GLD', 'DBC'], {'VTI':30,'TLT':40,'IEF':15,'GLD':7.5,'DBC':7.5})} className="action-btn-secondary" style={{fontSize: '0.75rem', padding: '4px 8px'}}>All‑Weather</button>
                   <button onClick={() => applyLabTemplate(['SPY', 'BND'], { 'SPY': 60, 'BND': 40 })} className="action-btn-secondary" style={{fontSize: '0.75rem', padding: '4px 8px'}}>60/40</button>
                   <button onClick={() => applyLabTemplate(['VTI', 'VBR', 'TLT', 'SHY', 'GLD'], {'VTI':20,'VBR':20,'TLT':20,'SHY':20,'GLD':20})} className="action-btn-secondary" style={{fontSize: '0.75rem', padding: '4px 8px'}}>Golden Butterfly</button>
                 </div>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto'}}>
-                  <span style={{fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)'}}>Backtest Period:</span>
+                  <span style={{fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)'}}>{t('lab.backtestPeriod')}:</span>
                   <select value={labDaysBack} onChange={e => setLabDaysBack(parseInt(e.target.value))} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '4px', fontSize: '0.8rem'}}>
-                   <option value={1825}>5 Years</option>
-                   <option value={3650}>10 Years</option>
-                   <option value={5475}>15 Years</option>
+                   <option value={1825}>{t('lab.years') === 'Years' ? '5 Years' : '5年'}</option>
+                   <option value={3650}>{t('lab.years') === 'Years' ? '10 Years' : '10年'}</option>
+                   <option value={5475}>{t('lab.years') === 'Years' ? '15 Years' : '15年'}</option>
                   </select>
                 </div>
                 {labSum > 0 && (
@@ -142,7 +144,7 @@ const StrategyLabView = ({
                     color: Math.abs(labSum - 100) < 0.5 ? '#10b981' : '#f59e0b',
                     border: `1px solid ${Math.abs(labSum - 100) < 0.5 ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}`
                   }}>
-                    Total: {labSum}%{Math.abs(labSum - 100) < 0.5 ? ' ✓' : ' (must = 100%)'}
+                    {t('lab.totalWeight')}: {labSum}%{Math.abs(labSum - 100) < 0.5 ? ' ✓' : ` (${t('lab.mustBe100')})`}
                   </div>
                 )}
               </div>
@@ -150,10 +152,10 @@ const StrategyLabView = ({
                 <input 
                   value={labInput} 
                   onChange={e => setLabInput(e.target.value)} 
-                  placeholder="Enter ISIN (e.g. VOO or LU1041599405)" 
+                  placeholder={t('lab.isinPlaceholder')} 
                   style={{flex: 1, maxWidth: '300px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '8px', color: '#fff'}}
                 />
-                <button type="submit" className="create-btn" style={{padding: '8px 16px', background: 'rgba(255,255,255,0.1)', color: '#fff'}} disabled={labLoading}><Plus size={16}/> Add Asset</button>
+                <button type="submit" className="create-btn" style={{padding: '8px 16px', background: 'rgba(255,255,255,0.1)', color: '#fff'}} disabled={labLoading}><Plus size={16}/> {t('lab.addAsset')}</button>
                 <button 
                   type="button" 
                   onClick={handleRunLabAnalysis} 
@@ -166,7 +168,7 @@ const StrategyLabView = ({
                   }} 
                   disabled={labLoading || !isLabReady}
                 >
-                  {labLoading ? `Analyzing ${Math.round(labDaysBack/365)}-Year History...` : <><Zap size={16} /> Run Optimization</>}
+                  {labLoading ? `${t('lab.analyzing')} ${Math.round(labDaysBack/365)}...` : <><Zap size={16} /> {t('lab.runOptimization')}</>}
                 </button>
               </form>
               {labError && <div style={{color: '#f43f5e', background: 'rgba(244,63,94,0.1)', padding: '10px', borderRadius: '8px', marginTop: '15px', fontSize: '0.85rem'}}>{labError}</div>}
@@ -175,7 +177,7 @@ const StrategyLabView = ({
                 <div style={{color: '#fbbf24', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', padding: '15px', borderRadius: '12px', marginTop: '15px', fontSize: '0.85rem'}}>
                   <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', fontWeight: 600}}>
                     <AlertTriangle size={18} />
-                    数据质量提醒 / Data Quality Alerts
+                    {t('lab.dataWarnings')}
                   </div>
                   <ul style={{margin: 0, paddingLeft: '20px', lineHeight: '1.6'}}>
                     {labData.data_warnings.map((msg, idx) => (
@@ -199,7 +201,7 @@ const StrategyLabView = ({
                     transition: 'all 0.2s'
                   }}
                 >
-                  <Search size={14} style={{marginRight: '6px'}} /> Optimization
+                  <Search size={14} style={{marginRight: '6px'}} /> {t('lab.tabOptimization')}
                 </button>
                 <button 
                   onClick={() => setLabTab('backtest')}
@@ -211,7 +213,7 @@ const StrategyLabView = ({
                     transition: 'all 0.2s'
                   }}
                 >
-                  <History size={14} style={{marginRight: '6px'}} /> Historical Backtest
+                  <History size={14} style={{marginRight: '6px'}} /> {t('lab.tabBacktest')}
                 </button>
               </div>
             )}
@@ -220,13 +222,13 @@ const StrategyLabView = ({
             {labData && (
               <div className="glass-card" style={{marginBottom: '20px'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px'}}>
-                  <h3 style={{margin: 0}}>Portfolio Comparison</h3>
+                  <h3 style={{margin: 0}}>{t('lab.portfolioComparison')}</h3>
                   <span style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.06)', padding: '2px 10px', borderRadius: '12px'}}>
-                    {labData.data_points} trading days
+                    {labData.data_points} {t('lab.tradingDays')}
                   </span>
                   {labData.mc_target_label && (
                     <span style={{fontSize: '0.72rem', color: '#818cf8', background: 'rgba(129,140,248,0.1)', padding: '2px 10px', borderRadius: '12px', marginLeft: 'auto'}}>
-                      Monte Carlo active on: Custom Portfolio
+                      {t('lab.mcActiveOn')}
                     </span>
                   )}
                 </div>
@@ -234,17 +236,17 @@ const StrategyLabView = ({
                   <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem'}}>
                     <thead>
                       <tr style={{borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
-                        <th style={{textAlign: 'left', padding: '10px 14px', color: 'rgba(255,255,255,0.4)', fontWeight: 400}}>Metric</th>
+                        <th style={{textAlign: 'left', padding: '10px 14px', color: 'rgba(255,255,255,0.4)', fontWeight: 400}}>{t('lab.metric')}</th>
                         {labData.custom_portfolio && (
-                          <th style={{padding: '10px 14px', color: '#f43f5e', fontWeight: 600, textAlign: 'center'}}>Custom Portfolio</th>
+                          <th style={{padding: '10px 14px', color: '#f43f5e', fontWeight: 600, textAlign: 'center'}}>{t('lab.customAllocation')}</th>
                         )}
                       </tr>
                     </thead>
                     <tbody>
                       {[
-                        { label: 'Annual Return', key: 'expected_return', fmt: v => v != null ? (v*100).toFixed(2)+'%' : '–', col: '#10b981' },
-                        { label: 'Volatility',    key: 'volatility',      fmt: v => v != null ? (v*100).toFixed(2)+'%' : '–', col: '#f43f5e' },
-                        { label: 'Sharpe Ratio',  key: 'sharpe_ratio',    fmt: v => v != null ? v.toFixed(3) : '–',            col: null      },
+                        { label: t('lab.annualReturn'), key: 'expected_return', fmt: v => v != null ? (v*100).toFixed(2)+'%' : '–', col: '#10b981' },
+                        { label: t('lab.volatility'),    key: 'volatility',      fmt: v => v != null ? (v*100).toFixed(2)+'%' : '–', col: '#f43f5e' },
+                        { label: t('lab.sharpeRatio'),   key: 'sharpe_ratio',    fmt: v => v != null ? v.toFixed(3) : '–',            col: null      },
                       ].map(row => (
                         <tr key={row.label} style={{borderBottom: '1px solid rgba(255,255,255,0.05)'}}>
                           <td style={{padding: '10px 14px', color: 'rgba(255,255,255,0.6)'}}>{row.label}</td>
@@ -263,14 +265,14 @@ const StrategyLabView = ({
                         return (
                           <>
                             <tr style={{borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(129,140,248,0.04)'}}>
-                              <td style={{padding: '10px 14px', color: 'rgba(255,255,255,0.6)'}}>MC Median ({labMcSettings.years}yr)</td>
+                              <td style={{padding: '10px 14px', color: 'rgba(255,255,255,0.6)'}}>{t('lab.mcMedian')} ({labMcSettings.years}yr)</td>
                               {labData.custom_portfolio && (
                                 <td style={{padding: '10px 14px', textAlign: 'center', fontWeight: 600, color: '#818cf8'}}>${(last.p50/1000).toFixed(0)}K</td>
                               )}
                             </tr>
                             {labData.monte_carlo.success_rate !== null && (
                               <tr style={{background: 'rgba(129,140,248,0.04)'}}>
-                                <td style={{padding: '10px 14px', color: 'rgba(255,255,255,0.6)'}}>Success Rate</td>
+                                <td style={{padding: '10px 14px', color: 'rgba(255,255,255,0.6)'}}>{t('lab.successRate')}</td>
                                 {labData.custom_portfolio && (
                                   <td style={{padding: '10px 14px', textAlign: 'center', fontWeight: 600, color: srColor}}>{(labData.monte_carlo.success_rate*100).toFixed(1)}%</td>
                                 )}
@@ -289,9 +291,9 @@ const StrategyLabView = ({
               <div className="glass-card" style={{marginBottom: '20px'}}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px'}}>
                   <div>
-                    <h3 style={{margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.4rem'}}><History size={24} color="#818cf8"/> Historical Performance Comparison</h3>
+                    <h3 style={{margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.4rem'}}><History size={24} color="#818cf8"/> {t('lab.historicalPerf')}</h3>
                     <p style={{fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', margin: '6px 0 0'}}>
-                      Growth of $10,000 with Buy & Hold strategy (No Rebalancing). Backtested over {labData.data_points} trading days.
+                      {t('lab.historicalPerfSub')} {labData.data_points} {t('lab.tradingDays')}.
                     </p>
                   </div>
                   <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
@@ -360,7 +362,7 @@ const StrategyLabView = ({
 
                 <div style={{display: 'flex', gap: '15px', marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px'}}>
                   {[
-                    ...(labData.custom_portfolio ? [{name: 'Custom Portfolio', key: 'custom_portfolio', color: '#f43f5e'}] : [])
+                    ...(labData.custom_portfolio ? [{name: t('lab.customAllocation'), key: 'custom_portfolio', color: '#f43f5e'}] : [])
                   ].map(p => {
                     const bt = labData[p.key]?.backtest;
                     if (!bt || bt.length === 0) return null;
@@ -383,12 +385,12 @@ const StrategyLabView = ({
                 <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
                    {labData.custom_portfolio && (
                      <div className="glass-card" style={{border: '1px solid rgba(244,63,94,0.3)'}}>
-                       <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}><h3 style={{margin: 0, color: '#f43f5e'}}>Custom allocation</h3><button onClick={() => handleDeployLabStrategy(labData.custom_portfolio.allocations)} className="action-btn-secondary" style={{fontSize: '0.75rem'}}>Deploy</button></div>
+                       <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}><h3 style={{margin: 0, color: '#f43f5e'}}>{t('lab.customAllocation')}</h3><button onClick={() => handleDeployLabStrategy(labData.custom_portfolio.allocations)} className="action-btn-secondary" style={{fontSize: '0.75rem'}}>{t('lab.deploy')}</button></div>
                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px'}}>
-                          <div style={{textAlign: 'center'}}><div>Return(PA)</div><div style={{fontWeight: 600, color: '#10b981', marginTop: '2px'}}>{(labData.custom_portfolio.expected_return * 100).toFixed(1)}%</div></div>
-                          <div style={{textAlign: 'center'}}><div>Volatility</div><div style={{fontWeight: 600, color: '#f59e0b', marginTop: '2px'}}>{(labData.custom_portfolio.volatility * 100).toFixed(1)}%</div></div>
-                          <div style={{textAlign: 'center'}}><div>Sharpe Ratio</div><div style={{fontWeight: 600, marginTop: '2px'}}>{labData.custom_portfolio.sharpe_ratio?.toFixed(2)}</div></div>
-                          <div style={{textAlign: 'center'}}><div>Div Yield</div><div style={{fontWeight: 600, color: '#3b82f6', marginTop: '2px'}}>{(labData.custom_portfolio.dividend_yield * 100).toFixed(2)}%</div></div>
+                          <div style={{textAlign: 'center'}}><div>{t('lab.annualReturn')}</div><div style={{fontWeight: 600, color: '#10b981', marginTop: '2px'}}>{(labData.custom_portfolio.expected_return * 100).toFixed(1)}%</div></div>
+                          <div style={{textAlign: 'center'}}><div>{t('lab.volatility')}</div><div style={{fontWeight: 600, color: '#f59e0b', marginTop: '2px'}}>{(labData.custom_portfolio.volatility * 100).toFixed(1)}%</div></div>
+                          <div style={{textAlign: 'center'}}><div>{t('lab.sharpeRatio')}</div><div style={{fontWeight: 600, marginTop: '2px'}}>{labData.custom_portfolio.sharpe_ratio?.toFixed(2)}</div></div>
+                          <div style={{textAlign: 'center'}}><div>{t('lab.divYieldLabel')}</div><div style={{fontWeight: 600, color: '#3b82f6', marginTop: '2px'}}>{(labData.custom_portfolio.dividend_yield * 100).toFixed(2)}%</div></div>
                        </div>
                        <div style={{background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px'}}>
                           {Object.entries(labData.custom_portfolio.allocations).sort((a,b)=>b[1]-a[1]).map(([isin, w]) => (
@@ -432,7 +434,7 @@ const StrategyLabView = ({
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px'}}>
                   <div>
                     <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                      <h3 style={{marginTop: 0, marginBottom: '4px'}}>{labMcSettings.years}-Year Monte Carlo Projection</h3>
+                      <h3 style={{marginTop: 0, marginBottom: '4px'}}>{labMcSettings.years}{t('lab.mcProjection')}</h3>
                       <button 
                         onClick={() => setShowMcDoc(true)} 
                         style={{background: 'rgba(255,255,255,0.05)', border: 'none', color: '#818cf8', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'}}
@@ -472,7 +474,7 @@ const StrategyLabView = ({
                                 <div style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)'}}>{s.label}</div>
                                 <div style={{fontSize: '0.9rem', fontWeight: 600, color: cagr <= -99.9 ? '#ef4444' : s.color}}>
                                   {cagr <= -99.9 ? (
-                                    <>💀 耗尽 <span style={{fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', fontWeight: 400}}>(Depleted)</span></>
+                                    <>{t('lab.depleted')} <span style={{fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', fontWeight: 400}}>{t('lab.depletedSub')}</span></>
                                   ) : (
                                     <>{cagr > 0 ? '+' : ''}{cagr.toFixed(2)}% <span style={{fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', fontWeight: 400}}>CAGR</span></>
                                   )}

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Briefcase, Activity, Plus, Trash2, Users, UserCheck, GripVertical, Link } from 'lucide-react';
 import ILPSettingsModal from './ILPSettingsModal';
+import { useLang } from '../i18n/LangContext';
 
 /**
  * Sidebar component — tabs, portfolio list (with drag-to-reorder), actions, scenarios drawer, and role-aware nav.
@@ -14,6 +15,7 @@ const Sidebar = ({
   currentUser, canEditPortfolio,
   onIlpSaved,
 }) => {
+  const { t } = useLang();
   const isAdmin   = currentUser?.role === 'admin';
   const isAdvisor = currentUser?.role === 'advisor' || isAdmin;
 
@@ -94,13 +96,13 @@ const Sidebar = ({
           onClick={() => setActiveTab('portfolios')}
           style={tabBtnStyle(activeTab === 'portfolios')}
         >
-          <Briefcase size={14} /> 组合
+          <Briefcase size={14} /> {t('sidebar.portfolios')}
         </button>
         <button
           onClick={() => setActiveTab('lab')}
           style={tabBtnStyle(activeTab === 'lab')}
         >
-          <Activity size={14} /> 实验室
+          <Activity size={14} /> {t('sidebar.lab')}
         </button>
       </div>
 
@@ -113,7 +115,7 @@ const Sidebar = ({
               style={roleNavBtnStyle(activeTab === 'advisor', '#3b82f6')}
             >
               <UserCheck size={14} />
-              {isAdmin ? '顾问客户管理' : '我的客户'}
+              {isAdmin ? t('sidebar.advisorClients') : t('sidebar.myClients')}
             </button>
           )}
           {isAdmin && (
@@ -122,7 +124,7 @@ const Sidebar = ({
               style={roleNavBtnStyle(activeTab === 'admin', '#ef4444')}
             >
               <Users size={14} />
-              👥 用户管理
+              {t('sidebar.userMgmt')}
             </button>
           )}
         </div>
@@ -131,9 +133,9 @@ const Sidebar = ({
       {/* ── 组合列表（支持拖拽排序）── */}
       <nav className="portfolio-list" style={{display: activeTab === 'portfolios' ? 'flex' : 'none', flexDirection: 'column', gap: 6}}>
         <div className="stat-label" style={{marginBottom: '4px', fontSize: '0.7rem'}}>
-          我的组合
+          {t('sidebar.myPortfolios')}
           <span style={{ marginLeft: 6, color: 'rgba(255,255,255,0.25)', fontSize: '0.62rem', fontWeight: 400 }}>
-            可拖拽排序
+            {t('sidebar.draggable')}
           </span>
         </div>
 
@@ -165,7 +167,7 @@ const Sidebar = ({
                   marginRight: 6, flexShrink: 0,
                   cursor: 'grab',
                 }}
-                title="拖拽调整顺序"
+                title={t('sidebar.dragTitle')}
               >
                 <GripVertical size={13} />
               </div>
@@ -191,7 +193,7 @@ const Sidebar = ({
       {activeTab === 'portfolios' && (
         <>
           <button className="create-btn" onClick={() => setShowModal(true)}>
-            <Plus size={18} /> New Strategy
+            <Plus size={18} /> {t('sidebar.newStrategy')}
           </button>
         </>
       )}
@@ -199,11 +201,11 @@ const Sidebar = ({
       {/* ── 策略实验室：历史方案 ── */}
       {activeTab === 'lab' && (
         <nav className="scenarios-list" style={{display: 'block', marginTop: '6px'}}>
-          <div className="stat-label" style={{marginBottom: '8px', fontSize: '0.75rem', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.7)'}}>💾 历史方案</div>
+          <div className="stat-label" style={{marginBottom: '8px', fontSize: '0.75rem', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.7)'}}>{t('sidebar.savedScenarios')}</div>
           {savedScenarios.length === 0 ? (
             <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', padding: '30px 0' }}>
               <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>📭</div>
-              <div style={{ fontSize: '0.75rem' }}>暂无保存的方案</div>
+              <div style={{ fontSize: '0.75rem' }}>{t('sidebar.noScenarios')}</div>
             </div>
           ) : savedScenarios.map(sc => (
             <div key={sc.id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px', marginBottom: '10px', cursor: 'pointer', transition: 'border-color 0.2s', position: 'relative' }}
@@ -248,25 +250,25 @@ const Sidebar = ({
                   <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#10b981', paddingRight: '40px', lineHeight: 1.2 }}>{sc.name}</div>
                 )}
               </div>
-              <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginBottom: '8px' }}>{new Date(sc.created_at).toLocaleDateString('zh-CN')}</div>
+              <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginBottom: '8px' }}>{new Date(sc.created_at).toLocaleDateString(t === undefined || t('header.langBtn') === 'EN' ? 'zh-CN' : 'en-US')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
                 {sc.assets.map(a => <span key={a} style={{ background: 'rgba(129,140,248,0.12)', color: '#818cf8', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 600 }}>{a}</span>)}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem' }}>
-                <div><span style={{color: 'rgba(255,255,255,0.4)'}}>本金: </span><span>${(sc.summary.capital/1000).toFixed(0)}k</span></div>
-                <div><span style={{color: 'rgba(255,255,255,0.4)'}}>年提: </span><span style={{color: '#f59e0b'}}>${((sc.summary.withdrawal||0)/1000).toFixed(0)}k</span></div>
+                <div><span style={{color: 'rgba(255,255,255,0.4)'}}>{t('sidebar.capital')}: </span><span>${(sc.summary.capital/1000).toFixed(0)}k</span></div>
+                <div><span style={{color: 'rgba(255,255,255,0.4)'}}>{t('sidebar.annualDraw')}: </span><span style={{color: '#f59e0b'}}>${((sc.summary.withdrawal||0)/1000).toFixed(0)}k</span></div>
               </div>
               <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '4px' }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); setEditScenarioName(sc.name); setEditingScenarioId(sc.id); }}
                   style={{ background: 'rgba(0,0,0,0.2)', border: 'none', borderRadius: '6px', color: 'rgba(16,185,129,0.6)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px' }}
-                  title="重命名">
+                  title={t('sidebar.renameTitle')}>
                   <span style={{ fontSize: '12px', lineHeight: 1 }}>✎</span>
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDeleteScenario(sc.id); }}
                   style={{ background: 'rgba(0,0,0,0.2)', border: 'none', borderRadius: '6px', color: 'rgba(244,63,94,0.6)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px' }}
-                  title="删除">
+                  title={t('sidebar.deleteTitle')}>
                   <Trash2 size={12} />
                 </button>
               </div>
@@ -292,7 +294,7 @@ const Sidebar = ({
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
           >
             <Link size={13} />
-            <span>ILP 投连险配置</span>
+          <span>{t('sidebar.ilpSettings')}</span>
           </button>
         </div>
       )}

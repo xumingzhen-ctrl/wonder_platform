@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useLang } from '../i18n/LangContext';
+
 
 const API = '/api';
 
 export function VerifyEmailOverlay({ token, onClose }) {
+  const { t } = useLang();
   const [status, setStatus] = useState('verifying'); // verifying, success, error
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setMessage('無效的驗證連結');
+      setMessage(t('auth.verifyFail'));
       return;
     }
 
@@ -18,15 +21,15 @@ export function VerifyEmailOverlay({ token, onClose }) {
       .then(({ ok, data }) => {
         if (ok) {
           setStatus('success');
-          setMessage(data.message || '驗證成功！您的帳戶已激活。');
+          setMessage(data.message || t('auth.verifySuccess'));
         } else {
           setStatus('error');
-          setMessage(data.detail || '驗證失敗，連結可能已過期。');
+          setMessage(data.detail || t('auth.verifyFail'));
         }
       })
       .catch(() => {
         setStatus('error');
-        setMessage('網絡錯誤，請稍後重試。');
+        setMessage(t('auth.errNetwork'));
       });
   }, [token]);
 
@@ -37,16 +40,17 @@ export function VerifyEmailOverlay({ token, onClose }) {
           {status === 'verifying' ? '⏳' : status === 'success' ? '✅' : '❌'}
         </div>
         <h2 style={{ color: '#fff', marginBottom: 12 }}>
-          {status === 'verifying' ? '正在驗證電郵...' : status === 'success' ? '驗證成功' : '驗證失敗'}
+          {status === 'verifying' ? t('auth.verifying') : status === 'success' ? t('auth.verifySuccess') : t('auth.verifyFail')}
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>{message}</p>
-        <button onClick={onClose} style={btnStyle}>返回首頁</button>
+        <button onClick={onClose} style={btnStyle}>{t('auth.verifyBtn')}</button>
       </div>
     </div>
   );
 }
 
 export function ResetPasswordOverlay({ token, onClose }) {
+  const { t } = useLang();
   const [pwd, setPwd] = useState('');
   const [pwd2, setPwd2] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,8 +59,8 @@ export function ResetPasswordOverlay({ token, onClose }) {
 
   const handleReset = async (e) => {
     e.preventDefault();
-    if (pwd.length < 6) { setError('密碼至少需要 6 位'); return; }
-    if (pwd !== pwd2) { setError('兩次輸入的密碼不一致'); return; }
+    if (pwd.length < 6) { setError(t('auth.errPwdMin')); return; }
+    if (pwd !== pwd2) { setError(t('auth.errPwdMatch')); return; }
 
     setLoading(true);
     setError('');
@@ -68,12 +72,12 @@ export function ResetPasswordOverlay({ token, onClose }) {
       });
       const data = await res.json();
       if (res.ok) {
-        setSuccess('密碼已重設成功！請使用新密碼登錄。');
+        setSuccess(t('auth.resetSuccess'));
       } else {
-        setError(data.detail || '重設失敗');
+        setError(data.detail || t('auth.errLoginFail'));
       }
     } catch (err) {
-      setError('網絡錯誤');
+      setError(t('auth.errNetwork'));
     } finally {
       setLoading(false);
     }
@@ -83,41 +87,41 @@ export function ResetPasswordOverlay({ token, onClose }) {
     <div style={overlayStyle}>
       <div style={panelStyle}>
         <div style={{ fontSize: 48, marginBottom: 20 }}>🔐</div>
-        <h2 style={{ color: '#fff', marginBottom: 12 }}>重設您的密碼</h2>
+        <h2 style={{ color: '#fff', marginBottom: 12 }}>{t('auth.resetTitle')}</h2>
         
         {success ? (
           <>
             <p style={{ color: '#4ade80', marginBottom: 24 }}>{success}</p>
-            <button onClick={onClose} style={btnStyle}>前往登錄</button>
+            <button onClick={onClose} style={btnStyle}>{t('auth.resetBtn')}</button>
           </>
         ) : (
           <form onSubmit={handleReset} style={{ width: '100%' }}>
             <div style={{ marginBottom: 16, textAlign: 'left' }}>
-              <label style={labelStyle}>新密碼</label>
+              <label style={labelStyle}>{t('auth.resetLabel')}</label>
               <input 
                 type="password" 
                 value={pwd} 
                 onChange={e => setPwd(e.target.value)} 
                 style={inputStyle} 
-                placeholder="輸入 6 位以上密碼"
+                placeholder={t('auth.resetPlaceholder')}
               />
             </div>
             <div style={{ marginBottom: 20, textAlign: 'left' }}>
-              <label style={labelStyle}>確認新密碼</label>
+              <label style={labelStyle}>{t('auth.resetConfirmLabel')}</label>
               <input 
                 type="password" 
                 value={pwd2} 
                 onChange={e => setPwd2(e.target.value)} 
                 style={inputStyle} 
-                placeholder="再次輸入密碼"
+                placeholder={t('auth.resetConfirmPlaceholder')}
               />
             </div>
             {error && <p style={{ color: '#f87171', fontSize: 13, marginBottom: 16 }}>⚠️ {error}</p>}
             <button type="submit" disabled={loading} style={btnStyle}>
-              {loading ? '提交中...' : '重設密碼'}
+              {loading ? t('auth.resetSubmitting') : t('auth.resetSubmit')}
             </button>
             <button type="button" onClick={onClose} style={{ ...btnStyle, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', marginTop: 12 }}>
-              取消
+              {t('common.cancel')}
             </button>
           </form>
         )}
