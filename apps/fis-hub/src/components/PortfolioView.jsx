@@ -444,7 +444,20 @@ const PortfolioView = ({
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(val) => `$${val.toLocaleString()}`} />
+                        <Tooltip 
+                          formatter={(val, name, props) => [
+                            `${props.payload.pct.toFixed(1)}% ($${val.toLocaleString()})`,
+                            name
+                          ]}
+                          contentStyle={{
+                            backgroundColor: '#1e1e2f',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '10px',
+                            fontSize: '0.8rem',
+                            color: '#fff'
+                          }}
+                          itemStyle={{ color: '#fff' }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -476,14 +489,21 @@ const PortfolioView = ({
                         <YAxis
                           type="category"
                           dataKey="name"
-                          width={90}
+                          width={140}
                           tick={{fill: '#9ca3af', fontSize: 10}}
                           tickLine={false}
                           axisLine={false}
                         />
                         <Tooltip
                           cursor={{fill: 'rgba(255,255,255,0.04)'}}
-                          contentStyle={{backgroundColor: '#1e1e2f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: '0.8rem'}}
+                          contentStyle={{
+                            backgroundColor: '#1e1e2f',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '10px',
+                            fontSize: '0.8rem',
+                            color: '#fff'
+                          }}
+                          itemStyle={{ color: '#fff' }}
                           formatter={(val, name, props) => [
                             `${props.payload.pct.toFixed(1)}%  (${fmtMoney(val, 1, ccy)})`,
                             props.payload.fullName
@@ -502,7 +522,7 @@ const PortfolioView = ({
                     {top10Data.map((entry, index) => (
                       <div key={index} style={{fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '5px'}}>
                         <div style={{width: 8, height: 8, borderRadius: '2px', background: COLORS[index % COLORS.length], flexShrink: 0}}></div>
-                        <span style={{color: 'rgba(255,255,255,0.7)'}}>{entry.isin}</span>
+                        <span style={{color: 'rgba(255,255,255,0.7)'}}>{entry.name}</span>
                         <span style={{color: 'rgba(255,255,255,0.4)'}}>{entry.pct.toFixed(1)}%</span>
                       </div>
                     ))}

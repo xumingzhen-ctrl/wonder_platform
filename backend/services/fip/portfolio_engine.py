@@ -441,7 +441,13 @@ class PortfolioEngine:
         # (If targets sum to 1.0 exactly, cash will be near 0 after rebalance)
         cash_target_weight = max(0.0, 1.0 - total_target_weight)
         
-        for isin, target_weight in self.target_allocations.items():
+        all_isins = set(self.target_allocations.keys())
+        for k in snapshot_shares.keys():
+            if not k.startswith('CASH_') and snapshot_shares[k] > 0:
+                all_isins.add(k)
+                
+        for isin in all_isins:
+            target_weight = self.target_allocations.get(isin, 0.0)
             target_amount_usd = total_value * target_weight
             
             price = get_price(isin)
@@ -642,57 +648,67 @@ class PortfolioEngine:
         cursor = self.conn.cursor()
         dividends_list = []
         
-        # 1. Manual Dividends
-        cursor.execute("SELECT id, isin, date, amount_per_share FROM manual_dividends WHERE portfolio_id = ?", (self.portfolio_id,))
-        manual_div_isins = set()
+        # ── Plan B: date-level deduplication ──────────────────────────────────
+        # manual_dates_by_isin tracks which (isin, date) slots are covered by manual entries.
+        # Auto data is allowed for ALL ISINs, but specific dates already covered by manual are skipped.
+
+        # 1. Manual Dividends — always first; collect blocked (isin, date) pairs
+        cursor.execute("SELECT id, isin, date, amount_per_share FROM manual_dividends WHERE portfolio_id = ? ORDER BY date ASC", (self.portfolio_id,))
+        manual_dates_by_isin = {}   # isin → set of date strings
+        manual_div_isins     = set()  # kept for backward-compat with callers that unpack the 2nd return value
         for mdiv in cursor.fetchall():
             isin = mdiv['isin']
             manual_div_isins.add(isin)
+            manual_dates_by_isin.setdefault(isin, set()).add(mdiv['date'])
             if isin in current_holdings and current_holdings[isin]['shares'] > 0:
-                shares = int(current_holdings[isin]['shares']) # For manual, we approximate using current shares
+                # Use actual shares held on that date for accuracy
+                shares_at_time = self.get_shares_on_date(isin, mdiv['date'])
+                shares = int(shares_at_time) if shares_at_time > 0 else int(current_holdings[isin]['shares'])
                 amount_per_share = mdiv['amount_per_share']
                 total = shares * amount_per_share
-                
+
                 market_data = RealTime.get_market_data(isin)
                 name = market_data.get('name', isin)
-                
+
                 dividends_list.append({
-                    "id": mdiv['id'],
-                    "date": mdiv['date'],
-                    "isin": isin,
-                    "name": name,
-                    "type": "Manual",
-                    "shares_held": shares,
+                    "id":               mdiv['id'],
+                    "date":             mdiv['date'],
+                    "isin":             isin,
+                    "name":             name,
+                    "type":             "Manual",
+                    "shares_held":      shares,
                     "amount_per_share": float(amount_per_share),
-                    "total_amount": float(total)
+                    "total_amount":     float(total)
                 })
 
-        # 2. Automatic Dividends
+        # 2. Automatic Dividends — runs for ALL ISINs; skip only the specific dates already covered by manual
         for isin in current_holdings:
-            if isin in manual_div_isins or isin.startswith('CASH_'): continue
-            if current_holdings[isin]['shares'] > 0:
-                first_date = self.df[self.df['isin'] == isin]['date'].min().strftime('%Y-%m-%d')
-                div_history = RealTime.get_dividend_history(isin, first_date)
-                
-                market_data = RealTime.get_market_data(isin)
-                name = market_data.get('name', isin)
-                
-                for date, amt in div_history.items():
-                    date_str = date.strftime('%Y-%m-%d')
-                    shares_at_time = int(self.get_shares_on_date(isin, date_str))
-                    if shares_at_time > 0:
-                        total = shares_at_time * amt
-                        dividends_list.append({
-                            "id": None,
-                            "date": date_str,
-                            "isin": isin,
-                            "name": name,
-                            "type": "Auto",
-                            "shares_held": shares_at_time,
-                            "amount_per_share": float(amt),
-                            "total_amount": float(total)
-                        })
-                        
+            if isin.startswith('CASH_') or current_holdings[isin]['shares'] <= 0:
+                continue
+            first_date   = self.df[self.df['isin'] == isin]['date'].min().strftime('%Y-%m-%d')
+            div_history  = RealTime.get_dividend_history(isin, first_date)
+            market_data  = RealTime.get_market_data(isin)
+            name         = market_data.get('name', isin)
+            blocked_dates = manual_dates_by_isin.get(isin, set())  # dates already covered by manual
+
+            for date, amt in div_history.items():
+                date_str = date.strftime('%Y-%m-%d')
+                if date_str in blocked_dates:
+                    continue  # manual entry wins for this date
+                shares_at_time = int(self.get_shares_on_date(isin, date_str))
+                if shares_at_time > 0:
+                    total = shares_at_time * amt
+                    dividends_list.append({
+                        "id":               None,
+                        "date":             date_str,
+                        "isin":             isin,
+                        "name":             name,
+                        "type":             "Auto",
+                        "shares_held":      shares_at_time,
+                        "amount_per_share": float(amt),
+                        "total_amount":     float(total)
+                    })
+
         dividends_list.sort(key=lambda x: x['date'], reverse=True)
         return dividends_list, manual_div_isins
 
@@ -766,81 +782,93 @@ class PortfolioEngine:
             total_market_value += (float(initial_shares or 0) * float(base_price or 0))
             total_cost_basis += (float(initial_shares or 0) * float(avg_cost or 0) * fx_rate)
 
-            # --- Hybrid Projection Logic ---
+            # ── Plan B: Hybrid Projection Logic ────────────────────────────────
+            # Step 1: Always build auto (yfinance) projection events first.
+            # Step 2: If the ISIN has manual history, supplement trailing_sum if needed
+            #         and overlay manual extrapolated events on top (manual wins per month).
             is_manual_projection = False
-            manual_growth_rate = 0.0
-            manual_freq_label = ''
+            manual_growth_rate   = 0.0
+            manual_freq_label    = ''
 
-            if trailing_sum == 0.0 and isin in manual_divs_by_isin:
-                # ── FALLBACK: extrapolate from manual dividend history ──
-                man_recs  = manual_divs_by_isin[isin]
-                man_dates  = [r['date']   for r in man_recs]
+            # ── STEP 1: yfinance standard path (always) ──────────────────────
+            one_year_ago_str = (today - timedelta(days=365)).strftime('%Y-%m-%d')
+            hist_divs = RealTime.get_dividend_history(isin, one_year_ago_str)
+
+            events = []
+            processed_historical_slots = set()
+
+            if next_date and next_amount is not None:
+                m_key = next_date[:7]
+                events.append({"date": next_date, "amount_per_share": float(next_amount), "type": "Official"})
+                processed_historical_slots.add(m_key)
+
+            if isinstance(hist_divs, pd.Series):
+                for date, amt in hist_divs.items():
+                    if amt is None: continue
+                    try:
+                        shifted_date = date + timedelta(days=365)
+                        m_key = shifted_date.strftime('%Y-%m')
+                        if shifted_date.date() > today.date() and m_key in projection_months and m_key not in processed_historical_slots:
+                            events.append({"date": shifted_date.strftime('%Y-%m-%d'), "amount_per_share": float(amt), "type": "Projected"})
+                    except:
+                        continue
+
+            # ── STEP 2: overlay manual dividend history (if any) ─────────────
+            if isin in manual_divs_by_isin:
+                man_recs    = manual_divs_by_isin[isin]
+                man_dates   = [r['date']   for r in man_recs]
                 man_amounts = [r['amount'] for r in man_recs]
 
-                # 1. Trailing 12-month sum (local currency)
-                one_yr_ago = today - timedelta(days=365)
-                recent_amts = [a for d, a in zip(man_dates, man_amounts) if d >= one_yr_ago]
-                trailing_sum = sum(recent_amts) if recent_amts else sum(man_amounts)
+                # 2a. Supplement trailing_sum from manual history if yfinance has none
+                if trailing_sum == 0.0:
+                    one_yr_ago  = today - timedelta(days=365)
+                    recent_amts = [a for d, a in zip(man_dates, man_amounts) if d >= one_yr_ago]
+                    trailing_sum = sum(recent_amts) if recent_amts else sum(man_amounts)
+                    net_trailing_sum = trailing_sum * (1 - tax_rate) * fx_rate  # recalc
 
-                # 2. Detect payment frequency from gaps
+                # 2b. Detect payment frequency from gaps between manual records
                 if len(man_dates) > 1:
-                    gaps = [(man_dates[i+1] - man_dates[i]).days for i in range(len(man_dates)-1)]
+                    gaps    = [(man_dates[i+1] - man_dates[i]).days for i in range(len(man_dates)-1)]
                     avg_gap = sum(gaps) / len(gaps)
                 else:
                     avg_gap = 365
 
-                if avg_gap <= 45:   freq_days, manual_freq_label = 30,  'Monthly'
-                elif avg_gap <= 120: freq_days, manual_freq_label = 91, 'Quarterly'
+                if avg_gap <= 45:    freq_days, manual_freq_label = 30,  'Monthly'
+                elif avg_gap <= 120: freq_days, manual_freq_label = 91,  'Quarterly'
                 elif avg_gap <= 250: freq_days, manual_freq_label = 182, 'Semi-Annual'
-                else:               freq_days, manual_freq_label = 365, 'Annual'
+                else:                freq_days, manual_freq_label = 365, 'Annual'
 
-                # 3. Average growth rate per period
+                # 2c. Average growth rate per manual period
                 n = len(man_amounts)
                 if n >= 2:
                     rates = [(man_amounts[i+1] - man_amounts[i]) / man_amounts[i]
                              for i in range(n - 1) if man_amounts[i] > 0]
                     manual_growth_rate = max(-0.5, min(0.5, sum(rates) / len(rates))) if rates else 0.0
 
-                # 4. Generate future events starting from last known date
-                events = []
+                # 2d. Extrapolate manual future events and build a month-keyed dict
+                manual_future_by_month = {}   # 'YYYY-MM' → event dict
                 curr_date = man_dates[-1] + timedelta(days=freq_days)
                 curr_amt  = man_amounts[-1] * (1 + manual_growth_rate)
                 while curr_date <= today + timedelta(days=365):
                     if curr_date > today:
-                        events.append({
-                            "date": curr_date.strftime('%Y-%m-%d'),
-                            "amount_per_share": curr_amt,
-                            "type": "Manual Extrapolation"
-                        })
+                        m_key = curr_date.strftime('%Y-%m')
+                        if m_key in projection_months:
+                            manual_future_by_month[m_key] = {
+                                "date":              curr_date.strftime('%Y-%m-%d'),
+                                "amount_per_share":  curr_amt,
+                                "type":              "Manual Extrapolation"
+                            }
                     curr_amt  *= (1 + manual_growth_rate)
                     curr_date += timedelta(days=freq_days)
 
+                # 2e. Merge: manual events override yfinance events month by month
+                if manual_future_by_month:
+                    # Convert existing auto events to a dict keyed by month
+                    events_by_month = {ev['date'][:7]: ev for ev in events}
+                    events_by_month.update(manual_future_by_month)  # manual wins same month
+                    events = list(events_by_month.values())
+
                 is_manual_projection = True
-                net_trailing_sum = trailing_sum * (1 - tax_rate) * fx_rate  # recalc with filled trailing_sum
-
-            else:
-                # ── STANDARD: build events from yfinance official + historical shift ──
-                one_year_ago_str = (today - timedelta(days=365)).strftime('%Y-%m-%d')
-                hist_divs = RealTime.get_dividend_history(isin, one_year_ago_str)
-
-                events = []
-                processed_historical_slots = set()
-
-                if next_date and next_amount is not None:
-                    m_key = next_date[:7]
-                    events.append({"date": next_date, "amount_per_share": float(next_amount), "type": "Official"})
-                    processed_historical_slots.add(m_key)
-
-                if isinstance(hist_divs, pd.Series):
-                    for date, amt in hist_divs.items():
-                        if amt is None: continue
-                        try:
-                            shifted_date = date + timedelta(days=365)
-                            m_key = shifted_date.strftime('%Y-%m')
-                            if shifted_date.date() > today.date() and m_key in projection_months and m_key not in processed_historical_slots:
-                                events.append({"date": shifted_date.strftime('%Y-%m-%d'), "amount_per_share": float(amt), "type": "Projected"})
-                        except:
-                            continue
 
             # Sort events chronologically to allow DRIP compounding
             events.sort(key=lambda x: x['date'])
@@ -894,7 +922,12 @@ class PortfolioEngine:
                 "next_date": next_date,
                 "projections": projected_individual,
                 # ── Projection source metadata for frontend display ──
-                "source": "manual_extrapolation" if is_manual_projection else ("yfinance" if trailing_sum > 0 else "none"),
+                # Plan B: 'hybrid' when both sources contribute; 'manual' when yfinance has zero data;
+                # 'auto' when only yfinance is used; 'none' when no dividend data at all.
+                "source": ("hybrid" if (is_manual_projection and trailing_sum > 0 and bool(hist_divs is not None and not (isinstance(hist_divs, pd.Series) and hist_divs.empty)))
+                           else ("manual" if is_manual_projection
+                           else ("auto"   if trailing_sum > 0
+                           else "none"))),
                 "manual_freq": manual_freq_label,
                 "manual_growth_pct": round(manual_growth_rate * 100, 2) if is_manual_projection else None
             })

@@ -4,7 +4,7 @@ import { HelpCircle } from 'lucide-react';
 const McDocModal = ({ showMcDoc, setShowMcDoc }) => {
   if (!showMcDoc) return null;
   return (
-        <div className="modal-overlay" onClick={() => setShowMcDoc(false)}>
+        <div className="modal-overlay">
           <div className="modal-content glass-card" style={{maxWidth: '900px', width: '90%', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column'}} onClick={e => e.stopPropagation()}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>

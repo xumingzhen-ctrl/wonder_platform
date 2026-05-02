@@ -10,11 +10,11 @@ const CompositionModal = ({
 }) => {
   if (!showCompModal) return null;
   return (
-        <div className="modal-overlay" onClick={() => setShowCompModal(false)}>
+        <div className="modal-overlay">
           <div className="glass-card modal-content" style={{maxWidth: '1000px'}} onClick={e => e.stopPropagation()}>
-            <h2 style={{marginTop: 0}}>Trading Manager (Asset Ledger)</h2>
+            <h2 style={{marginTop: 0}}>Transaction History</h2>
             <p style={{color: 'rgba(255,255,255,0.5)', marginBottom: '20px', fontSize: '0.85rem'}}>
-              Edit the exact Inception Date, Initial Shares, Average Cost, and Target Weight of each holding. These values override market data.
+              View and edit past transactions. Adjust dates, shares, and prices.
             </p>
             
             <div className="table-container" style={{maxHeight: '400px', overflowY: 'auto', marginBottom: '20px'}}>
@@ -26,8 +26,7 @@ const CompositionModal = ({
                     <th>ISIN</th>
                     <th>NAME</th>
                     <th>SHARES</th>
-                    <th title="Manual override. This locks your cost basis and won't be overwritten by daily sync.">AVG COST 🔒</th>
-                    <th>TARGET %</th>
+                    <th>PRICE</th>
                     <th>ACTIONS</th>
                   </tr>
                 </thead>
@@ -46,9 +45,22 @@ const CompositionModal = ({
                           />
                         </td>
                         <td>
-                          <span style={{padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', background: tx.type === 'BUY' ? 'rgba(16,185,129,0.2)' : (tx.type === 'CASH_IN' ? 'rgba(99,102,241,0.2)' : 'rgba(244,63,94,0.2)'), color: tx.type === 'BUY' ? '#10b981' : (tx.type === 'CASH_IN' ? '#818cf8' : '#f43f5e')}}>
-                            {tx.type}
-                          </span>
+                          <select
+                            value={edits.type !== undefined ? edits.type : tx.type}
+                            onChange={e => handleCompEdit(tx.id, 'type', e.target.value)}
+                            style={{
+                              background: (edits.type !== undefined ? edits.type : tx.type) === 'BUY' ? 'rgba(16,185,129,0.2)' : ((edits.type !== undefined ? edits.type : tx.type) === 'CASH_IN' ? 'rgba(99,102,241,0.2)' : 'rgba(244,63,94,0.2)'),
+                              color: (edits.type !== undefined ? edits.type : tx.type) === 'BUY' ? '#10b981' : ((edits.type !== undefined ? edits.type : tx.type) === 'CASH_IN' ? '#818cf8' : '#f43f5e'),
+                              border: '1px solid transparent', borderRadius: '12px', padding: '2px 8px', fontSize: '0.75rem', fontWeight: 600, outline: 'none', cursor: 'pointer',
+                              appearance: 'none', textAlign: 'center'
+                            }}
+                          >
+                            <option value="BUY" style={{background: '#1e293b', color: '#10b981'}}>BUY</option>
+                            <option value="SELL" style={{background: '#1e293b', color: '#f43f5e'}}>SELL</option>
+                            <option value="CASH_IN" style={{background: '#1e293b', color: '#818cf8'}}>CASH_IN</option>
+                            <option value="CASH_OUT" style={{background: '#1e293b', color: '#f43f5e'}}>CASH_OUT</option>
+                            <option value="DIV_CASH" style={{background: '#1e293b', color: '#10b981'}}>DIV_CASH</option>
+                          </select>
                         </td>
                         <td>
                           <input
@@ -76,15 +88,6 @@ const CompositionModal = ({
                           />
                         </td>
                         <td>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={edits.target_weight !== undefined ? edits.target_weight : (tx.target_weight || 0)}
-                            onChange={e => handleCompEdit(tx.id, 'target_weight', parseFloat(e.target.value))}
-                            style={{width: '70px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 8px', color: '#818cf8', fontSize: '0.85rem'}}
-                          />
-                        </td>
-                        <td>
                           <div style={{display: 'flex', gap: '6px'}}>
                             {isEdited && (
                               <button
@@ -104,31 +107,50 @@ const CompositionModal = ({
                     );
                   })}
                   {compTxs.length === 0 && (
-                    <tr><td colSpan="8" style={{textAlign: 'center', padding: '20px', color: '#64748b'}}>No transactions found.</td></tr>
+                    <tr><td colSpan="7" style={{textAlign: 'center', padding: '20px', color: '#64748b'}}>No transactions found.</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
 
-            {/* Add New Asset Row */}
+            {/* Add New Transaction Row */}
             <div style={{background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '12px', padding: '16px', marginBottom: '20px'}}>
-              <div style={{fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', color: '#818cf8'}}>+ Add New Asset</div>
+              <div style={{fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', color: '#818cf8'}}>+ Add Transaction</div>
               <div style={{display: 'flex', gap: '8px', alignItems: 'flex-end', flexWrap: 'wrap'}}>
-                <div style={{flex: 2}}>
-                  <label style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '4px'}}>ISIN / Ticker</label>
+                <div style={{flex: 1}}>
+                  <label style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '4px'}}>Date</label>
                   <input
-                    placeholder="VOO"
-                    value={compNewAsset.isin}
-                    onChange={e => setCompNewAsset({...compNewAsset, isin: e.target.value})}
+                    type="date"
+                    value={compNewAsset.date}
+                    onChange={e => setCompNewAsset({...compNewAsset, date: e.target.value})}
                     style={{width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 10px', color: '#fff'}}
                   />
                 </div>
                 <div style={{flex: 1}}>
-                  <label style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '4px'}}>Weight</label>
+                  <label style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '4px'}}>Type</label>
+                  <select
+                    value={compNewAsset.type}
+                    onChange={e => setCompNewAsset({...compNewAsset, type: e.target.value})}
+                    style={{
+                      width: '100%', 
+                      background: compNewAsset.type === 'BUY' ? 'rgba(16,185,129,0.2)' : (compNewAsset.type === 'CASH_IN' ? 'rgba(99,102,241,0.2)' : 'rgba(244,63,94,0.2)'),
+                      color: compNewAsset.type === 'BUY' ? '#10b981' : (compNewAsset.type === 'CASH_IN' ? '#818cf8' : '#f43f5e'),
+                      border: '1px solid transparent', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem', fontWeight: 600, outline: 'none', cursor: 'pointer'
+                    }}
+                  >
+                    <option value="BUY" style={{background: '#1e293b', color: '#10b981'}}>BUY</option>
+                    <option value="SELL" style={{background: '#1e293b', color: '#f43f5e'}}>SELL</option>
+                    <option value="CASH_IN" style={{background: '#1e293b', color: '#818cf8'}}>CASH_IN</option>
+                    <option value="CASH_OUT" style={{background: '#1e293b', color: '#f43f5e'}}>CASH_OUT</option>
+                    <option value="DIV_CASH" style={{background: '#1e293b', color: '#10b981'}}>DIV_CASH</option>
+                  </select>
+                </div>
+                <div style={{flex: 1.5}}>
+                  <label style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '4px'}}>ISIN / Ticker</label>
                   <input
-                    type="number" step="0.01" placeholder="0.3"
-                    value={compNewAsset.weight}
-                    onChange={e => setCompNewAsset({...compNewAsset, weight: parseFloat(e.target.value)})}
+                    placeholder="VOO / CASH_USD"
+                    value={compNewAsset.isin}
+                    onChange={e => setCompNewAsset({...compNewAsset, isin: e.target.value})}
                     style={{width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 10px', color: '#fff'}}
                   />
                 </div>
@@ -142,7 +164,7 @@ const CompositionModal = ({
                   />
                 </div>
                 <div style={{flex: 1}}>
-                  <label style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '4px'}}>Price</label>
+                  <label style={{fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '4px'}}>Price / Amt</label>
                   <input
                     type="number" step="0.01" placeholder="100.00"
                     value={compNewAsset.price}
@@ -167,3 +189,4 @@ const CompositionModal = ({
 };
 
 export default CompositionModal;
+

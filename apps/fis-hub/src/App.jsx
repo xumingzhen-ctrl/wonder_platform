@@ -174,6 +174,8 @@ function App() {
   const [showRebalanceModal, setShowRebalanceModal] = useState(false);
   const [rebalancePreview, setRebalancePreview] = useState(null);
   const [rebalanceDate, setRebalanceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [rebalanceDraftTargets, setRebalanceDraftTargets] = useState({}); // editable in modal Step 1
+
   const [activeSubTab, setActiveSubTab] = useState('performance'); // 'performance' or 'dividends'
   const [divProjData, setDivProjData] = useState(null);
   const [divLoading, setDivLoading] = useState(false);
@@ -191,7 +193,7 @@ function App() {
   const [compTxs, setCompTxs] = useState([]);
   const [compTargets, setCompTargets] = useState({});
   const [compEditing, setCompEditing] = useState({});
-  const [compNewAsset, setCompNewAsset] = useState({ isin: '', weight: 0, shares: 0, price: 0 });
+  const [compNewAsset, setCompNewAsset] = useState({ isin: '', type: 'BUY', shares: 0, price: 0, date: new Date().toISOString().split('T')[0] });
 
   // Strategy Lab State
   const [labIsins, setLabIsins] = useState(['VOO', 'QQQ', 'IE0033534557']);
@@ -365,13 +367,18 @@ function App() {
       let map = {};
       data.details.forEach(d => {
         if (d.isin.startsWith('CASH_')) return; // Skip cash for sector breakdown
-        if (typeof d.sector === 'object' && !Array.isArray(d.sector) && d.sector !== null) {
-          Object.entries(d.sector).forEach(([k, weight]) => {
+        let sectorObj = d.sector;
+        if (typeof sectorObj === 'string' && sectorObj.startsWith('{')) {
+          try { sectorObj = JSON.parse(sectorObj); } catch(e) {}
+        }
+        
+        if (typeof sectorObj === 'object' && !Array.isArray(sectorObj) && sectorObj !== null) {
+          Object.entries(sectorObj).forEach(([k, weight]) => {
             const name = String(k).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); // Format "consumer_cyclical" -> "Consumer Cyclical"
             map[name] = (map[name] || 0) + (Number(d.market_value) || 0) * (Number(weight) || 0);
           });
         } else {
-          const s = String(d.sector || 'Unknown');
+          const s = String(sectorObj || 'Unknown');
           map[s] = (map[s] || 0) + (Number(d.market_value) || 0);
         }
       });
@@ -392,7 +399,7 @@ function App() {
         .sort((a, b) => Number(b.market_value) - Number(a.market_value))
         .slice(0, 10)
         .map(d => ({
-          name: d.name && d.name.length > 20 ? d.name.substring(0, 18) + '…' : (d.name || d.isin),
+          name: d.name && d.name.length > 30 ? d.name.substring(0, 28) + '…' : (d.name || d.isin),
           fullName: d.name || d.isin,
           isin: d.isin,
           value: Number(d.market_value),
@@ -639,15 +646,41 @@ function App() {
     }
   };
 
+  // Step 1: Open modal and load current target_allocations into draft editor
   const handleRebalancePreview = async () => {
     if (!activeId) return;
+    try {
+      // Load current saved targets to pre-populate the editor
+      const txRes = await fetch(`/api/portfolios/transactions/${activeId}`, { headers: authHeaders() });
+      const txData = await txRes.json();
+      const savedTargets = txData.target_allocations || {};
+      setRebalanceDraftTargets(savedTargets);
+      setRebalancePreview(null); // reset preview so modal starts on Step 1
+      setShowRebalanceModal(true);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Step 2: Save new targets to DB, then fetch fresh preview
+  const handleRebalanceSaveAndCalc = async (draftTargets) => {
+    if (!activeId) return;
+    // 1. Persist the edited targets
+    await fetch(`/api/portfolios/${activeId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ target_allocations: draftTargets })
+    });
+    // 2. Fetch the preview with updated targets
     const params = new URLSearchParams();
     if (rebalanceDate) params.set('as_of_date', rebalanceDate);
     const res = await fetch(`/api/portfolios/rebalance/preview/${activeId}?${params}`);
     const json = await res.json();
     setRebalancePreview(json);
-    setShowRebalanceModal(true);
+    // Also sync compTargets so composition modal stays consistent
+    setCompTargets(draftTargets);
   };
+
 
   const handleRebalanceExecute = async () => {
     setLoading(true);
@@ -741,7 +774,7 @@ function App() {
       setCompTxs(result.transactions || []);
       setCompTargets(result.target_allocations || {});
       setCompEditing({});
-      setCompNewAsset({ isin: '', weight: 0, shares: 0, price: 0 });
+      setCompNewAsset({ isin: '', type: 'BUY', shares: 0, price: 0, date: new Date().toISOString().split('T')[0] });
       setShowCompModal(true);
     } catch (err) {
       console.error(err);
@@ -773,17 +806,7 @@ function App() {
           body: JSON.stringify(txUpdate)
         });
       }
-      // Save target weight changes
-      if (edits.target_weight !== undefined) {
-        const tx = compTxs.find(t => t.id === txId);
-        const isin = edits.isin || tx.isin;
-        const newTargets = { ...compTargets, [isin]: parseFloat(edits.target_weight) };
-        await fetch(`/api/portfolios/${activeId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ target_allocations: newTargets })
-        });
-      }
+      // Target weight updating logic has been removed as it's now handled by RebalanceModal
       // Refresh
       handleOpenCompModal();
       const repRes = await fetch(`/api/report/${activeId}`);
@@ -1432,8 +1455,13 @@ function App() {
       />
       <RebalanceModal
         showRebalanceModal={showRebalanceModal} setShowRebalanceModal={setShowRebalanceModal}
-        rebalancePreview={rebalancePreview} rebalanceDate={rebalanceDate} setRebalanceDate={setRebalanceDate}
-        handleRebalancePreview={handleRebalancePreview} handleRebalanceExecute={handleRebalanceExecute}
+        rebalancePreview={rebalancePreview} setRebalancePreview={setRebalancePreview}
+        rebalanceDate={rebalanceDate} setRebalanceDate={setRebalanceDate}
+        rebalanceDraftTargets={rebalanceDraftTargets} setRebalanceDraftTargets={setRebalanceDraftTargets}
+        handleRebalanceSaveAndCalc={handleRebalanceSaveAndCalc}
+        handleRebalanceExecute={handleRebalanceExecute}
+        portfolioId={activeId}
+        authHeaders={authHeaders}
       />
       <ManageDivModal
         showManageDivModal={showManageDivModal} setShowManageDivModal={setShowManageDivModal}

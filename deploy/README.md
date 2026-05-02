@@ -174,6 +174,36 @@ crontab -e
 
 ---
 
+## ☁️ 云端同步与数据迁移 (Cloud Sync)
+
+如果您需要将备份的数据库同步到云端（如阿里云 OSS、Google Drive 等），建议使用以下工具：
+
+### 方案 A：使用阿里云 OSS (推荐)
+适用于阿里云内网环境，速度快且流量费用低。
+
+1. **下载并配置 ossutil**:
+   ```bash
+   wget https://gosspublic.alicdn.com/ossutil/install.sh && sudo bash install.sh
+   ossutil config # 输入 AccessKey, Endpoint (oss-cn-hongkong.aliyuncs.com)
+   ```
+2. **手动同步备份文件夹**:
+   ```bash
+   # 将本地备份目录同步到 OSS Bucket
+   ossutil cp -r /www/wonder_platform/data/backups oss://your-bucket-name/backups/
+   ```
+
+### 方案 B：使用 Rclone (通用型)
+支持 Google Drive, OneDrive, S3, Dropbox 等。
+
+1. **安装 rclone**: `sudo apt install rclone`
+2. **配置远程端**: `rclone config` (按照提示添加一个名为 `remote` 的配置)
+3. **手动同步**:
+   ```bash
+   # 同步本地备份到远程云盘
+   rclone sync /www/wonder_platform/data/backups remote:wonder_platform_backups
+   ```
+
+
 ## 🔑 安全提醒
 
 - `backend/.env` 已在 `.gitignore` 中，**切勿提交到 GitHub**

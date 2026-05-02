@@ -146,13 +146,14 @@ class UpdatePortfolioRequest(BaseModel):
 
 class UpdateTransactionRequest(BaseModel):
     isin: Optional[str] = None
+    type: Optional[str] = None
     shares: Optional[float] = None
     price: Optional[float] = None
     date: Optional[str] = None
 
-class AddAssetRequest(BaseModel):
+class AddTransactionRequest(BaseModel):
     isin: str
-    weight: float
+    type: str = "BUY"
     shares: float
     price: float
     date: Optional[str] = None
@@ -609,6 +610,9 @@ def update_transaction(tx_id: int, req: UpdateTransactionRequest, user: dict = D
     if req.isin is not None:
         updates.append("isin = ?")
         params.append(req.isin)
+    if req.type is not None:
+        updates.append("type = ?")
+        params.append(req.type)
     if req.shares is not None:
         updates.append("shares = ?")
         params.append(req.shares)
@@ -626,24 +630,24 @@ def update_transaction(tx_id: int, req: UpdateTransactionRequest, user: dict = D
     return {"status": "success"}
 
 @router.post("/portfolios/transactions/{portfolio_id}")
-def add_transaction(portfolio_id: int, req: AddAssetRequest, user: dict = Depends(get_current_user)):
-    """Add a new asset (BUY transaction) to an existing portfolio."""
+def add_transaction(portfolio_id: int, req: AddTransactionRequest, user: dict = Depends(get_current_user)):
+    """Add a new transaction (BUY/SELL/CASH_IN/etc) to an existing portfolio."""
     assert_portfolio_access(portfolio_id, user)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     date_str = req.date or datetime.now().strftime("%Y-%m-%d")
     cursor.execute(
-        "INSERT INTO transactions (portfolio_id, date, isin, type, shares, price) VALUES (?, ?, ?, 'BUY', ?, ?)",
-        (portfolio_id, date_str, req.isin, req.shares, req.price)
+        "INSERT INTO transactions (portfolio_id, date, isin, type, shares, price) VALUES (?, ?, ?, ?, ?, ?)",
+        (portfolio_id, date_str, req.isin, req.type.upper(), req.shares, req.price)
     )
-    # Update target_allocations
-    cursor.execute("SELECT target_allocations FROM portfolios WHERE id = ?", (portfolio_id,))
-    row = cursor.fetchone()
-    ta = json.loads(row[0]) if row and row[0] else {}
-    ta[req.isin] = req.weight
-    cursor.execute("UPDATE portfolios SET target_allocations = ? WHERE id = ?", (json.dumps(ta), portfolio_id))
     conn.commit()
     conn.close()
+    
+    # Reload engine to ensure consistency (FX sweeps etc.)
+    engine = PortfolioEngine(portfolio_id)
+    engine.load_transactions()
+    engine._auto_fx_sweep(date_str)
+    
     return {"status": "success"}
 
 @router.delete("/portfolios/transactions/{tx_id}")
@@ -699,6 +703,77 @@ def reorder_portfolios(req: ReorderPortfoliosRequest, user: dict = Depends(get_c
 
 class RebalanceExecuteRequest(BaseModel):
     as_of_date: Optional[str] = None  # ISO date e.g. '2024-01-01'; None = today
+
+@router.get("/portfolios/current_weights/{id}")
+def get_current_weights(id: int, as_of_date: Optional[str] = None):
+    """
+    Return each holding's current weight (%) at the given date (or today).
+    Used by the Rebalance modal Step-1 to show live weights before editing targets.
+    Response: { weights: [{isin, name, shares, price, currency, market_value_usd, weight_pct}],
+                total_nav_usd, as_of_date }
+    """
+    try:
+        engine = PortfolioEngine(id)
+        base_ccy = getattr(engine, 'base_currency', 'USD')
+
+        def get_price(isin):
+            if as_of_date:
+                p = RealTime.get_historical_price(isin, as_of_date)
+                if p and p > 0:
+                    return p
+            md = RealTime.get_market_data(isin)
+            return md.get('price', 0)
+
+        snap_df = engine.df
+        if as_of_date:
+            snap_df = snap_df[snap_df['date'].dt.strftime('%Y-%m-%d') <= as_of_date]
+
+        # Build share snapshot
+        shares_map = {}
+        for _, row in snap_df.iterrows():
+            isin = row['isin']
+            q = float(row['shares'])
+            t = row['type'].upper()
+            if t == 'BUY' and not isin.startswith('CASH_'):
+                shares_map[isin] = shares_map.get(isin, 0) + int(q)
+            elif t == 'SELL' and not isin.startswith('CASH_'):
+                shares_map[isin] = shares_map.get(isin, 0) - int(q)
+
+        # Compute market values
+        rows = []
+        total_usd = 0.0
+        for isin, shares in shares_map.items():
+            if shares <= 0:
+                continue
+            price = get_price(isin)
+            if price <= 0:
+                continue
+            currency = RealTime.guess_currency_from_isin(isin)
+            fx = RealTime.get_fx_rate(currency, 'USD') if currency != 'USD' else 1.0
+            mv_usd = shares * price * fx
+            md = RealTime.get_market_data(isin) if not as_of_date else {}
+            rows.append({
+                'isin': isin,
+                'name': md.get('name', isin),
+                'shares': shares,
+                'price': round(price, 4),
+                'currency': currency,
+                'market_value_usd': round(mv_usd, 2),
+            })
+            total_usd += mv_usd
+
+        # Attach weight %
+        for r in rows:
+            r['weight_pct'] = round(r['market_value_usd'] / total_usd * 100, 2) if total_usd > 0 else 0
+
+        rows.sort(key=lambda x: x['market_value_usd'], reverse=True)
+        return {
+            'weights': rows,
+            'total_nav_usd': round(total_usd, 2),
+            'as_of_date': as_of_date or datetime.now().strftime('%Y-%m-%d'),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/portfolios/rebalance/preview/{id}")
 def get_rebalance_preview(id: int, as_of_date: Optional[str] = None):

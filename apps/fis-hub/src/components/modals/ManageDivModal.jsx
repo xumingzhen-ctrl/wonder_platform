@@ -6,7 +6,7 @@ const ManageDivModal = ({
 }) => {
   if (!showManageDivModal) return null;
   return (
-        <div className="modal-overlay" onClick={() => setShowManageDivModal(false)}>
+        <div className="modal-overlay">
           <div className="glass-card modal-content" style={{maxWidth: '800px'}} onClick={e => e.stopPropagation()}>
             <h2 style={{marginTop: 0}}>Manage Dividends</h2>
             <div className="table-container" style={{maxHeight: '400px', overflowY: 'auto'}}>
