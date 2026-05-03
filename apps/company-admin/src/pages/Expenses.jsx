@@ -36,6 +36,16 @@ function fmtAmt(amount, currency) {
   return `${currency || ''} ${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+function calculateFiscalYear(dateStr) {
+  if (!dateStr) return ''
+  const parts = dateStr.split('-')
+  if (parts.length < 2) return ''
+  const year = parseInt(parts[0])
+  const month = parseInt(parts[1])
+  const startYear = month >= 4 ? year : year - 1
+  return `${startYear}-${(startYear + 1).toString().slice(-2)}`
+}
+
 // ── 主页面组件 ────────────────────────────────────────────────────────────
 export default function ExpensesPage() {
   const { currentCompany } = useApp()
@@ -642,6 +652,22 @@ function ReviewModal({ expense, categories, onConfirm, onReject, onDelete, onClo
     fiscal_year: expense.fiscal_year || '',
   })
 
+  const currentYear = new Date().getFullYear()
+  const yearOptions = []
+  for (let i = currentYear - 4; i <= currentYear + 1; i++) {
+    yearOptions.push(`${i}-${(i + 1).toString().slice(-2)}`)
+  }
+  if (form.fiscal_year && !yearOptions.includes(form.fiscal_year)) {
+    yearOptions.push(form.fiscal_year)
+  }
+  yearOptions.sort().reverse()
+
+  const handleDateChange = (e) => {
+    const val = e.target.value
+    const calculated = calculateFiscalYear(val)
+    setForm(f => ({ ...f, receipt_date: val, fiscal_year: calculated }))
+  }
+
   const imageUrl = expensesApi.receiptImageUrl(expense.receipt_image_path)
   const status = expense.status?.replace('ExpenseStatus.', '') || expense.status
   const isPending = status === 'pending'
@@ -769,7 +795,7 @@ function ReviewModal({ expense, categories, onConfirm, onReject, onDelete, onClo
                   <div className="form-row">
                     <div className="form-group">
                       <label className="form-label">收据日期</label>
-                      <input type="date" className="form-input" value={form.receipt_date} onChange={e => setForm(f => ({ ...f, receipt_date: e.target.value }))} id="edit-date" />
+                      <input type="date" className="form-input" value={form.receipt_date} onChange={handleDateChange} id="edit-date" />
                     </div>
                     <div className="form-group">
                       <label className="form-label">货币</label>
@@ -780,7 +806,10 @@ function ReviewModal({ expense, categories, onConfirm, onReject, onDelete, onClo
                   </div>
                   <div className="form-group">
                     <label className="form-label">财政年度</label>
-                    <input className="form-input" value={form.fiscal_year} onChange={e => setForm(f => ({ ...f, fiscal_year: e.target.value }))} id="edit-fiscal-year" placeholder="如：2023-24" />
+                    <select className="form-select" value={form.fiscal_year} onChange={e => setForm(f => ({ ...f, fiscal_year: e.target.value }))} id="edit-fiscal-year">
+                      <option value="">— 选择财年 —</option>
+                      {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
                   </div>
                   <div className="form-group">
                     <label className="form-label">含税总金额</label>
