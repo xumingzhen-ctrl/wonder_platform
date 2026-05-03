@@ -341,6 +341,21 @@ export default function ExpensesPage() {
         >
           💸 薪資 / MPF 凭證
         </button>
+        <button
+          id="filter-no-fiscal-year"
+          onClick={() => { setFilters({ status: '', fiscal_year: 'none', category_code: '' }); setPage(1); }}
+          style={{
+            background: filters.fiscal_year === 'none'
+              ? '#EF4444' : 'var(--color-surface)',
+            color: filters.fiscal_year === 'none'
+              ? '#fff' : 'var(--color-text-primary)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 20, padding: '4px 14px', fontSize: 12, cursor: 'pointer',
+            fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 5,
+          }}
+        >
+          📅 未设定财务年度
+        </button>
         {(filters.category_code !== '' || filters.fiscal_year !== '' || filters.status !== 'pending') && (
           <button
             onClick={clearFilters}
@@ -624,6 +639,7 @@ function ReviewModal({ expense, categories, onConfirm, onReject, onDelete, onClo
     total_amount: expense.total_amount || '',
     category_code: expense.category?.code || '',
     notes: expense.notes || '',
+    fiscal_year: expense.fiscal_year || '',
   })
 
   const imageUrl = expensesApi.receiptImageUrl(expense.receipt_image_path)
@@ -761,6 +777,10 @@ function ReviewModal({ expense, categories, onConfirm, onReject, onDelete, onClo
                         {['HKD', 'CNY', 'USD', 'EUR', 'GBP', 'JPY', 'SGD', 'AUD'].map(c => <option key={c}>{c}</option>)}
                       </select>
                     </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">财政年度</label>
+                    <input className="form-input" value={form.fiscal_year} onChange={e => setForm(f => ({ ...f, fiscal_year: e.target.value }))} id="edit-fiscal-year" placeholder="如：2023-24" />
                   </div>
                   <div className="form-group">
                     <label className="form-label">含税总金额</label>

@@ -326,7 +326,10 @@ def list_expenses(
     query = db.query(Expense).filter(Expense.company_id == company_id)
 
     if fiscal_year:
-        query = query.filter(Expense.fiscal_year == fiscal_year)
+        if fiscal_year == "none":
+            query = query.filter(Expense.fiscal_year.is_(None))
+        else:
+            query = query.filter(Expense.fiscal_year == fiscal_year)
     if status:
         query = query.filter(Expense.status == status)
     if receipt_type:
@@ -614,6 +617,7 @@ def update_expense(
     total_amount: Optional[float] = Form(None),
     category_code: Optional[str] = Form(None),
     notes: Optional[str] = Form(None),
+    fiscal_year: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -643,6 +647,8 @@ def update_expense(
 
     if notes is not None:
         expense.notes = notes
+    if fiscal_year is not None:
+        expense.fiscal_year = fiscal_year if fiscal_year else None
     if category_code:
         cat = db.query(ExpenseCategory).filter(ExpenseCategory.code == category_code).first()
         if cat:
