@@ -124,6 +124,10 @@ export default function ExpensesPage() {
 
   // ── Inbox 扫描 ────────────────────────────────────────────────────────
   async function handleScanInbox() {
+    if (!currentCompany?.id) {
+      alert('操作失败：未识别到当前公司，请尝试刷新页面或重新选择公司')
+      return
+    }
     setScanning(true)
     try {
       const res = await expensesApi.scanInbox(currentCompany.id)
@@ -139,6 +143,10 @@ export default function ExpensesPage() {
   // ── 上传 ─────────────────────────────────────────────────────────────
   async function handleUpload() {
     if (!uploadFiles.length) return
+    if (!currentCompany?.id) {
+      alert('上传失败：未识别到当前公司，请尝试刷新页面或重新选择公司')
+      return
+    }
     setUploading(true)
     setUploadResults(null)
     try {
@@ -243,6 +251,7 @@ export default function ExpensesPage() {
                   label="导出 Excel (.xlsx)"
                   hint="含格式、色标、汇总行"
                   onClick={() => {
+                    if (!currentCompany?.id) return alert('导出失败：请先选择公司')
                     const url = expensesApi.exportUrl(currentCompany.id, 'excel', filters)
                     const a = document.createElement('a')
                     a.href = url
@@ -259,6 +268,7 @@ export default function ExpensesPage() {
                   label="导出 CSV (.csv)"
                   hint="通用格式，适合导入其他系统"
                   onClick={() => {
+                    if (!currentCompany?.id) return alert('导出失败：请先选择公司')
                     const url = expensesApi.exportUrl(currentCompany.id, 'csv', filters)
                     const a = document.createElement('a')
                     a.href = url
