@@ -132,10 +132,10 @@ export function applyILPToMCChart(mcChart, ilpConfig) {
   const enrollmentBonus = totalPremium * bonusRate;
   const effectivePrincipal = totalPremium + enrollmentBonus;
 
-  // ── Step 2: MC 基准 ──────────────────────────────────────────────────────
-  const mc0_p50 = mcChart[0]?.p50 || 1;
-  const mc0_p10 = mcChart[0]?.p10 || 1;
-  const mc0_p90 = mcChart[0]?.p90 || 1;
+  // ── Step 2: MC 基准（防止 null/0 导致除法产生 NaN）────────────────────────
+  const mc0_p50 = (mcChart[0]?.p50 != null && mcChart[0].p50 > 0) ? mcChart[0].p50 : 1;
+  const mc0_p10 = (mcChart[0]?.p10 != null && mcChart[0].p10 > 0) ? mcChart[0].p10 : 1;
+  const mc0_p90 = (mcChart[0]?.p90 != null && mcChart[0].p90 > 0) ? mcChart[0].p90 : 1;
 
   // ── Step 3: 累积折扣系数（三条曲线各自独立追踪）────────────────────────────
   // net_value[t] = gross_value[t] × cumulativeDiscount[t]
@@ -151,9 +151,14 @@ export function applyILPToMCChart(mcChart, ilpConfig) {
   const annualBreakdown = [];
 
   const newChart = mcChart.map((d, yearIdx) => {
-    const growthFactor_p50 = d.p50 / mc0_p50;
-    const growthFactor_p10 = d.p10 / mc0_p10;
-    const growthFactor_p90 = d.p90 / mc0_p90;
+    // 防护：p50/p10/p90 可能为 null（后端用 null 替换 NaN），安全地回退到上一年值或 1
+    const safe_p50 = (d.p50 != null && isFinite(d.p50)) ? d.p50 : mc0_p50;
+    const safe_p10 = (d.p10 != null && isFinite(d.p10)) ? d.p10 : mc0_p10;
+    const safe_p90 = (d.p90 != null && isFinite(d.p90)) ? d.p90 : mc0_p90;
+
+    const growthFactor_p50 = safe_p50 / mc0_p50;
+    const growthFactor_p10 = safe_p10 / mc0_p10;
+    const growthFactor_p90 = safe_p90 / mc0_p90;
 
     const ilp_gross_p50 = effectivePrincipal * growthFactor_p50;
     const ilp_gross_p10 = effectivePrincipal * growthFactor_p10;
@@ -180,12 +185,17 @@ export function applyILPToMCChart(mcChart, ilpConfig) {
       const month = monthStart + m;
       const t = (m + 0.5) / 12;  // 月中点（更准确的月内插值）
 
-      const prevGrowth_p50 = mcChart[yearIdx - 1].p50 / mc0_p50;
-      const currGrowth_p50 = d.p50 / mc0_p50;
-      const prevGrowth_p10 = mcChart[yearIdx - 1].p10 / mc0_p10;
-      const currGrowth_p10 = d.p10 / mc0_p10;
-      const prevGrowth_p90 = mcChart[yearIdx - 1].p90 / mc0_p90;
-      const currGrowth_p90 = d.p90 / mc0_p90;
+      const prev = mcChart[yearIdx - 1];
+      const prevSafe_p50 = (prev.p50 != null && isFinite(prev.p50)) ? prev.p50 : mc0_p50;
+      const prevSafe_p10 = (prev.p10 != null && isFinite(prev.p10)) ? prev.p10 : mc0_p10;
+      const prevSafe_p90 = (prev.p90 != null && isFinite(prev.p90)) ? prev.p90 : mc0_p90;
+
+      const prevGrowth_p50 = prevSafe_p50 / mc0_p50;
+      const currGrowth_p50 = safe_p50 / mc0_p50;
+      const prevGrowth_p10 = prevSafe_p10 / mc0_p10;
+      const currGrowth_p10 = safe_p10 / mc0_p10;
+      const prevGrowth_p90 = prevSafe_p90 / mc0_p90;
+      const currGrowth_p90 = safe_p90 / mc0_p90;
 
       // 月中 ILP 账户价值（用于 COI 和费率计算）
       const monthAV_p50 = Math.max(0, effectivePrincipal * (prevGrowth_p50 + (currGrowth_p50 - prevGrowth_p50) * t));

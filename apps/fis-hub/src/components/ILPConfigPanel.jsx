@@ -182,8 +182,8 @@ const ILPConfigPanel = ({
     };
   }, [config, initialCapital]);
 
-  const fmt = (v) => '$' + Math.round(v).toLocaleString();
-  const fmtPct = (v) => v.toFixed(2) + '%';
+  const fmt = (v) => '$' + Math.round(isFinite(v) ? v : 0).toLocaleString();
+  const fmtPct = (v) => (isFinite(v) ? v : 0).toFixed(2) + '%';
 
   return (
     <div style={{
