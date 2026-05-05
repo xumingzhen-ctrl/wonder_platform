@@ -250,44 +250,27 @@ function App() {
   });
   const [ilpEnrollmentModalOpen, setIlpEnrollmentModalOpen] = useState(false);
 
-  // ── ILP ↔ MC 双向联动 ─────────────────────────────────────────────────────
+  // ── ILP ↔ MC 单向同步（防止循环触发 React Error #185） ─────────────────
   // 规则：ILP 是整付保费产品，保费 = Initial Capital，Annual Add = 0
+  //
+  // 设计原则：
+  //   - 唯一数据流：capital → ILP保费（只在 capital 变化时同步保费，不反向）
+  //   - 避免循环：不在 ilpConfig.totalPremium 变化时反写 capital
+  //   - 用户直接修改保费时（在 ILPConfigPanel），仅更新 ilpConfig，不回写 capital
+  //     （capital 是 MC 参数，保费跟随 capital，而非 capital 跟随保费）
 
-  // 1. 开启 ILP 时：capital → 保费，强制 contribution = 0
+  // Effect 1: ILP 开启时 / capital 改变时 → 同步保费，强制 contribution=0
   useEffect(() => {
     if (!ilpEnabled) return;
     const capital = parseFloat(labMcSettings.capital) || 0;
-    setIlpConfig(prev => ({
-      ...prev,
-      totalPremium: capital,
-    }));
+    setIlpConfig(prev => {
+      if (prev.totalPremium === capital) return prev; // 值不变则不更新，避免触发 Effect 2
+      return { ...prev, totalPremium: capital };
+    });
     setLabMcSettings(prev =>
       prev.contribution !== 0 ? { ...prev, contribution: 0 } : prev
     );
-  }, [ilpEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 2. ILP 启用状态下，capital 改变 → 同步到保费
-  useEffect(() => {
-    if (!ilpEnabled) return;
-    const capital = parseFloat(labMcSettings.capital) || 0;
-    setIlpConfig(prev =>
-      prev.totalPremium !== capital ? { ...prev, totalPremium: capital } : prev
-    );
-    // 同时确保 contribution 保持 0
-    setLabMcSettings(prev =>
-      prev.contribution !== 0 ? { ...prev, contribution: 0 } : prev
-    );
-  }, [labMcSettings.capital, ilpEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 3. ILP 启用状态下，保费改变 → 同步到 capital
-  useEffect(() => {
-    if (!ilpEnabled) return;
-    const premium = parseFloat(ilpConfig.totalPremium) || 0;
-    if (premium <= 0) return;
-    setLabMcSettings(prev =>
-      prev.capital !== premium ? { ...prev, capital: premium, contribution: 0 } : prev
-    );
-  }, [ilpConfig.totalPremium, ilpEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ilpEnabled, labMcSettings.capital]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
 
