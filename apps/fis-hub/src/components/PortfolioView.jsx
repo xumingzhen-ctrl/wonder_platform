@@ -43,6 +43,7 @@ const PortfolioView = ({
 
   // ── ILP 应用至历史 NAV ───────────────────────────────────────────────────
   const [applyIlpToChart, setApplyIlpToChart] = useState(false);
+  const [isLogScale, setIsLogScale] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const ilpHistoryData = useMemo(() => {
@@ -263,6 +264,21 @@ const PortfolioView = ({
                   <div className="stat-label" style={{fontSize: '1.2rem', color: '#fff'}}>{t('portfolio.performanceOverTime')}</div>
                   <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                     {historyData.length === 0 && <div style={{fontSize: '0.85rem', color: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>{t('portfolio.syncingData')}</div>}
+                    {historyData.length > 0 && (
+                      <button
+                        onClick={() => setIsLogScale(v => !v)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '6px',
+                          padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem',
+                          fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                          background: isLogScale ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${isLogScale ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.12)'}`,
+                          color: isLogScale ? '#818cf8' : 'rgba(255,255,255,0.55)',
+                        }}
+                      >
+                        📈 {isLogScale ? 'Log Scale' : 'Linear Scale'}
+                      </button>
+                    )}
                     {ilpEnabled && ilpConfig?.totalPremium > 0 && historyData.length > 0 && (
                       <button
                         onClick={() => setApplyIlpToChart(v => !v)}
@@ -299,6 +315,7 @@ const PortfolioView = ({
                           <XAxis dataKey="date" stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
                             tickFormatter={(val) => val ? String(val).substring(0, 7) : ''} minTickGap={40} />
                           <YAxis stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
+                            scale={isLogScale ? 'log' : 'auto'} domain={isLogScale ? ['auto', 'auto'] : [0, 'auto']}
                             tickFormatter={(val) => fmtAxis(Number(val), 1, data.base_currency || 'USD')} width={65} />
                           <Tooltip
                             content={({ active, payload, label }) => {
@@ -341,7 +358,7 @@ const PortfolioView = ({
                           <XAxis dataKey="date" stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
                             tickFormatter={(val) => val ? String(val).substring(0, 7) : ''} minTickGap={40} />
                           <YAxis
-                            domain={([dataMin, dataMax]) => {
+                            domain={isLogScale ? ['auto', 'auto'] : ([dataMin, dataMax]) => {
                               if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1000];
                               if (dataMin === dataMax) {
                                 if (dataMin === 0) return [0, 1000];
@@ -350,6 +367,7 @@ const PortfolioView = ({
                               }
                               return [dataMin, dataMax];
                             }}
+                            scale={isLogScale ? 'log' : 'auto'}
                             stroke="rgba(255,255,255,0.1)" tick={{fill: '#9ca3af', fontSize: 11}}
                             tickFormatter={(val) => fmtAxis(Number(val), 1, data.base_currency || 'USD')} width={60}
                           />
