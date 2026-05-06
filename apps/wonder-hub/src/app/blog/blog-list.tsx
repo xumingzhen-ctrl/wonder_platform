@@ -149,7 +149,7 @@ function NewsletterCard({
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full border bg-amber-50 text-amber-700 border-amber-200">
             客户通讯
           </span>
-          <span className="text-xs text-muted-foreground">{post.date}</span>
+          <span className="text-xs text-muted-foreground">{String(post.date)}</span>
           <span className={cn(
             "ml-auto text-xs font-medium px-2 py-0.5 rounded-full",
             hasAccess
@@ -234,7 +234,7 @@ function ArticleCard({ post }: { post: BlogPostMeta }) {
           <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full border", styleClass)}>
             {post.category}
           </span>
-          <span className="text-xs text-muted-foreground">{post.date}</span>
+          <span className="text-xs text-muted-foreground">{String(post.date)}</span>
         </div>
         <h3 className="text-lg font-semibold text-card-foreground mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
           {post.title}
