@@ -7,7 +7,8 @@
     "build": "NODE_OPTIONS='--max-old-space-size=2048' next build",
     "start": "next start",
     "lint": "eslint",
-    "convert": "node scripts/convert-docx.mjs"
+    "convert": "node scripts/convert-docx.mjs",
+    "publish:md": "node scripts/publish-md.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",

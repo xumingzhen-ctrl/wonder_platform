@@ -187,7 +187,7 @@ export default async function BlogPost({
           <span className="h-1.5 w-1.5 rounded-full bg-primary inline-block" />
           {post.author}
         </span>
-        <span>{post.date.replace(/-/g, " · ")}</span>
+        <span>{String(post.date).replace(/-/g, " · ")}</span>
         <span>预计阅读 {post.readingTime} 分钟</span>
       </div>
     </header>
