@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Briefcase, Activity, Plus, Trash2, Users, UserCheck, GripVertical, Link } from 'lucide-react';
+import { Briefcase, Activity, Plus, Trash2, Users, UserCheck, GripVertical, Link, BookOpen } from 'lucide-react';
 import ILPSettingsModal from './ILPSettingsModal';
 import { useLang } from '../i18n/LangContext';
 
@@ -276,9 +276,26 @@ const Sidebar = ({
           ))}
         </nav>
       )}
-      {/* ── ILP 设置入口（左侧边栏底部）── */}
+      {/* ── 底部按钮组（操作手册 + ILP 设置）── */}
       {currentUser && (
-        <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ position: 'sticky', bottom: 0, paddingTop: '12px', paddingBottom: '4px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(10px)', marginTop: 'auto' }}>
+          <button
+            onClick={() => setActiveTab('help')}
+            style={{
+              width: '100%', padding: '9px 12px',
+              background: activeTab === 'help' ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.06)',
+              border: `1px solid ${activeTab === 'help' ? 'rgba(16,185,129,0.4)' : 'rgba(16,185,129,0.12)'}`,
+              borderRadius: '9px', color: activeTab === 'help' ? '#34d399' : 'rgba(255,255,255,0.6)',
+              cursor: 'pointer', fontSize: '0.8rem', fontWeight: activeTab === 'help' ? 700 : 500,
+              display: 'flex', alignItems: 'center', gap: '7px',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { if (activeTab !== 'help') { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; e.currentTarget.style.color = '#34d399'; }}}
+            onMouseLeave={e => { if (activeTab !== 'help') { e.currentTarget.style.background = 'rgba(16,185,129,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}}
+          >
+            <BookOpen size={13} />
+            <span>{t('sidebar.helpManual')}</span>
+          </button>
           <button
             onClick={() => setIlpModalOpen(true)}
             style={{
@@ -294,7 +311,7 @@ const Sidebar = ({
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
           >
             <Link size={13} />
-          <span>{t('sidebar.ilpSettings')}</span>
+            <span>{t('sidebar.ilpSettings')}</span>
           </button>
         </div>
       )}

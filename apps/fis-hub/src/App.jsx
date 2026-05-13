@@ -20,6 +20,7 @@ import { authStorage, authHeaders } from './utils/auth';
 import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
 import AdvisorClientsPanel from './components/AdvisorClientsPanel';
+import HelpManualView from './components/HelpManualView';
 import FeatureLock from './components/FeatureLock';
 import ImmigrationShowcase from './components/ImmigrationShowcase';
 
@@ -1344,7 +1345,9 @@ function App() {
 
       {/* Main Content */}
       <main className="dashboard-container">
-        {activeTab === 'admin' ? (
+        {activeTab === 'help' ? (
+          <HelpManualView />
+        ) : activeTab === 'admin' ? (
           <AdminPanel currentUser={currentUser} />
         ) : activeTab === 'advisor' ? (
           <AdvisorClientsPanel 

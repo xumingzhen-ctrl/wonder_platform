@@ -52,8 +52,13 @@ body {
   height: calc(100vh - 3.25rem);
   overflow-y: auto;
   z-index: 900;
-  /* Allow scrolling for sidebar items */
+  /* Ensure bottom buttons stay visible by allowing the entire sidebar to scroll */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
 }
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
 
 .sidebar-logo {
   font-size: 1.5rem;
@@ -877,4 +882,123 @@ input:checked+.slider:before {
   .portfolio-item .actions {
     opacity: 1; /* Always show actions on mobile */
   }
+}
+
+/* ═══════════════════════════════════════════════════
+   Help Manual View — 内嵌操作手册样式
+   ═══════════════════════════════════════════════════ */
+.help-manual {
+  max-width: 860px; margin: 0 auto; padding: 30px 20px 60px;
+  color: rgba(255,255,255,0.88); font-size: 0.9rem; line-height: 1.7;
+}
+.hm-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.hm-title { margin: 0; font-size: 1.5rem; font-weight: 700; color: #fff; }
+.hm-subtitle { margin: 4px 0 0; font-size: 0.78rem; color: rgba(255,255,255,0.4); }
+
+/* Quick start paths */
+.hm-quickstart {
+  background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.15);
+  border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;
+}
+.hm-quickstart-title { font-weight: 700; font-size: 1rem; margin-bottom: 12px; color: #fff; }
+.hm-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hm-path-card {
+  background: rgba(0,0,0,0.25); border-radius: 10px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.hm-path-card strong { font-size: 0.9rem; }
+.hm-path-card span { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+.hm-path-card code {
+  font-size: 0.72rem; color: rgba(255,255,255,0.35); background: none;
+  padding: 0; font-family: inherit; font-style: italic;
+}
+.hm-path-card.advisor { border-left: 3px solid #3b82f6; }
+.hm-path-card.personal { border-left: 3px solid #10b981; }
+
+/* Chapter accordion */
+.hm-chapters { display: flex; flex-direction: column; gap: 6px; }
+.hm-chapter {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; overflow: hidden; transition: all 0.2s;
+}
+.hm-chapter.open { border-color: rgba(99,102,241,0.25); background: rgba(99,102,241,0.03); }
+.hm-chapter-header {
+  width: 100%; padding: 14px 18px; background: none; border: none; color: #fff;
+  cursor: pointer; display: flex; align-items: center; gap: 10px;
+  font-size: 0.92rem; font-weight: 600; transition: background 0.15s;
+}
+.hm-chapter-header:hover { background: rgba(255,255,255,0.04); }
+.hm-chapter-icon { color: #818cf8; display: flex; }
+.hm-chapter-title { flex: 1; text-align: left; }
+.hm-chapter-body {
+  padding: 0 20px 20px 44px; animation: hmSlide 0.2s ease;
+}
+@keyframes hmSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.hm-chapter-body h4 {
+  margin: 18px 0 8px; font-size: 0.88rem; color: #818cf8;
+  border-bottom: 1px solid rgba(99,102,241,0.12); padding-bottom: 4px;
+}
+.hm-chapter-body ol, .hm-chapter-body ul {
+  padding-left: 20px; margin: 8px 0;
+}
+.hm-chapter-body li { margin-bottom: 4px; }
+.hm-chapter-body p { margin: 8px 0; }
+
+/* Table */
+.hm-table {
+  width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.82rem;
+}
+.hm-table th {
+  text-align: left; padding: 8px 12px; font-weight: 600; font-size: 0.75rem;
+  color: rgba(255,255,255,0.5); border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.hm-table td {
+  padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.8);
+}
+.hm-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+/* Callout boxes */
+.hm-callout {
+  padding: 10px 14px; border-radius: 8px; margin: 10px 0; font-size: 0.82rem; line-height: 1.6;
+}
+.hm-callout.info { background: rgba(59,130,246,0.08); border-left: 3px solid #3b82f6; color: rgba(255,255,255,0.8); }
+.hm-callout.warn { background: rgba(245,158,11,0.08); border-left: 3px solid #f59e0b; color: rgba(255,255,255,0.8); }
+
+/* Highlight block */
+.hm-highlight {
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(16,185,129,0.08));
+  border: 1px solid rgba(99,102,241,0.2); border-radius: 8px;
+  padding: 12px 16px; margin: 10px 0; font-weight: 600; text-align: center;
+}
+
+/* Dual-line tags */
+.hm-dual { margin: 10px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.82rem; }
+.hm-tag { padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+.hm-tag.advisor { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.hm-tag.personal { background: rgba(16,185,129,0.15); color: #34d399; }
+
+/* Code block */
+.hm-code {
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px; padding: 12px 16px; font-size: 0.75rem; line-height: 1.5;
+  overflow-x: auto; color: rgba(255,255,255,0.6);
+}
+
+/* Footer */
+.hm-footer {
+  margin-top: 40px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.25);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .hm-paths { grid-template-columns: 1fr; }
+  .hm-chapter-body { padding-left: 18px; }
 }
