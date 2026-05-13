@@ -25,6 +25,10 @@ html {
   --stat-gradient: linear-gradient(135deg, #818cf8, #c084fc);
   --sidebar-bg: rgba(15, 23, 42, 0.8);
   --header-bg: rgba(15, 23, 42, 0.6);
+  --card-blur: blur(0.75rem);
+  --card-radius: 1.25rem;
+  --card-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.3);
+  --sidebar-blur: blur(1.25rem);
 }
 
 body {
@@ -44,7 +48,7 @@ body {
 .sidebar {
   width: 16.25rem;
   background: var(--sidebar-bg);
-  backdrop-filter: blur(1.25rem);
+  backdrop-filter: var(--sidebar-blur);
   border-right: 1px solid var(--glass-border);
   padding: 1.25rem 1.25rem;
   display: flex;
@@ -142,11 +146,11 @@ body {
 
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(0.75rem);
+  backdrop-filter: var(--card-blur);
   border: 1px solid var(--glass-border);
-  border-radius: 1.25rem;
+  border-radius: var(--card-radius);
   padding: 1.5rem;
-  box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.3);
+  box-shadow: var(--card-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   margin-bottom: 1.5rem;
 }
