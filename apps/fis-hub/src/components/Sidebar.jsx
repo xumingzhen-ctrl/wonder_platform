@@ -154,7 +154,7 @@ const Sidebar = ({
               onClick={() => {setActiveId(pf.id); setActiveTab('portfolios');}}
               style={{
                 position: 'relative',
-                outline: isDropTarget ? '2px solid rgba(99,102,241,0.8)' : 'none',
+                outline: isDropTarget ? '2px solid rgba(var(--accent-color-rgb),0.8)' : 'none',
                 transition: 'outline 0.1s',
                 cursor: 'grab',
               }}
@@ -252,7 +252,7 @@ const Sidebar = ({
               </div>
               <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginBottom: '8px' }}>{new Date(sc.created_at).toLocaleDateString(t === undefined || t('header.langBtn') === 'EN' ? 'zh-CN' : 'en-US')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
-                {sc.assets.map(a => <span key={a} style={{ background: 'rgba(129,140,248,0.12)', color: '#818cf8', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 600 }}>{a}</span>)}
+                {sc.assets.map(a => <span key={a} style={{ background: 'rgba(var(--accent-color-rgb),0.12)', color: 'var(--accent-color)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 600 }}>{a}</span>)}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem' }}>
                 <div><span style={{color: 'rgba(255,255,255,0.4)'}}>{t('sidebar.capital')}: </span><span>${(sc.summary.capital/1000).toFixed(0)}k</span></div>
@@ -278,7 +278,7 @@ const Sidebar = ({
       )}
       {/* ── 底部按钮组（操作手册 + ILP 设置）── */}
       {currentUser && (
-        <div style={{ position: 'sticky', bottom: 0, paddingTop: '12px', paddingBottom: '4px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(10px)', marginTop: 'auto' }}>
+        <div style={{ position: 'sticky', bottom: 0, paddingTop: '12px', paddingBottom: '4px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '6px', background: 'var(--header-bg)', backdropFilter: 'blur(10px)', marginTop: 'auto' }}>
           <button
             onClick={() => setActiveTab('help')}
             style={{
@@ -300,15 +300,15 @@ const Sidebar = ({
             onClick={() => setIlpModalOpen(true)}
             style={{
               width: '100%', padding: '9px 12px',
-              background: 'rgba(99,102,241,0.06)',
-              border: '1px solid rgba(99,102,241,0.15)',
+              background: 'rgba(var(--accent-color-rgb),0.06)',
+              border: '1px solid rgba(var(--accent-color-rgb),0.15)',
               borderRadius: '9px', color: 'rgba(255,255,255,0.6)',
               cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500,
               display: 'flex', alignItems: 'center', gap: '7px',
               transition: 'all 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = '#818cf8'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(var(--accent-color-rgb),0.15)'; e.currentTarget.style.color = 'var(--accent-color)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(var(--accent-color-rgb),0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
           >
             <Link size={13} />
             <span>{t('sidebar.ilpSettings')}</span>
@@ -332,8 +332,8 @@ const Sidebar = ({
 // ── Styles ──
 const tabBtnStyle = (active) => ({
   flex: 1, padding: '8px',
-  background: active ? 'rgba(99,102,241,0.2)' : 'transparent',
-  border: '1px solid ' + (active ? '#818cf8' : 'transparent'),
+  background: active ? 'rgba(var(--accent-color-rgb),0.2)' : 'transparent',
+  border: '1px solid ' + (active ? 'var(--accent-color)' : 'transparent'),
   borderRadius: '6px',
   color: active ? '#fff' : 'rgba(255,255,255,0.6)',
   cursor: 'pointer',
