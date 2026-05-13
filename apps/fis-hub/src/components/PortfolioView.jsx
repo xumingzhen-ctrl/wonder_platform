@@ -435,9 +435,9 @@ const PortfolioView = ({
                   <div className="positive"><TrendingUp size={16} /> {t('portfolio.statMarketValueSub')}</div>
                 </div>
                 <div className="glass-card">
-                  <div className="stat-label">{t('portfolio.sectorExposure')}</div>
+                  <div className="stat-label">Cumulative Return <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>累计收益</span></div>
                   <div className="stat-value" style={{color: '#818cf8'}}>{data.cumulative_roi}%</div>
-                  <div className="positive"><TrendingUp size={16} /> Growth</div>
+                  <div className="positive"><TrendingUp size={16} /> Total ROI</div>
                 </div>
                 <div className="glass-card" title={fmtMoney(data.total_divs || 0, 1, data.base_currency || 'USD')}>
                   <div className="stat-label">Total Dividends <span style={{fontSize:'0.7rem', color:'#818cf8', marginLeft:'4px'}}>{data.base_currency || 'USD'}</span></div>
