@@ -84,16 +84,25 @@ const PortfolioView = ({
     if (!applyIlpToChart || ilpHistoryData.length === 0) return null;
     const first = ilpHistoryData[0];
     const last  = ilpHistoryData[ilpHistoryData.length - 1];
-    const months = ilpHistoryData.length;
-    // 两条线有不同起点（ILP因奖赏更高），各自从自己的起点计算年化
-    const rawCagr = first?.value > 0 && last?.raw_value > 0
-      ? ((last.raw_value / first.value) ** (12 / months) - 1) * 100 : 0;
-    const ilpCagr = first?.ilp_value > 0 && last?.ilp_value > 0
-      ? ((last.ilp_value / first.ilp_value) ** (12 / months) - 1) * 100 : 0;
+
+    // ── 修正：直接使用后端已计算好的权威年化数据（含分红） ────────────────
+    // historyData 数组长度 ≠ 月数；且 CASH 策略分红已存入 wallet，
+    // 不体现在 NAV 曲线上，重新推导会严重低估回报。
+    // 后端 calculate_performance 已正确处理 total_nav + wallet + dividends。
+    const rawCagr = data?.annualized_return != null ? parseFloat(data.annualized_return) : 0;
+
+    // ILP 年化 = 原始年化 + 奖赏加成 - 费用拖累
+    // 净值拖累 = (rawFinal - ilpFinal) / rawFinal * 100
     const drag = last?.raw_value > 0 ? ((last.raw_value - last.ilp_value) / last.raw_value) * 100 : 0;
+
+    // 通过拖累反推 ILP 年化：ILP净值 = 原始净值 × (1 - drag%)
+    // ILP_CAGR ≈ rawCagr × (ilpFinal / rawFinal)  （线性近似，适用于小drag）
+    const ilpMultiplier = last?.raw_value > 0 && last?.ilp_value > 0 ? last.ilp_value / last.raw_value : 1;
+    const ilpCagr = rawCagr * ilpMultiplier;
+
     const enrollmentBonus = first?.ilp_bonus ?? 0;
     return { rawFinal: last?.raw_value, ilpFinal: last?.ilp_value, rawCagr, ilpCagr, drag, enrollmentBonus };
-  }, [applyIlpToChart, ilpHistoryData]);
+  }, [applyIlpToChart, ilpHistoryData, data]);
 
 
   if (loading) return <div style={{textAlign: 'center', paddingTop: '100px'}}><h2>{t('empty.analyzingData')}</h2></div>;
@@ -400,8 +409,8 @@ const PortfolioView = ({
                         { label: '🎁 开户奖赏（期初计入）', val: `+${fmtMoney(ilpSummary.enrollmentBonus, 1, ccy)}`, color: '#f59e0b', sub: 'ILP曲线期初高于原始曲线' },
                         { label: '当前原始市值', val: fmtMoney(ilpSummary.rawFinal, 1, ccy), color: '#10b981' },
                         { label: '当前 ILP 净值', val: fmtMoney(ilpSummary.ilpFinal, 1, ccy), color: '#818cf8' },
-                        { label: '历史年化（原始）', val: `${ilpSummary.rawCagr.toFixed(2)}%`, color: '#60a5fa' },
-                        { label: '历史年化（ILP）', val: `${ilpSummary.ilpCagr.toFixed(2)}%`, color: '#a78bfa' },
+                        { label: '综合年化（含分红）', val: `${ilpSummary.rawCagr.toFixed(2)}%`, color: '#60a5fa', sub: '与底部 CAGR 卡片一致' },
+                        { label: 'ILP 综合年化（净值）', val: `${ilpSummary.ilpCagr.toFixed(2)}%`, color: '#a78bfa', sub: '已扣除前期费/COI/户口费' },
                         { label: 'ILP 净值拖累', val: `${ilpSummary.drag >= 0 ? '-' : '+'}${Math.abs(ilpSummary.drag).toFixed(2)}%`, color: ilpSummary.drag >= 0 ? '#fca5a5' : '#34d399' },
                       ].map((c, i) => (
                         <div key={i}>
