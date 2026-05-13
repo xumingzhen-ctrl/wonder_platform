@@ -23,6 +23,7 @@ import AdvisorClientsPanel from './components/AdvisorClientsPanel';
 import HelpManualView from './components/HelpManualView';
 import FeatureLock from './components/FeatureLock';
 import ImmigrationShowcase from './components/ImmigrationShowcase';
+import { useTheme } from './theme/ThemeContext';
 
 
 // ── 角色颜色映射（颜色固定，标签由 i18n 提供）──
@@ -136,6 +137,7 @@ import { VerifyEmailOverlay, ResetPasswordOverlay } from './components/AuthOverl
 
 function App() {
   const { lang, toggleLang, t } = useLang();
+  const { theme, cycleTheme } = useTheme();
   const [urlParams] = useState(new URLSearchParams(window.location.search));
   const mode = urlParams.get('mode');
   const urlLang = urlParams.get('lang') || 'zh';
@@ -1249,7 +1251,7 @@ function App() {
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0,
         height: 52, zIndex: 1000,
-        background: 'rgba(8,15,35,0.92)',
+        background: 'var(--header-bg)',
         borderBottom: '1px solid rgba(99,102,241,0.2)',
         backdropFilter: 'blur(12px)',
         display: 'flex', alignItems: 'center',
@@ -1277,6 +1279,24 @@ function App() {
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.12)'; }}
           >
             {t('header.langBtn')}
+          </button>
+          
+          {/* ── 主题切换按钮 ── */}
+          <button
+            onClick={cycleTheme}
+            title={`当前风格: ${theme.label} (点击切换)`}
+            style={{
+              padding: '4px 8px', borderRadius: 8,
+              background: 'transparent',
+              border: '1px solid var(--glass-border)',
+              color: 'var(--text-secondary)', cursor: 'pointer',
+              fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--glass-bg)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+          >
+            {theme.label.split(' ')[0]} {/* 仅显示 emoji */}
           </button>
 
           {currentUser ? (
