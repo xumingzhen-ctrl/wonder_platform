@@ -32,7 +32,7 @@ def get_current_user(user = Depends(get_sa_current_user)):
         "id": user.id,
         "email": user.email,
         "role": user.role,
-        "display_name": user.name,
+        "name": user.name,
         "is_active": user.is_active
     }
 
@@ -1239,7 +1239,7 @@ if __name__ == "__main__":
 class RegisterRequest(BaseModel):
     email: str
     password: str
-    display_name: Optional[str] = None
+    name: Optional[str] = None
     invited_by_advisor_id: Optional[int] = None  # 注册时绑定顾问
 
 class LoginRequest(BaseModel):
@@ -1251,7 +1251,7 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
 
 class UpdateProfileRequest(BaseModel):
-    display_name: Optional[str] = None
+    name: Optional[str] = None
 
 @router.post("/auth/register", tags=["auth"])
 def register(req: RegisterRequest):
@@ -1278,12 +1278,12 @@ def register(req: RegisterRequest):
             raise HTTPException(400, "所选顾问不存在或无效")
 
     initial_role = "premium" if advisor_ok else "free"
-    display = req.display_name or email.split("@")[0]
+    display = req.name or email.split("@")[0]
 
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.execute(
-            "INSERT INTO users (email, password_hash, display_name, role) VALUES (?,?,?,?)",
+            "INSERT INTO users (email, password_hash, name, role) VALUES (?,?,?,?)",
             (email, hash_password(req.password), display, initial_role)
         )
         conn.commit()
@@ -1298,7 +1298,7 @@ def register(req: RegisterRequest):
             conn.commit()
 
         token = create_access_token(user_id, email, initial_role, display)
-        return {"token": token, "role": initial_role, "display_name": display, "user_id": user_id}
+        return {"token": token, "role": initial_role, "name": display, "user_id": user_id}
     finally:
         conn.close()
 
@@ -1318,8 +1318,8 @@ def login(req: LoginRequest):
         conn.commit()
     finally:
         conn.close()
-    token = create_access_token(user["id"], email, user["role"], user["display_name"])
-    return {"token": token, "role": user["role"], "display_name": user["display_name"], "user_id": user["id"]}
+    token = create_access_token(user["id"], email, user["role"], user["name"])
+    return {"token": token, "role": user["role"], "name": user["name"], "user_id": user["id"]}
 
 @router.get("/auth/me", tags=["auth"])
 def get_me(user: dict = Depends(get_current_user)):
@@ -1328,14 +1328,14 @@ def get_me(user: dict = Depends(get_current_user)):
     conn.row_factory = sqlite3.Row
     try:
         row = conn.execute(
-            "SELECT id, email, display_name, role, created_at, last_login_at FROM users WHERE id=?",
+            "SELECT id, email, name, role, created_at, last_login_at FROM users WHERE id=?",
             (user["id"],)
         ).fetchone()
         me = dict(row)
         # 如果是 premium，附带顾问信息
         if user["role"] == "premium":
             rel = conn.execute(
-                """SELECT u.id, u.display_name, u.email
+                """SELECT u.id, u.name, u.email
                    FROM advisor_clients ac JOIN users u ON u.id=ac.advisor_id
                    WHERE ac.client_id=? AND ac.is_active=1 LIMIT 1""",
                 (user["id"],)
@@ -1352,9 +1352,9 @@ def list_advisors():
     conn.row_factory = sqlite3.Row
     try:
         rows = conn.execute(
-            "SELECT id, display_name, email FROM users WHERE role IN ('advisor','admin') AND is_active=1 ORDER BY display_name"
+            "SELECT id, name, email FROM users WHERE role IN ('advisor','admin') AND is_active=1 ORDER BY name"
         ).fetchall()
-        return [{"id": r["id"], "display_name": r["display_name"], "email": r["email"]} for r in rows]
+        return [{"id": r["id"], "name": r["name"], "email": r["email"]} for r in rows]
     finally:
         conn.close()
 
@@ -1363,8 +1363,8 @@ def update_profile(req: UpdateProfileRequest, user: dict = Depends(get_current_u
     """更新个人资料"""
     conn = sqlite3.connect(DB_PATH)
     try:
-        if req.display_name:
-            conn.execute("UPDATE users SET display_name=? WHERE id=?", (req.display_name, user["id"]))
+        if req.name:
+            conn.execute("UPDATE users SET name=? WHERE id=?", (req.name, user["id"]))
         conn.commit()
         return {"status": "success"}
     finally:
@@ -1427,13 +1427,13 @@ def admin_list_users(role: Optional[str] = None, page: int = 1, per_page: int = 
             # 附带顾问信息（若为 premium 用户或普通用户）
             if u["role"] in ["premium", "free"]:
                 rel = conn.execute(
-                    """SELECT u2.id, u2.name as display_name FROM advisor_clients ac
+                    """SELECT u2.id, u2.name as name FROM advisor_clients ac
                        JOIN users u2 ON u2.id=ac.advisor_id
                        WHERE ac.client_id=? AND ac.is_active=1 LIMIT 1""",
                     (u["id"],)
                 ).fetchone()
                 u["advisor_id"] = dict(rel)["id"] if rel else None
-                u["advisor_name"] = dict(rel)["display_name"] if rel else None
+                u["advisor_name"] = dict(rel)["name"] if rel else None
             users.append(u)
         total = conn.execute("SELECT COUNT(*) FROM users" + (" WHERE role=?" if role else ""),
                              ([role] if role else [])).fetchone()[0]
@@ -1616,7 +1616,7 @@ def advisor_list_clients(user: dict = Depends(require_role("advisor"))):
     try:
         if user["role"] == "admin":
             rows = conn.execute("""
-                SELECT u.id, u.email, u.name as display_name, u.created_at as last_login_at, ac.assigned_at,
+                SELECT u.id, u.email, u.name as name, u.created_at as last_login_at, ac.assigned_at,
                        (SELECT COUNT(*) FROM portfolios WHERE user_id=u.id) as portfolio_count,
                        (SELECT COUNT(*) FROM insurance_plans WHERE client_id=u.id) as insurance_count,
                        adv.name as advisor_name
@@ -1628,7 +1628,7 @@ def advisor_list_clients(user: dict = Depends(require_role("advisor"))):
             """).fetchall()
         else:
             rows = conn.execute("""
-                SELECT u.id, u.email, u.name as display_name, u.created_at as last_login_at, ac.assigned_at,
+                SELECT u.id, u.email, u.name as name, u.created_at as last_login_at, ac.assigned_at,
                        (SELECT COUNT(*) FROM portfolios WHERE user_id=u.id) as portfolio_count,
                        (SELECT COUNT(*) FROM insurance_plans WHERE client_id=u.id AND advisor_id=?) as insurance_count
                 FROM advisor_clients ac JOIN users u ON u.id=ac.client_id
@@ -1778,7 +1778,7 @@ def my_insurance_plans(user: dict = Depends(require_role("premium"))):
     try:
         rows = conn.execute("""
             SELECT ip.id, ip.name, ip.created_at, ip.excel_filename, ip.plan_data,
-                   u.display_name as advisor_name
+                   u.name as advisor_name
             FROM insurance_plans ip JOIN users u ON u.id=ip.advisor_id
             WHERE ip.client_id=?
             ORDER BY ip.created_at DESC
@@ -1799,7 +1799,7 @@ def my_advisor(user: dict = Depends(require_role("premium"))):
     conn.row_factory = sqlite3.Row
     try:
         row = conn.execute("""
-            SELECT u.id, u.display_name, u.email
+            SELECT u.id, u.name, u.email
             FROM advisor_clients ac JOIN users u ON u.id=ac.advisor_id
             WHERE ac.client_id=? AND ac.is_active=1 LIMIT 1
         """, (user["id"],)).fetchone()

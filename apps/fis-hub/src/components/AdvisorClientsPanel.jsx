@@ -134,14 +134,14 @@ export default function AdvisorClientsPanel({ currentUser, onAssignPortfolio }) 
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 18, fontWeight: 700, color: '#818cf8', flexShrink: 0,
                 }}>
-                  {(client.display_name || client.email)[0].toUpperCase()}
+                  {(client.name || client.email)[0].toUpperCase()}
                 </div>
 
                 {/* 客户信息 */}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
                     <span style={{ fontWeight: 700, fontSize: 15, color: '#f1f5f9' }}>
-                      {client.display_name || '未设置名称'}
+                      {client.name || '未设置名称'}
                     </span>
                     {client.advisor_name && currentUser?.role === 'admin' && (
                       <span style={{ fontSize: 11, background: 'rgba(59,130,246,0.15)', color: '#60a5fa', padding: '2px 8px', borderRadius: 6, border: '1px solid rgba(59,130,246,0.3)' }}>
@@ -247,7 +247,7 @@ export default function AdvisorClientsPanel({ currentUser, onAssignPortfolio }) 
                   {/* ILP 配置入口 */}
                   <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                     <button
-                      onClick={() => setIlpModal({ open: true, userId: client.id, userName: client.display_name || client.email, userEmail: client.email })}
+                      onClick={() => setIlpModal({ open: true, userId: client.id, userName: client.name || client.email, userEmail: client.email })}
                       style={{
                         padding: '8px 18px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                         background: 'rgba(99,102,241,0.1)',

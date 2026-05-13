@@ -165,12 +165,12 @@ export default function AuthModal({ onSuccess, onClose }) {
         id: data.user_id || data.id,
         email: data.email || (mode === 'login' ? loginEmail : regEmail),
         role: data.role,
-        display_name: data.display_name,
+        name: data.name,
       };
       authStorage.setUser(user);
 
       if (mode === 'register') {
-        setSuccess(`${t('auth.regSuccess')}${user.display_name}`);
+        setSuccess(`${t('auth.regSuccess')}${user.name}`);
         setTimeout(() => onSuccess(user), 1200);
       } else {
         onSuccess(user);

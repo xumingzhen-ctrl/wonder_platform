@@ -112,7 +112,7 @@ export default function AdminPanel({ currentUser }) {
   const filteredUsers = users.filter(u => {
     const matchRole = filterRole === 'all' || u.role === filterRole;
     const matchSearch = !search.trim() ||
-      (u.display_name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (u.name || '').toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase());
     return matchRole && matchSearch;
   });
@@ -234,10 +234,10 @@ export default function AdminPanel({ currentUser }) {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 13, fontWeight: 700, color: ROLE_META[u.role]?.color || '#6b7280',
                       }}>
-                        {(u.display_name || u.email)[0].toUpperCase()}
+                        {(u.name || u.email)[0].toUpperCase()}
                       </div>
                       <span style={{ fontWeight: 600, color: '#e2e8f0', fontSize: 13 }}>
-                        {u.display_name || '—'}
+                        {u.name || '—'}
                       </span>
                     </div>
                   </td>
@@ -277,7 +277,7 @@ export default function AdminPanel({ currentUser }) {
                       >
                         <option value="">-- 无关联 --</option>
                         {users.filter(x => x.role === 'advisor').map(a => (
-                          <option key={a.id} value={a.id}>{a.display_name || a.email}</option>
+                          <option key={a.id} value={a.id}>{a.name || a.email}</option>
                         ))}
                       </select>
                     ) : (

@@ -1256,7 +1256,7 @@ function App() {
         justifyContent: 'space-between',
       }}>
         <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
-          {currentUser ? `${t('header.welcome')}${currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0] || t('role.' + currentUser.role)}` : t('header.platform')}
+          {currentUser ? `${t('header.welcome')}${currentUser.name || currentUser.email?.split('@')[0] || t('role.' + currentUser.role)}` : t('header.platform')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* ── 语言切换按钮 ── */}
@@ -1290,7 +1290,7 @@ function App() {
               </span>
               {/* 用户名 */}
               <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 500 }}>
-                {currentUser.display_name || currentUser.name || currentUser.email?.split('@')[0]}
+                {currentUser.name || currentUser.email?.split('@')[0]}
               </span>
               {/* 登出按钮 */}
               <button
