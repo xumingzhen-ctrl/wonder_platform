@@ -1,15 +1,128 @@
-2026-04-18 18:56:15 [WARNING] plugins.akshare_gateway: AKShare is not installed. Gateway will return empty defaults.
-2026-04-18 18:56:16 [INFO] services.fip.broker_price_provider: BrokerPriceProvider: configured Futu=127.0.0.1:11111
-2026-04-18 18:56:16 [INFO] routers.fip_router: BrokerPriceProvider configured (Futu → IB → yfinance priority chain).
-2026-04-18 18:56:16 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2026-04-18 18:56:16 [INFO] apscheduler.scheduler: Added job "update_daily_prices" to job store "default"
-2026-04-18 18:56:16 [INFO] apscheduler.scheduler: Scheduler started
-2026-04-18 18:56:16 [INFO] routers.fip_router: Background scheduler started correctly.
-INFO:     Started server process [4436]
+2026-05-12 19:18:03 [WARNING] plugins.akshare_gateway: AKShare is not installed. Gateway will return empty defaults.
+2026-05-12 19:18:04 [INFO] services.fip.broker_price_provider: BrokerPriceProvider: configured Futu=127.0.0.1:11111
+2026-05-12 19:18:04 [INFO] routers.fip_router: BrokerPriceProvider configured (Futu → IB → yfinance priority chain).
+2026-05-12 19:18:04 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-05-12 19:18:04 [INFO] apscheduler.scheduler: Added job "update_daily_prices" to job store "default"
+2026-05-12 19:18:04 [INFO] apscheduler.scheduler: Scheduler started
+2026-05-12 19:18:04 [INFO] routers.fip_router: Background scheduler started correctly.
+INFO:     Started server process [41710]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [4436]
+INFO:     127.0.0.1:53082 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53204 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53205 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53371 - "GET /ilp/config HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:53370 - "GET /portfolios HTTP/1.1" 200 OK
+2026-05-12 19:20:04 [ERROR] yfinance: $0P000136OF: possibly delisted; no price data found  (period=1d)
+2026-05-12 19:20:04 [ERROR] yfinance: $0P00000HSG: possibly delisted; no price data found  (period=1d)
+2026-05-12 19:20:06 [WARNING] data_provider: EODHD Div API: Payment Required for 0P00006T5J. Please upgrade API key tier.
+2026-05-12 19:20:08 [WARNING] data_provider: EODHD Div API: Payment Required for LU1041599405. Please upgrade API key tier.
+2026-05-12 19:20:09 [ERROR] data_provider: Stooq Fetch Error for IE0033534557: HTTPSConnectionPool(host='stooq.com', port=443): Read timed out. (read timeout=5)
+2026-05-12 19:20:12 [ERROR] data_provider: Stooq Fetch Error for IE0033534557: HTTPSConnectionPool(host='stooq.com', port=443): Read timed out. (read timeout=5)
+2026-05-12 19:20:13 [ERROR] yfinance: $0P00000HSG: possibly delisted; no price data found  (period=1d)
+2026-05-12 19:20:13 [WARNING] data_provider: EODHD Div API: Payment Required for IE0033534557. Please upgrade API key tier.
+2026-05-12 19:20:14 [INFO] services.fip.portfolio_engine: Calculating performance for portfolio 1 (USD)
+2026-05-12 19:20:14 [INFO] services.fip.portfolio_engine: Performance: PNL=130643.31000000006, Divs=0.0, ROI=0.13063024697530254, CAGR=0.08254523093582322
+2026-05-12 19:20:14 [WARNING] data_provider: EODHD Div API: Payment Required for IE0033534557. Please upgrade API key tier.
+INFO:     127.0.0.1:53480 - "GET /ilp/config HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:53479 - "GET /portfolios HTTP/1.1" 200 OK
+2026-05-12 19:20:14 [INFO] services.fip.portfolio_engine: Calculating performance for portfolio 1 (USD)
+2026-05-12 19:20:14 [INFO] services.fip.portfolio_engine: Performance: PNL=130643.31000000006, Divs=0.0, ROI=0.13063024697530254, CAGR=0.08254523093582322
+INFO:     127.0.0.1:53490 - "GET /report/history/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53488 - "GET /report/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53497 - "GET /docs HTTP/1.1" 200 OK
+/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/fastapi/openapi/utils.py:225: UserWarning: Duplicate Operation ID register_auth_register_post for function register at /Users/derek/Projects/Wonder_Platform/backend/routers/fip_router.py
+  warnings.warn(message, stacklevel=1)
+/Users/derek/Projects/Company Admin/backend/venv/lib/python3.12/site-packages/fastapi/openapi/utils.py:225: UserWarning: Duplicate Operation ID login_auth_login_post for function login at /Users/derek/Projects/Wonder_Platform/backend/routers/fip_router.py
+  warnings.warn(message, stacklevel=1)
+INFO:     127.0.0.1:53497 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54326 - "GET /ilp/config HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54325 - "GET /portfolios HTTP/1.1" 200 OK
+2026-05-12 19:29:49 [INFO] services.fip.portfolio_engine: Calculating performance for portfolio 1 (USD)
+2026-05-12 19:29:49 [INFO] services.fip.portfolio_engine: Performance: PNL=130643.31000000006, Divs=0.0, ROI=0.13063024697530254, CAGR=0.08254523093582322
+INFO:     127.0.0.1:54334 - "GET /report/history/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54333 - "GET /report/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54345 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54359 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54369 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54399 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54417 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54424 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54431 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54472 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54496 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54503 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54531 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54538 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54572 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54586 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54590 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54606 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54611 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54615 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54627 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54668 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54683 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54711 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54735 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54748 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54769 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54780 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54792 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54797 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+2026-05-12 19:34:49 [INFO] services.fip.portfolio_engine: Calculating performance for portfolio 1 (USD)
+2026-05-12 19:34:49 [INFO] services.fip.portfolio_engine: Performance: PNL=130643.31000000006, Divs=0.0, ROI=0.13063024697530254, CAGR=0.08254523093582322
+INFO:     127.0.0.1:54801 - "GET /report/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54820 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54826 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54853 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54888 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54946 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54991 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55035 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55085 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55138 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55191 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55239 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55300 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55356 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55398 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55411 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55428 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55436 - "GET /heartbeat/1 HTTP/1.1" 200 OK
+2026-05-12 19:37:48 [ERROR] yfinance: $0P00015539: possibly delisted; no price data found  (period=1d)
+2026-05-12 19:37:49 [WARNING] data_provider: EODHD Div API: Payment Required for LU1116320737. Please upgrade API key tier.
+2026-05-12 19:37:52 [ERROR] data_provider: Stooq Fetch Error for LU1128926489: HTTPSConnectionPool(host='stooq.com', port=443): Read timed out. (read timeout=5)
+2026-05-12 19:37:52 [ERROR] data_provider: Stooq Fetch Error for LU1116320737: HTTPSConnectionPool(host='stooq.com', port=443): Read timed out. (read timeout=5)
+INFO:     127.0.0.1:55503 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+2026-05-12 19:37:56 [ERROR] data_provider: Stooq Fetch Error for LU1128926489: HTTPSConnectionPool(host='stooq.com', port=443): Read timed out. (read timeout=5)
+2026-05-12 19:37:56 [ERROR] yfinance: $0P00015539: possibly delisted; no price data found  (period=1d)
+2026-05-12 19:37:57 [WARNING] data_provider: EODHD Div API: Payment Required for LU1128926489. Please upgrade API key tier.
+2026-05-12 19:37:57 [INFO] services.fip.portfolio_engine: Calculating performance for portfolio 3 (USD)
+2026-05-12 19:37:57 [INFO] services.fip.portfolio_engine: Performance: PNL=130705.26000000001, Divs=107077.81, ROI=0.13069219078092192, CAGR=0.09361303819272426
+INFO:     127.0.0.1:55448 - "GET /report/3 HTTP/1.1" 200 OK
+2026-05-12 19:37:57 [INFO] services.fip.portfolio_engine: Calculating performance for portfolio 3 (USD)
+2026-05-12 19:37:57 [INFO] services.fip.portfolio_engine: Performance: PNL=130705.26000000001, Divs=107077.81, ROI=0.13069219078092192, CAGR=0.09361303819272426
+INFO:     127.0.0.1:55547 - "GET /report/3 HTTP/1.1" 200 OK
+2026-05-12 19:37:58 [WARNING] data_provider: EODHD Div API: Payment Required for LU1128926489. Please upgrade API key tier.
+INFO:     127.0.0.1:55447 - "GET /report/history/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55778 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+2026-05-12 19:38:04 [INFO] services.fip.portfolio_engine: Calculating performance for portfolio 3 (USD)
+2026-05-12 19:38:04 [INFO] services.fip.portfolio_engine: Performance: PNL=130705.26000000001, Divs=107077.81, ROI=0.13069219078092192, CAGR=0.09361303819272426
+INFO:     127.0.0.1:55782 - "GET /report/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56616 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56662 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56685 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56712 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56719 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56741 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56771 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56811 - "GET /heartbeat/3 HTTP/1.1" 200 OK
+2026-05-13 01:18:49 [WARNING] apscheduler.executors.default: Run time of job "update_daily_prices (trigger: cron[hour='0', minute='5'], next run at: 2026-05-14 00:05:00 HKT)" was missed by 1:13:49.191270
+INFO:     127.0.0.1:54521 - "GET /api/fip/portfolios HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54526 - "GET /fip/portfolios HTTP/1.1" 404 Not Found
+2026-05-14 00:34:05 [WARNING] apscheduler.executors.default: Run time of job "update_daily_prices (trigger: cron[hour='0', minute='5'], next run at: 2026-05-15 00:05:00 HKT)" was missed by 0:29:05.742509

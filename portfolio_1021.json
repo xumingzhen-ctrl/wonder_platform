@@ -1,0 +1,11 @@
+{
+  "id": 1021,
+  "name": "Accumulation Test",
+  "created_at": "2024-10-25",
+  "base_currency": "USD",
+  "dividend_strategy": "CASH",
+  "target_allocations": "{\"0P00006T5J\": 0.6, \"LU1041599405\": 0.4}",
+  "user_id": "8fcb8097-3c40-4297-a2fe-c0dadc8ecff9",
+  "is_public": 1,
+  "sort_order": null
+}

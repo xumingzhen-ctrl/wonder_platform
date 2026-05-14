@@ -1,6 +1,9 @@
 ▲ Next.js 16.2.2
 - Local:         http://localhost:3000
-- Network:       http://192.168.1.44:3000
-✓ Ready in 96ms
-Error: "next start" does not work with "output: export" configuration. Use "npx serve@latest out" instead.
-    at ignore-listed frames
+- Network:       http://192.168.1.60:3000
+✓ Ready in 165ms
+⚠ `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+⚠ Invalid next.config.ts options detected: 
+⚠     Unrecognized key(s) in object: 'eslint'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.

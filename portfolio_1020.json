@@ -1,0 +1,11 @@
+{
+  "id": 1020,
+  "name": "TEST A Dividend",
+  "created_at": "2024-04-30",
+  "base_currency": "CNY",
+  "dividend_strategy": "CASH",
+  "target_allocations": "{\"515080.SS\": 0.5, \"159545.SZ\": 0.5}",
+  "user_id": "89221226-8c56-4a48-9c94-46218f32b1b4",
+  "is_public": 1,
+  "sort_order": null
+}

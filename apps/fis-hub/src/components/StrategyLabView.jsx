@@ -548,11 +548,17 @@ const StrategyLabView = ({
 
                       <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
                         <span style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)'}}>Annual Draw ($) | Yr Start-End</span>
-                        <div style={{display: 'flex', gap: '5px'}}>
+                        <div style={{display: 'flex', gap: '5px', marginBottom: '2px'}}>
                           <NumberInputWithCommas value={labMcSettings.withdrawal} onChange={v => setLabMcSettings({...labMcSettings, withdrawal: v})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '80px'}} />
                           <input type="number" value={labMcSettings.withdrawal_start} onChange={e => setLabMcSettings({...labMcSettings, withdrawal_start: e.target.value})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '40px'}} title="Start Year" />
                           <span style={{color: 'rgba(255,255,255,0.5)', alignSelf: 'center'}}>-</span>
                           <input type="number" value={labMcSettings.withdrawal_end} onChange={e => setLabMcSettings({...labMcSettings, withdrawal_end: e.target.value})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '40px'}} title="End Year" />
+                        </div>
+                        <div style={{display: 'flex', gap: '5px'}}>
+                          <NumberInputWithCommas value={labMcSettings.withdrawal_2 || 0} onChange={v => setLabMcSettings({...labMcSettings, withdrawal_2: v})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '80px'}} />
+                          <input type="number" value={labMcSettings.withdrawal_start_2 || 1} onChange={e => setLabMcSettings({...labMcSettings, withdrawal_start_2: e.target.value})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '40px'}} title="Start Year (Stage 2)" />
+                          <span style={{color: 'rgba(255,255,255,0.5)', alignSelf: 'center'}}>-</span>
+                          <input type="number" value={labMcSettings.withdrawal_end_2 || 100} onChange={e => setLabMcSettings({...labMcSettings, withdrawal_end_2: e.target.value})} style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px', width: '40px'}} title="End Year (Stage 2)" />
                         </div>
                         <label style={{display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '0.7rem', color: labMcSettings.withdrawal_inflation ? '#a855f7' : 'rgba(255,255,255,0.4)', marginTop: '2px'}}>
                           <input type="checkbox" checked={labMcSettings.withdrawal_inflation} onChange={e => setLabMcSettings({...labMcSettings, withdrawal_inflation: e.target.checked})} style={{accentColor: '#a855f7'}} />

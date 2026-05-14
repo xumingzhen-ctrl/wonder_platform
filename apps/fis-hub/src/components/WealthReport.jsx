@@ -239,21 +239,31 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
     const base = parseFloat(labMcSettings.withdrawal) || 0;
     const start = parseInt(labMcSettings.withdrawal_start) || 0;
     const end = parseInt(labMcSettings.withdrawal_end) || runYears;
-    if (base <= 0 && !(insuranceEnabled && insurancePlan?.years)) return { displayed: [], totalCount: 0, endYear: 0 };
+    const base2 = parseFloat(labMcSettings.withdrawal_2) || 0;
+    const start2 = parseInt(labMcSettings.withdrawal_start_2) || 0;
+    const end2 = parseInt(labMcSettings.withdrawal_end_2) || runYears;
+
+    if (base <= 0 && base2 <= 0 && !(insuranceEnabled && insurancePlan?.years)) return { displayed: [], totalCount: 0, endYear: 0 };
     
     const allRows = [];
     const insYears = insurancePlan?.years || [];
     const maxYear = Math.max(
       base > 0 ? Math.min(end, runYears) : 0,
+      base2 > 0 ? Math.min(end2, runYears) : 0,
       insYears.length > 0 ? Math.min(insYears.length, runYears) : 0
     );
-    const startRow = base > 0 ? start : 1;
+    const startRow = Math.min(
+      base > 0 ? start : 999,
+      base2 > 0 ? start2 : 999
+    ) === 999 ? 1 : Math.min(base > 0 ? start : 999, base2 > 0 ? start2 : 999);
     
     let originalIndex = 0;
     let cumulative = 0;
     for (let y = startRow; y <= maxYear; y++) {
       const factor = labMcSettings.withdrawal_inflation ? Math.pow(1 + inflationDec, y - 1) : 1;
-      const portAmt = (base > 0 && y >= start && y <= end) ? Math.round(base * factor) : 0;
+      let portAmt = 0;
+      if (base > 0 && y >= start && y <= end) portAmt += Math.round(base * factor);
+      if (base2 > 0 && y >= start2 && y <= end2) portAmt += Math.round(base2 * factor);
       const insPy = insYears[y - 1] || {};
       const insAmt = Math.round(insPy.withdrawal || 0);
       

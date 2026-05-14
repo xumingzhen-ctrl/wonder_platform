@@ -140,6 +140,7 @@ class PortfolioOptimizer:
     def run_monte_carlo(self, expected_return, volatility, initial_capital=1000000.0, years=10, simulations=10000, 
                         contribution=0.0, contribution_start=1, contribution_years=100,
                         withdrawal=0.0, withdrawal_start=1, withdrawal_end=100, withdrawal_inflation=False,
+                        withdrawal_2=0.0, withdrawal_start_2=1, withdrawal_end_2=100,
                         target_goal=None, inflation_rate=0.0,
                         rebalance_weights=None, rebalance_mean_returns=None, rebalance_cov_matrix=None,
                         insurance_plan=None, insurance_alpha_low=0.80, insurance_alpha_high=1.20,
@@ -200,6 +201,7 @@ class PortfolioOptimizer:
                 curr_contribution = contribution if contribution_start <= t <= contribution_years else 0.0
                 inflation_factor  = (1 + inflation_rate) ** (t - 1)
                 t_draw = (withdrawal * (inflation_factor if withdrawal_inflation else 1.0)) if withdrawal_start <= t <= withdrawal_end else 0.0
+                t_draw += (withdrawal_2 * (inflation_factor if withdrawal_inflation else 1.0)) if withdrawal_start_2 <= t <= withdrawal_end_2 else 0.0
                 
                 # Portfolio Dividends (Internal cash generation)
                 div_income = paths[:, t-1] * p_div_yield
@@ -234,6 +236,7 @@ class PortfolioOptimizer:
                 curr_contribution = contribution if contribution_start <= t <= contribution_years else 0.0
                 inflation_factor  = (1 + inflation_rate) ** (t - 1)
                 t_draw = (withdrawal * (inflation_factor if withdrawal_inflation else 1.0)) if withdrawal_start <= t <= withdrawal_end else 0.0
+                t_draw += (withdrawal_2 * (inflation_factor if withdrawal_inflation else 1.0)) if withdrawal_start_2 <= t <= withdrawal_end_2 else 0.0
                 
                 div_income = paths[:, t-1] * p_div_yield
                 offset_from_div = np.minimum(div_income, t_draw)
@@ -378,6 +381,7 @@ class PortfolioOptimizer:
             curr_contribution = contribution if contribution_start <= t <= contribution_years else 0.0
             inflation_factor  = (1 + inflation_rate) ** (t - 1)
             curr_withdrawal   = (withdrawal * (inflation_factor if withdrawal_inflation else 1.0)) if withdrawal_start <= t <= withdrawal_end else 0.0
+            curr_withdrawal  += (withdrawal_2 * (inflation_factor if withdrawal_inflation else 1.0)) if withdrawal_start_2 <= t <= withdrawal_end_2 else 0.0
             # Net cash flow into the fund (outflow for investor is -cont, inflow for investor is +draw)
             net_cf_investor = curr_withdrawal - curr_contribution
             base_cfs.append(net_cf_investor)
@@ -390,7 +394,7 @@ class PortfolioOptimizer:
         insurance_stats = None
         if insurance_plan:
             total_ins_withdrawal = sum(p.get('withdrawal', 0.0) for p in insurance_plan[:years])
-            total_target_withdrawal = withdrawal * years  # Simplified: ignoring inflation adjustment for stat display
+            total_target_withdrawal = (withdrawal * years) + (withdrawal_2 * years)  # Simplified: ignoring inflation adjustment for stat display
 
             insurance_stats = {
                 "total_insurance_withdrawal": float(total_ins_withdrawal),
@@ -764,6 +768,9 @@ class PortfolioOptimizer:
             withdrawal_start=mc_settings.get("withdrawal_start", 1),
             withdrawal_end=mc_settings.get("withdrawal_end", 100),
             withdrawal_inflation=mc_settings.get("withdrawal_inflation", False),
+            withdrawal_2=mc_settings.get("withdrawal_2", 0.0),
+            withdrawal_start_2=mc_settings.get("withdrawal_start_2", 1),
+            withdrawal_end_2=mc_settings.get("withdrawal_end_2", 100),
             years=mc_settings.get("years", 10),
             target_goal=mc_settings.get("target", 2000000.0),
             inflation_rate=mc_settings.get("inflation", 0.0),
