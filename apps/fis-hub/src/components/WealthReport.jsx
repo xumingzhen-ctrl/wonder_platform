@@ -231,31 +231,42 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
     ? insTotalReturn / insPremiumData.total
     : null;
 
-  // 提取计划（前20年）
-  const withdrawSchedule = useMemo(() => {
+  // 提取计划（完整计算后过滤展示）
+  const withdrawScheduleFullInfo = useMemo(() => {
     const base = parseFloat(labMcSettings.withdrawal) || 0;
     const start = parseInt(labMcSettings.withdrawal_start) || 0;
     const end = parseInt(labMcSettings.withdrawal_end) || runYears;
-    if (base <= 0 && !(insuranceEnabled && insurancePlan?.years)) return [];
-    const rows = [];
-    const limit = Math.min(start + 19, end, runYears);
-    // 选取不为零的年份范围：组合提取 OR 保单提取中较大的那个
+    if (base <= 0 && !(insuranceEnabled && insurancePlan?.years)) return { displayed: [], totalCount: 0, endYear: 0 };
+    
+    const allRows = [];
     const insYears = insurancePlan?.years || [];
     const maxYear = Math.max(
-      base > 0 ? limit : 0,
-      insYears.length > 0 ? Math.min(insYears.length, start > 0 ? start + 19 : 19) : 0
+      base > 0 ? Math.min(end, runYears) : 0,
+      insYears.length > 0 ? Math.min(insYears.length, runYears) : 0
     );
     const startRow = base > 0 ? start : 1;
-    for (let y = startRow; y <= Math.max(limit, maxYear); y++) {
+    
+    let originalIndex = 0;
+    for (let y = startRow; y <= maxYear; y++) {
       const factor = labMcSettings.withdrawal_inflation ? Math.pow(1 + inflationDec, y - 1) : 1;
       const portAmt = (base > 0 && y >= start && y <= end) ? Math.round(base * factor) : 0;
       const insPy = insYears[y - 1] || {};
       const insAmt = Math.round(insPy.withdrawal || 0);
-      rows.push({ year: y, amount: portAmt, insAmount: insAmt, total: portAmt + insAmt });
+      
+      if (portAmt > 0 || insAmt > 0) {
+        allRows.push({ year: y, amount: portAmt, insAmount: insAmt, total: portAmt + insAmt, originalIndex });
+        originalIndex++;
+      }
     }
-    // 仅保留实际有提取的行
-    return rows.filter(r => r.amount > 0 || r.insAmount > 0);
+    
+    // 过滤规则：前10年连续展示，后续每10年展示一次（即第20, 30, 40年...），以及最后一年
+    const totalCount = allRows.length;
+    const displayed = allRows.filter((r, i) => i < 10 || (i + 1) % 10 === 0 || i === totalCount - 1);
+    
+    return { displayed, totalCount, endYear: allRows.length > 0 ? allRows[allRows.length - 1].year : 0 };
   }, [labMcSettings, runYears, inflationDec, insurancePlan, insuranceEnabled]);
+  
+  const withdrawSchedule = withdrawScheduleFullInfo.displayed;
 
   const handlePrint = () => window.print();
 
@@ -679,8 +690,10 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                     </tr>
                   </thead>
                   <tbody>
-                    {withdrawSchedule.map((row, i) => (
-                      <tr key={row.year} style={{ background: i % 2 === 0 ? '#f8fafc' : '#fff', borderBottom: '1px solid #e2e8f0' }}>
+                    {withdrawSchedule.map((row, idx) => {
+                      const i = row.originalIndex;
+                      return (
+                      <tr key={row.year} style={{ background: idx % 2 === 0 ? '#f8fafc' : '#fff', borderBottom: '1px solid #e2e8f0' }}>
                         <td style={{ padding: '10px 14px', color: '#334155' }}>第{row.year}年{clientAge ? `（${clientAge + row.year}岁）` : ''}</td>
                         <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, color: row.amount > 0 ? '#1e3a8a' : '#94a3b8' }}>
                           {row.amount > 0 ? `$${numFmt(row.amount)}` : '—'}
@@ -702,11 +715,14 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                           {row.insAmount > 0 ? '保单按约定提取' : ''}
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
-                {withdrawSchedule.length >= 20 && (
-                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '8px 0 0', textAlign: 'right' }}>＊仅展示前20年；完整提取计划延续至第{labMcSettings.withdrawal_end}年</p>
+                {withdrawScheduleFullInfo.totalCount > 10 && (
+                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '8px 0 0', textAlign: 'right' }}>
+                    ＊仅展示前10年及后续每10年间隔数据；完整提取计划延续至第{withdrawScheduleFullInfo.endYear}年
+                  </p>
                 )}
               </div>
             </section>
