@@ -247,6 +247,7 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
     const startRow = base > 0 ? start : 1;
     
     let originalIndex = 0;
+    let cumulative = 0;
     for (let y = startRow; y <= maxYear; y++) {
       const factor = labMcSettings.withdrawal_inflation ? Math.pow(1 + inflationDec, y - 1) : 1;
       const portAmt = (base > 0 && y >= start && y <= end) ? Math.round(base * factor) : 0;
@@ -254,14 +255,16 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
       const insAmt = Math.round(insPy.withdrawal || 0);
       
       if (portAmt > 0 || insAmt > 0) {
-        allRows.push({ year: y, amount: portAmt, insAmount: insAmt, total: portAmt + insAmt, originalIndex });
+        const total = portAmt + insAmt;
+        cumulative += total;
+        allRows.push({ year: y, amount: portAmt, insAmount: insAmt, total, cumulative, originalIndex });
         originalIndex++;
       }
     }
     
-    // 过滤规则：前10年连续展示，后续每10年展示一次（即第20, 30, 40年...），以及最后一年
+    // 过滤规则：前5年连续展示，后续每5年展示一次（即第10, 15, 20年...），以及最后一年
     const totalCount = allRows.length;
-    const displayed = allRows.filter((r, i) => i < 10 || (i + 1) % 10 === 0 || i === totalCount - 1);
+    const displayed = allRows.filter((r, i) => i < 5 || (i + 1) % 5 === 0 || i === totalCount - 1);
     
     return { displayed, totalCount, endYear: allRows.length > 0 ? allRows[allRows.length - 1].year : 0 };
   }, [labMcSettings, runYears, inflationDec, insurancePlan, insuranceEnabled]);
@@ -686,6 +689,7 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                       <th style={{ padding: '10px 14px', textAlign: 'right' }}>组合提取</th>
                       {insuranceEnabled && insurancePlan && <th style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(5,150,105,0.6)' }}>🛡️ 保单提取</th>}
                       {insuranceEnabled && insurancePlan && <th style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(29,78,216,0.5)' }}>合计到手</th>}
+                      <th style={{ padding: '10px 14px', textAlign: 'right' }}>累计提取</th>
                       <th style={{ padding: '10px 14px', textAlign: 'left' }}>说明</th>
                     </tr>
                   </thead>
@@ -708,6 +712,9 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                             ${numFmt(row.total)}
                           </td>
                         )}
+                        <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, color: '#475569' }}>
+                          ${numFmt(row.cumulative)}
+                        </td>
                         <td style={{ padding: '10px 14px', color: '#64748b', fontSize: '0.82rem' }}>
                           {i === 0 ? '开始提取' : ''}
                           {row.amount > 0 && i > 0 ? (labMcSettings.withdrawal_inflation ? `组合基准×(1+${labMcSettings.inflation}%)^${i}` : '组合固定提取') : ''}
@@ -719,9 +726,9 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                     })}
                   </tbody>
                 </table>
-                {withdrawScheduleFullInfo.totalCount > 10 && (
+                {withdrawScheduleFullInfo.totalCount > 5 && (
                   <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '8px 0 0', textAlign: 'right' }}>
-                    ＊仅展示前10年及后续每10年间隔数据；完整提取计划延续至第{withdrawScheduleFullInfo.endYear}年
+                    ＊仅展示前5年及后续每5年间隔数据；完整提取计划延续至第{withdrawScheduleFullInfo.endYear}年
                   </p>
                 )}
               </div>
