@@ -298,8 +298,8 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
   const reportDate = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
-    <div className="wealth-report-overlay">
-      <div className="wealth-report-container">
+    <div className="wealth-report-overlay" onClick={onClose}>
+      <div className="wealth-report-container" onClick={(e) => e.stopPropagation()}>
 
         {/* 控制栏 — 打印时隐藏 */}
         <div className="wealth-report-controls no-print">
