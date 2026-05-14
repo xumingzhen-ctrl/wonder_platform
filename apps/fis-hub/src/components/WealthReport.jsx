@@ -84,15 +84,18 @@ function buildMilestones(chart, mcSettings, clientAge) {
   if (withdrawStart > 0 && withdrawStart <= years) {
     candidates.push({ year: withdrawStart, label: clientAge ? `开始提取（${clientAge + withdrawStart}岁）` : `开始提取（第${withdrawStart}年）`, note: '现金流正式激活，组合进入"养你"模式' });
   }
-  [10, 15, 20, 25, 30].forEach(y => {
-    if (y <= years && !candidates.find(c => c.year === y)) {
+  // 每10年一个展示节点
+  for (let y = 10; y < years; y += 10) {
+    if (!candidates.find(c => c.year === y)) {
       const label = clientAge ? `第${y}年（${clientAge + y}岁）` : `第${y}年`;
       const note = y === 10 ? '布局初步成型，复利效应开始显现' :
                    y === 20 ? '长期持有效果明显，抗通胀能力凸显' :
-                   y === 30 ? '深度复利阶段，财富积累加速' : '';
+                   y === 30 ? '深度复利阶段，财富积累加速' : 
+                   y === 40 ? '穿越多轮牛熊，资产基数实现跨越' :
+                   '超长期限复利，跨越世代的财富沉淀';
       candidates.push({ year: y, label, note });
     }
-  });
+  }
   // 人生关键年龄（如有年龄）
   if (clientAge) {
     [60, 65, 70, 80].forEach(targetAge => {
