@@ -797,19 +797,27 @@ input:checked+.slider:before {
 }
 
 @media print {
-  /* Structurally eliminate background apps instead of just rendering them invisible */
+  @page {
+    size: A4;
+    margin: 14mm 16mm 14mm 16mm;
+  }
+
+  /* 结构重置：隐藏 app 其他部分 */
   body, html, #root, .app-layout {
     height: auto !important;
     overflow: visible !important;
     background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   .app-layout > *:not(.wealth-report-overlay) {
     display: none !important;
   }
-  
+
   .wealth-report-overlay {
-    position: static;
+    position: static !important;
     overflow: visible !important;
     background: transparent;
     display: block;
@@ -817,7 +825,6 @@ input:checked+.slider:before {
     margin: 0;
   }
 
-  /* Make sure the content element and its children are visible and fill the page */
   #printable-report, #printable-report * {
     visibility: visible;
   }
@@ -835,8 +842,12 @@ input:checked+.slider:before {
     display: none !important;
   }
 
-  /* Page breaking utility */
   .page-break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .milestone-table, .insurance-chapter-grid {
     break-inside: avoid;
     page-break-inside: avoid;
   }

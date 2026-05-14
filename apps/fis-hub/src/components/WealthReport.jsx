@@ -1,9 +1,51 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   AreaChart, Area, BarChart, Bar, ComposedChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   Legend, ResponsiveContainer, ReferenceLine
 } from 'recharts';
+
+// ── 可编辑文本块（必须定义在组件外部，保证 React 组件类型稳定）────
+// 使用 useRef + useEffect 控制 contentEditable DOM。
+// React 完全不在 re-render 时动 innerHTML，只在 fieldKey/editMode 切换时
+// 初始化一次内容；onBlur 时把用户输入持久化到 state。
+const EditableText = ({ fieldKey, tag: Tag = 'p', style, className, children, editMode, editableFields, onBlur }) => {
+  const ref = React.useRef(null);
+
+  // 每当 editMode 开启、或 fieldKey 变化时，将当前值同步到 DOM（仅一次）
+  React.useEffect(() => {
+    if (editMode && ref.current && ref.current.isConnected) {
+      const val = editableFields[fieldKey];
+      ref.current.innerText =
+        val !== undefined && val !== null
+          ? val
+          : (typeof children === 'string' ? children : (ref.current.innerText || ''));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editMode, fieldKey]);
+
+  if (!editMode) {
+    return <Tag style={style} className={className}>{editableFields[fieldKey] ?? children}</Tag>;
+  }
+
+  return (
+    <Tag
+      ref={ref}
+      contentEditable
+      suppressContentEditableWarning
+      onBlur={(e) => onBlur(fieldKey, e)}
+      style={{
+        ...style,
+        outline: '2px dashed #f59e0b',
+        borderRadius: 4,
+        minHeight: '1.2em',
+        cursor: 'text',
+        background: 'rgba(245,158,11,0.06)',
+      }}
+      className={className}
+    />
+  );
+};
 
 // ── 格式化工具 ────────────────────────────────────────────────
 function numFmt(val, decimals = 0) {
@@ -206,6 +248,34 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
 
   const handlePrint = () => window.print();
 
+  // ── 编辑模式 ─────────────────────────────────────────────
+  const [editMode, setEditMode] = useState(false);
+  // 可编辑字段 state（这些字段允许用户自由修改后打印）
+  const [editableFields, setEditableFields] = useState({
+    aboutUs: advisorName
+      ? `本报告由 ${advisorName} 编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。`
+      : '本报告由您的财富规划顾问编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。',
+    aboutUsFootnote: '＊ 机构背景、资质信息及完整服务说明，将在正式版本中补充。如需了解更多，请与您的顾问联系。',
+    reportTitle: clientName ? `${clientName} 财富规划方案` : '您的长期财富规划方案',
+    openingLine: clientName ? `${clientName}，如果您正在考虑` : '如果您正在考虑',
+    ch1BodyA: '财富管理的核心挑战，从来不是「今年能赚多少」——而是如何让您的资产在几十年的时间跨度里，穿越通货膨胀、市场大跌与人生变局，依然能够支撑您和家人想要的生活。',
+    ch1BodyB: '本方案通过对全球资产配置进行科学优化，并结合 10,000 次模拟未来可能发生的不同市场路径，为您呈现一个诚实、立体、有风险边界的长期财富蓝图——不只告诉您「可能赚多少」，更告诉您「最坏会怎样」，以及「什么情况下需要调整」。',
+    disclaimer1: '本报告中所有财富预测数据均来自蒙特卡洛统计模拟，基于历史价格数据，通过几何布朗运动模型（GBM）生成10,000条随机路径。P10/P50/P90 为概率分位数，不代表实际投资结果将落在此区间。',
+    disclaimer2: '保险产品中标注「保证」的现金价值由保单合同约定，具有法律效力；标注「非保证」的红利部分（包括复归红利、终期红利）由保险公司视乎实际经营表现而定，存在高于或低于演示值的可能性。',
+    disclaimer3: '所有投资均涉及风险，包括本金损失的可能性。过去的表现不代表未来结果。分散投资不能保证收益或防止损失。',
+    disclaimer4: '本报告仅供参考，不构成任何形式的投资建议、保险销售要约或财务规划合同。具体决策请结合您的实际财务状况、风险承受能力及相关监管规定，在专业顾问指导下进行。',
+  });
+
+  // contentEditable 字段通用处理
+  const handleFieldBlur = useCallback((fieldKey, e) => {
+    // 立即缓存 innerText，不能依赖事件对象（异步 setState 后 currentTarget 可能已 detach）
+    const text = e.currentTarget.innerText;
+    setEditableFields(prev => ({ ...prev, [fieldKey]: text }));
+  }, []);
+
+  // EditableText 通用 props（每次使用时展开，避免重复书写）
+  const editProps = { editMode, editableFields, onBlur: handleFieldBlur };
+
   // 客户称谓
   const salutation = clientName ? `${clientName}，` : '';
   // 目标中文列表
@@ -245,10 +315,35 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
               {reportLoading ? '⏳ 生成中…' : '⬇ 下载 Word'}
             </button>
           )}
+          {/* ✏️ 编辑内容按钮 */}
+          <button
+            onClick={() => setEditMode(m => !m)}
+            style={{
+              background: editMode ? 'rgba(245,158,11,0.25)' : 'rgba(245,158,11,0.08)',
+              color: editMode ? '#f59e0b' : '#94a3b8',
+              border: `1px solid ${editMode ? '#f59e0b' : '#334155'}`,
+              padding: '10px 22px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              marginLeft: 8,
+              transition: 'all 0.2s',
+            }}
+            title={editMode ? '点击退出编辑模式（黄色虚线框内容可直接点击修改）' : '点击进入编辑模式，直接修改报告文本'}
+          >
+            {editMode ? '✅ 完成编辑' : '✏️ 编辑内容'}
+          </button>
           <button onClick={onClose} style={{ background: 'transparent', color: '#94a3b8', border: '1px solid #334155', padding: '10px 22px', borderRadius: '8px', cursor: 'pointer', marginLeft: 8 }}>
             ✖ 返回分析室
           </button>
         </div>
+        {/* 编辑模式提示条 */}
+        {editMode && (
+          <div style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.4)', borderRadius: 8, padding: '10px 18px', color: '#fbbf24', fontSize: '0.87rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+            ✏️ <strong>编辑模式已开启</strong>：黄色虚线框内的文字可直接点击修改。编辑完成后点击「✅ 完成编辑」，再点击「🖨️ 打印/导出 PDF」输出。
+          </div>
+        )}
 
         {/* ══ 报告正文 ══════════════════════════════════════════ */}
         <div className="wealth-report-content" id="printable-report">
@@ -301,15 +396,12 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
               <strong>「{goalText}」</strong>，
               这份方案正是为此而设计的。
             </div>
-            <p className="desc-text mt-15">
-              财富管理的核心挑战，从来不是"今年能赚多少"——而是如何让您的资产在几十年的时间跨度里，
-              <strong>穿越通货膨胀、市场大跌与人生变局</strong>，依然能够支撑您和家人想要的生活。
-            </p>
-            <p className="desc-text">
-              本方案通过对全球资产配置进行科学优化，并结合 10,000 次模拟未来可能发生的不同市场路径，
-              为您呈现一个<strong>诚实、立体、有风险边界</strong>的长期财富蓝图——
-              不只告诉您"可能赚多少"，更告诉您"最坏会怎样"，以及"什么情况下需要调整"。
-            </p>
+            <EditableText fieldKey="ch1BodyA" className="desc-text mt-15" {...editProps}>
+              财富管理的核心挑战，从来不是「今年能赚多少」——而是如何让您的资产在几十年的时间跨度里，穿越通货膨胀、市场大跌与人生变局，依然能够支撑您和家人想要的生活。
+            </EditableText>
+            <EditableText fieldKey="ch1BodyB" className="desc-text" {...editProps}>
+              本方案通过对全球资产配置进行科学优化，并结合 10,000 次模拟未来可能发生的不同市场路径，为您呈现一个诚实、立体、有风险边界的长期财富蓝图——不只告诉您「可能赚多少」，更告诉您「最坏会怎样」，以及「什么情况下需要调整」。
+            </EditableText>
             {clientGoals.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
                 {clientGoals.map(g => (
@@ -402,16 +494,22 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                       .sort((a, b) => b[1] - a[1])
                       .map(([isin, weight]) => {
                         const stats = labData.asset_stats?.[isin] || {};
-                        const role = stats.expected_return > 0.1 ? '高成长引擎'
+                        const autoRole = stats.expected_return > 0.1 ? '高成长引擎'
                           : stats.volatility < 0.1 ? '稳定压舱石'
                           : stats.dividend_yield > 0.03 ? '股息收益来源'
                           : '多元化缓冲';
+                        const roleKey = `role_${isin}`;
+                        const displayRole = editableFields[roleKey] ?? autoRole;
                         return (
                           <tr key={isin}>
                             <td><span className="isin-badge" style={{ background: '#eff6ff', border: '1px solid #bfdbfe', color: '#1d4ed8' }}>{isin}</span></td>
                             <td style={{ color: '#475569', fontSize: '0.88rem' }}>{stats.name || '—'}</td>
                             <td style={{ textAlign: 'right', fontWeight: 700 }}>{(weight * 100).toFixed(1)}%</td>
-                            <td style={{ textAlign: 'right', fontSize: '0.8rem', color: '#64748b' }}>{role}</td>
+                            <td style={{ textAlign: 'right', fontSize: '0.8rem', color: '#64748b' }}>
+                              <EditableText tag="span" fieldKey={roleKey} {...editProps}>
+                                {displayRole}
+                              </EditableText>
+                            </td>
                           </tr>
                         );
                       })}
@@ -859,18 +957,25 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
           <section className="report-section page-break-inside-avoid">
             <h2>{insuranceEnabled ? '八' : '七'}、关于我们的服务</h2>
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '24px 28px', color: '#475569', lineHeight: 1.9, fontSize: '0.92rem' }}>
-              <p style={{ margin: '0 0 12px', fontStyle: 'italic', color: '#94a3b8' }}>
-                ── 顾问/机构简介占位区 ──
+              <p style={{ margin: '0 0 8px', fontStyle: 'italic', color: '#94a3b8', fontSize: '0.78rem' }}>
+                {editMode ? '↓ 点击下方文字直接编辑' : '── 顾问/机构简介 ──'}
               </p>
-              <p style={{ margin: '0 0 12px' }}>
+              <EditableText
+                fieldKey="aboutUs"
+                style={{ margin: '0 0 12px', display: 'block', lineHeight: 1.9 }}
+                {...editProps}
+              >
                 {advisorName
-                  ? `本报告由 ${advisorName} 编制。`
-                  : '本报告由您的财富规划顾问编制。'}
-                我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。
-              </p>
-              <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.82rem' }}>
+                  ? `本报告由 ${advisorName} 编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。`
+                  : '本报告由您的财富规划顾问编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。'}
+              </EditableText>
+              <EditableText
+                fieldKey="aboutUsFootnote"
+                style={{ margin: 0, color: '#94a3b8', fontSize: '0.82rem', display: 'block' }}
+                {...editProps}
+              >
                 ＊ 机构背景、资质信息及完整服务说明，将在正式版本中补充。如需了解更多，请与您的顾问联系。
-              </p>
+              </EditableText>
             </div>
           </section>
 
@@ -878,25 +983,22 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
           <section className="report-section page-break-inside-avoid">
             <h2 style={{ color: '#94a3b8', fontSize: '1.1rem' }}>{insuranceEnabled ? '九' : '八'}、重要声明与法律提示</h2>
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: '16px 20px', fontSize: '0.82rem', color: '#64748b', lineHeight: 1.8 }}>
-              <p style={{ margin: '0 0 8px' }}>
-                <strong>关于模拟性质：</strong>本报告中所有财富预测数据均来自蒙特卡洛统计模拟，
-                基于历史价格数据，通过几何布朗运动模型（GBM）生成10,000条随机路径。
-                P10/P50/P90 为概率分位数，不代表实际投资结果将落在此区间。
-              </p>
-              <p style={{ margin: '0 0 8px' }}>
-                <strong>关于保证与非保证：</strong>保险产品中标注"保证"的现金价值由保单合同约定，
-                具有法律效力；标注"非保证"的红利部分（包括复归红利、终期红利）由保险公司视乎实际
-                经营表现而定，存在高于或低于演示值的可能性。
-              </p>
-              <p style={{ margin: '0 0 8px' }}>
-                <strong>关于投资风险：</strong>所有投资均涉及风险，包括本金损失的可能性。
-                过去的表现不代表未来结果。分散投资不能保证收益或防止损失。
-              </p>
-              <p style={{ margin: 0 }}>
-                <strong>关于建议性质：</strong>本报告仅供参考，不构成任何形式的投资建议、
-                保险销售要约或财务规划合同。具体决策请结合您的实际财务状况、风险承受能力
-                及相关监管规定，在专业顾问指导下进行。
-              </p>
+              <p style={{ margin: '0 0 4px', fontWeight: 600, color: '#475569' }}>关于模拟性质：</p>
+              <EditableText fieldKey="disclaimer1" style={{ margin: '0 0 10px', display: 'block' }} {...editProps}>
+                本报告中所有财富预测数据均来自蒙特卡洛统计模拟，基于历史价格数据，通过几何布朗运动模型（GBM）生成10,000条随机路径。P10/P50/P90 为概率分位数，不代表实际投资结果将落在此区间。
+              </EditableText>
+              <p style={{ margin: '0 0 4px', fontWeight: 600, color: '#475569' }}>关于保证与非保证：</p>
+              <EditableText fieldKey="disclaimer2" style={{ margin: '0 0 10px', display: 'block' }} {...editProps}>
+                保险产品中标注「保证」的现金价值由保单合同约定，具有法律效力；标注「非保证」的红利部分（包括复归红利、终期红利）由保险公司视乎实际经营表现而定，存在高于或低于演示值的可能性。
+              </EditableText>
+              <p style={{ margin: '0 0 4px', fontWeight: 600, color: '#475569' }}>关于投资风险：</p>
+              <EditableText fieldKey="disclaimer3" style={{ margin: '0 0 10px', display: 'block' }} {...editProps}>
+                所有投资均涉及风险，包括本金损失的可能性。过去的表现不代表未来结果。分散投资不能保证收益或防止损失。
+              </EditableText>
+              <p style={{ margin: '0 0 4px', fontWeight: 600, color: '#475569' }}>关于建议性质：</p>
+              <EditableText fieldKey="disclaimer4" style={{ margin: 0, display: 'block' }} {...editProps}>
+                本报告仅供参考，不构成任何形式的投资建议、保险销售要约或财务规划合同。具体决策请结合您的实际财务状况、风险承受能力及相关监管规定，在专业顾问指导下进行。
+              </EditableText>
             </div>
 
             <div className="footer-signoff">

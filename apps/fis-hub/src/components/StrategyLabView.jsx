@@ -666,13 +666,22 @@ const StrategyLabView = ({
                     }
 
                     const divData = [];
-                    let cumReinvested = 0;
+                    let cumTotalDiv = 0;   // 累计总分红（含抵扣+复投）
+                    let cumReinvested = 0; // 仅复投部分（图表用）
                     let breakevenYear = null;
                     let firstYearDiv = 0;
                     let lastYearDiv = 0;
                     let maxDivYears = 0;
                     const targetWithdrawal = parseFloat(labMcSettings.withdrawal) || 0;
-                    
+
+                    // 总投入本金 = 初始本金 + 所有年度追加投入合计
+                    const contribPerYear = parseFloat(labMcSettings.contribution) || 0;
+                    const contribStart   = parseInt(labMcSettings.contribution_start) || 1;
+                    const contribEnd     = parseInt(labMcSettings.contribution_years) || 0;
+                    const numContribYears = contribEnd >= contribStart ? contribEnd - contribStart + 1 : 0;
+                    const totalContributions = contribPerYear * numContribYears;
+                    const totalCapitalInvested = initialCapital + totalContributions; // 零成本拐点基准
+
                     if (labData?.monte_carlo?.chart) {
                       labData.monte_carlo.chart.forEach((d, i) => {
                          if (i === 0) return; // Skip year 0
@@ -684,9 +693,11 @@ const StrategyLabView = ({
                          if (i === 1) firstYearDiv = divGen;
                          lastYearDiv = divGen;
                          
-                         cumReinvested += divRe;
+                         cumTotalDiv += divGen;   // 累计全部分红
+                         cumReinvested += divRe;  // 仅复投部分
                          
-                         if (breakevenYear === null && initialCapital > 0 && cumReinvested >= initialCapital) {
+                         // Breakeven：累计总分红 >= 总投入本金（初始 + 所有追加）
+                         if (breakevenYear === null && totalCapitalInvested > 0 && cumTotalDiv >= totalCapitalInvested) {
                            breakevenYear = d.year;
                          }
                          
@@ -694,14 +705,14 @@ const StrategyLabView = ({
                            name: `Yr ${d.year}`,
                            divOffset: divOff,
                            divReinvested: divRe,
-                           cumReinvestedValue: cumReinvested,
-                           cumReinvestedPct: initialCapital > 0 ? (cumReinvested / initialCapital) * 100 : 0,
-                           yoc: initialCapital > 0 ? (divGen / initialCapital) * 100 : 0
+                           cumReinvestedValue: cumTotalDiv,
+                           cumReinvestedPct: totalCapitalInvested > 0 ? (cumTotalDiv / totalCapitalInvested) * 100 : 0,
+                           yoc: totalCapitalInvested > 0 ? (divGen / totalCapitalInvested) * 100 : 0
                          });
                       });
                     }
                     
-                    const yocFinal = initialCapital > 0 ? (lastYearDiv / initialCapital) * 100 : 0;
+                    const yocFinal = totalCapitalInvested > 0 ? (lastYearDiv / totalCapitalInvested) * 100 : 0;
                     const incomeReplacement = targetWithdrawal > 0 ? (lastYearDiv / targetWithdrawal) * 100 : 0;
                     const dgr = (firstYearDiv > 0 && maxDivYears > 1) ? (Math.pow(lastYearDiv / firstYearDiv, 1 / (maxDivYears - 1)) - 1) * 100 : 0;
                     const breakevenText = breakevenYear ? `第 ${breakevenYear} 年` : `> ${maxDivYears} 年`;
@@ -749,7 +760,7 @@ const StrategyLabView = ({
                                 <li style={{marginBottom: '4px'}}><strong style={{color: '#3b82f6'}}>分红复合增长率 (DGR)</strong>: 模拟周期内，每年分红金额的年化复合增长率。体现了这套方案的被动收入抵抗真实世界通货膨胀的能力。</li>
                                 <li style={{marginBottom: '4px'}}><strong style={{color: '#f59e0b'}}>期末目标支出覆盖率</strong>: 期末当年的总分红除以您设定的年度提款需求。若达到或超过 100%，意味着仅靠分红就足以完全覆盖您的日常目标开销。</li>
                                 <li style={{marginBottom: '4px'}}><strong style={{color: '#a855f7'}}>零成本拐点 (Breakeven)</strong>: 累计未提取并重新买入底仓的内生分红总额，达到初始投入本金所需的年数。意味着光靠“利滚利”就能收回最初本金。</li>
-                                <li><strong style={{color: '#3b82f6'}}>累计复投差额比 (vs Capital %)</strong>: 图表蓝线，表示上述累计滚雪球复投的总额占初始本金的实时百分比。</li>
+                                <li><strong style={{color: '#3b82f6'}}>累计总分红比 (vs Capital %)</strong>: 图表蓝线，表示累计总分红（含抵扣提取+复投两部分）占初始本金的百分比。蓝线突破100%即为零成本拐点。</li>
                               </ul>
                             </div>
                           )}
@@ -799,8 +810,8 @@ const StrategyLabView = ({
                                  <Legend wrapperStyle={{fontSize: '0.85rem'}} />
                                  <Bar yAxisId="left" dataKey="divOffset" stackId="div" fill="#f59e0b" name="抵扣提取 (Offset)" />
                                  <Bar yAxisId="left" dataKey="divReinvested" stackId="div" fill="#10b981" name="滚雪球复投 (Reinvested)" />
-                                 <Line yAxisId="right" type="monotone" dataKey="cumReinvestedPct" stroke="#3b82f6" strokeWidth={2} dot={false} name="累计复投差额比 (vs Capital %)" />
-                                 <Line yAxisId="left" type="monotone" dataKey="cumReinvestedValue" stroke="rgba(59,130,246,0.3)" strokeDasharray="3 3" dot={false} name="累计绝对差额 ($)" />
+                                 <Line yAxisId="right" type="monotone" dataKey="cumReinvestedPct" stroke="#3b82f6" strokeWidth={2} dot={false} name="累计总分红比 (vs Capital %)" />
+                                 <Line yAxisId="left" type="monotone" dataKey="cumReinvestedValue" stroke="rgba(59,130,246,0.3)" strokeDasharray="3 3" dot={false} name="累计总分红绝对值 ($)" />
                                  <Line yAxisId="right" type="monotone" dataKey="yoc" stroke="#10b981" strokeWidth={0} dot={false} activeDot={false} isAnimationActive={false} legendType="none" name="当年分红占初始投入 (YOC)" />
                               </ComposedChart>
                             </ResponsiveContainer>
