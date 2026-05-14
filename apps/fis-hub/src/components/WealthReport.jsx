@@ -236,15 +236,26 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
     const base = parseFloat(labMcSettings.withdrawal) || 0;
     const start = parseInt(labMcSettings.withdrawal_start) || 0;
     const end = parseInt(labMcSettings.withdrawal_end) || runYears;
-    if (base <= 0) return [];
+    if (base <= 0 && !(insuranceEnabled && insurancePlan?.years)) return [];
     const rows = [];
     const limit = Math.min(start + 19, end, runYears);
-    for (let y = start; y <= limit; y++) {
+    // 选取不为零的年份范围：组合提取 OR 保单提取中较大的那个
+    const insYears = insurancePlan?.years || [];
+    const maxYear = Math.max(
+      base > 0 ? limit : 0,
+      insYears.length > 0 ? Math.min(insYears.length, start > 0 ? start + 19 : 19) : 0
+    );
+    const startRow = base > 0 ? start : 1;
+    for (let y = startRow; y <= Math.max(limit, maxYear); y++) {
       const factor = labMcSettings.withdrawal_inflation ? Math.pow(1 + inflationDec, y - 1) : 1;
-      rows.push({ year: y, amount: Math.round(base * factor) });
+      const portAmt = (base > 0 && y >= start && y <= end) ? Math.round(base * factor) : 0;
+      const insPy = insYears[y - 1] || {};
+      const insAmt = Math.round(insPy.withdrawal || 0);
+      rows.push({ year: y, amount: portAmt, insAmount: insAmt, total: portAmt + insAmt });
     }
-    return rows;
-  }, [labMcSettings, runYears, inflationDec]);
+    // 仅保留实际有提取的行
+    return rows.filter(r => r.amount > 0 || r.insAmount > 0);
+  }, [labMcSettings, runYears, inflationDec, insurancePlan, insuranceEnabled]);
 
   const handlePrint = () => window.print();
 
@@ -661,7 +672,9 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                   <thead>
                     <tr style={{ background: '#1e3a8a', color: '#fff' }}>
                       <th style={{ padding: '10px 14px', textAlign: 'left' }}>年份</th>
-                      <th style={{ padding: '10px 14px', textAlign: 'right' }}>当年提取金额</th>
+                      <th style={{ padding: '10px 14px', textAlign: 'right' }}>组合提取</th>
+                      {insuranceEnabled && insurancePlan && <th style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(5,150,105,0.6)' }}>🛡️ 保单提取</th>}
+                      {insuranceEnabled && insurancePlan && <th style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(29,78,216,0.5)' }}>合计到手</th>}
                       <th style={{ padding: '10px 14px', textAlign: 'left' }}>说明</th>
                     </tr>
                   </thead>
@@ -669,9 +682,24 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                     {withdrawSchedule.map((row, i) => (
                       <tr key={row.year} style={{ background: i % 2 === 0 ? '#f8fafc' : '#fff', borderBottom: '1px solid #e2e8f0' }}>
                         <td style={{ padding: '10px 14px', color: '#334155' }}>第{row.year}年{clientAge ? `（${clientAge + row.year}岁）` : ''}</td>
-                        <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, color: '#1e3a8a' }}>${numFmt(row.amount)}</td>
+                        <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, color: row.amount > 0 ? '#1e3a8a' : '#94a3b8' }}>
+                          {row.amount > 0 ? `$${numFmt(row.amount)}` : '—'}
+                        </td>
+                        {insuranceEnabled && insurancePlan && (
+                          <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, color: row.insAmount > 0 ? '#047857' : '#94a3b8', background: 'rgba(240,253,244,0.5)' }}>
+                            {row.insAmount > 0 ? `$${numFmt(row.insAmount)}` : '—'}
+                          </td>
+                        )}
+                        {insuranceEnabled && insurancePlan && (
+                          <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 800, color: '#1d4ed8', background: 'rgba(239,246,255,0.5)' }}>
+                            ${numFmt(row.total)}
+                          </td>
+                        )}
                         <td style={{ padding: '10px 14px', color: '#64748b', fontSize: '0.82rem' }}>
-                          {i === 0 ? '基准年，实际提取从此年开始' : labMcSettings.withdrawal_inflation ? `基准 × (1+${labMcSettings.inflation}%)^${i}，通胀调整后金额` : '固定提取，建议每半年或每季度复评'}
+                          {i === 0 ? '开始提取' : ''}
+                          {row.amount > 0 && i > 0 ? (labMcSettings.withdrawal_inflation ? `组合基准×(1+${labMcSettings.inflation}%)^${i}` : '组合固定提取') : ''}
+                          {row.amount > 0 && row.insAmount > 0 ? '；' : ''}
+                          {row.insAmount > 0 ? '保单按约定提取' : ''}
                         </td>
                       </tr>
                     ))}
