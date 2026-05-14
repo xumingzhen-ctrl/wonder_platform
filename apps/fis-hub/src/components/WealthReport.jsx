@@ -379,7 +379,7 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
 
           {/* ── 封面 ── */}
           <div className="report-header">
-            <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid #3b82f6', color: '#1d4ed8', padding: '12px', borderRadius: '8px', marginBottom: '24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="no-print" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid #3b82f6', color: '#1d4ed8', padding: '12px', borderRadius: '8px', marginBottom: '24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               💡 <span>当前为网页数据预览版报告。顶部工具栏提供 <strong>🖨️ 打印/PDF</strong> 与 <strong>⬇ 下载 Word</strong> 两种导出方式，Word 版本由 AI 定制叙事生成，内含个性化解读与完整格式排版。</span>
             </div>
             
