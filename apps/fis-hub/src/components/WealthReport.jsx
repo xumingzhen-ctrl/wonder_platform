@@ -936,7 +936,21 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                 </div>
               </div>
 
-              <div style={{ marginTop: 16, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '14px 18px' }}>
+              {/* ─ 动态增配建议 ─ */}
+              <h3 style={{ fontSize: '1.05rem', color: '#334155', marginTop: 24, marginBottom: 12 }}>🛡️ 动态增配法则：何时需要为扩大的资产池加配保险？</h3>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '16px 20px', fontSize: '0.88rem', color: '#475569', lineHeight: 1.7 }}>
+                <p style={{ margin: '0 0 8px' }}>
+                  虽然当前的保险为您构建了坚实的防线，但随着未来<strong>投资组合净值的不断放大</strong>（复利滚雪球），原本的保险现金价值在总资产中的占比将被不断稀释，兜底保护的效力也会相应减弱。
+                </p>
+                <p style={{ margin: '0 0 8px' }}>
+                  <strong>系统建议触发条件：</strong>当您的风险资产规模由于市场大幅上涨，导致<strong>保单现金价值占总净资产的比例低于 15% - 20%</strong> 时；或者当您的<strong>年度基础开销超过保单可提取金额的 3 倍</strong>时。
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong>执行动作：</strong>此时应考虑将部分投资组合的超额利润（Profit Taking）进行兑现，<strong>增配新的保险资产或稳健固收类资产</strong>，重新将防御底座的比例筑高，锁定胜利果实，确保面对下一次黑天鹅危机时依然保有充足的底气。
+                </p>
+              </div>
+
+              <div style={{ marginTop: 24, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '14px 18px' }}>
                 <p style={{ margin: 0, fontSize: '0.88rem', color: '#92400e', lineHeight: 1.7 }}>
                   ⚠️ <strong>合规提示：</strong>保险的<strong>非保证红利</strong>（复归红利、终期分红）
                   依赖保险公司实际经营表现，存在波动可能性。上述量化结果基于蒙特卡洛统计模拟及当前精算假设，
