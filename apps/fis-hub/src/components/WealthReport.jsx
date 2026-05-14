@@ -494,6 +494,30 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
             </p>
 
             <div className={insuranceEnabled ? 'allocation-wrapper' : ''} style={{ marginTop: 16 }}>
+              {/* 保险底座（可选） */}
+              {insuranceEnabled && insurancePlan && (
+                <div className="alloc-box" style={{ borderLeft: '4px solid #059669', flex: 1 }}>
+                  <h3 style={{ margin: '0 0 4px', fontSize: '1.05rem', color: '#047857' }}>🛡️ 防守基石（保险底座）</h3>
+                  <p className="micro-desc" style={{ margin: '0 0 12px' }}>
+                    {insurancePlan.label || '分红储蓄保险'} · 提供确定性现金价值底线
+                  </p>
+                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', fontSize: '0.9rem', color: '#065f46', lineHeight: 1.7 }}>
+                    <p style={{ margin: '0 0 8px' }}>
+                      <strong>它的作用：</strong>在投资组合遭遇系统性大跌时，保险的<strong>现金价值（CV）不随市场波动</strong>，
+                      为您提供一道"刚性底线"——当市场血雨腥风，您至少还有这部分确定性资产可以依靠。
+                    </p>
+                    {insPremiumData && (
+                      <p style={{ margin: 0 }}>
+                        总保费投入：<strong>${numFmt(insPremiumData.total)}</strong>，分 <strong>{insPremiumData.payYears} 年</strong>缴纳。
+                      </p>
+                    )}
+                  </div>
+                  <p className="micro-desc mt-15" style={{ color: '#dc2626', fontSize: '0.8rem' }}>
+                    ⚠️ 保险的非保证红利部分将随实际经营表现浮动，现金价值演示不代表确定承诺。
+                  </p>
+                </div>
+              )}
+
               {/* 投资组合 */}
               <div className="alloc-box" style={{ borderLeft: '4px solid #2563eb', flex: insuranceEnabled ? 1.2 : undefined }}>
                 <h3 style={{ margin: '0 0 4px', fontSize: '1.05rem', color: '#1d4ed8' }}>⚔️ 进攻引擎（投资组合）</h3>
@@ -538,30 +562,6 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                   </tbody>
                 </table>
               </div>
-
-              {/* 保险底座（可选） */}
-              {insuranceEnabled && insurancePlan && (
-                <div className="alloc-box" style={{ borderLeft: '4px solid #059669', flex: 1 }}>
-                  <h3 style={{ margin: '0 0 4px', fontSize: '1.05rem', color: '#047857' }}>🛡️ 防守基石（保险底座）</h3>
-                  <p className="micro-desc" style={{ margin: '0 0 12px' }}>
-                    {insurancePlan.label || '分红储蓄保险'} · 提供确定性现金价值底线
-                  </p>
-                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', fontSize: '0.9rem', color: '#065f46', lineHeight: 1.7 }}>
-                    <p style={{ margin: '0 0 8px' }}>
-                      <strong>它的作用：</strong>在投资组合遭遇系统性大跌时，保险的<strong>现金价值（CV）不随市场波动</strong>，
-                      为您提供一道"刚性底线"——当市场血雨腥风，您至少还有这部分确定性资产可以依靠。
-                    </p>
-                    {insPremiumData && (
-                      <p style={{ margin: 0 }}>
-                        总保费投入：<strong>${numFmt(insPremiumData.total)}</strong>，分 <strong>{insPremiumData.payYears} 年</strong>缴纳。
-                      </p>
-                    )}
-                  </div>
-                  <p className="micro-desc mt-15" style={{ color: '#dc2626', fontSize: '0.8rem' }}>
-                    ⚠️ 保险的非保证红利部分将随实际经营表现浮动，现金价值演示不代表确定承诺。
-                  </p>
-                </div>
-              )}
             </div>
           </section>
 
