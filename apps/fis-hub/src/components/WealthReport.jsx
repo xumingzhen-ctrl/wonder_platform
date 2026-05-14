@@ -283,6 +283,7 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
     aboutUs: advisorName
       ? `本报告由 ${advisorName} 编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。`
       : '本报告由您的财富规划顾问编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。',
+    aboutService: '财富规划绝不是一次性的交易，而是长期的陪伴。在未来的财富成长过程中，我们会为您持续监控投资组合的健康状况，进行及时的动态再平衡（Rebalancing）。我们将每半年为您提供一次深度的财务复盘，确保您的资产配置始终与人生目标保持同步。',
     aboutUsFootnote: '＊ 机构背景、资质信息及完整服务说明，将在正式版本中补充。如需了解更多，请与您的顾问联系。',
     reportTitle: clientName ? `${clientName} 财富规划方案` : '您的长期财富规划方案',
     openingLine: clientName ? `${clientName}，如果您正在考虑` : '如果您正在考虑',
@@ -1036,6 +1037,13 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
                 {advisorName
                   ? `本报告由 ${advisorName} 编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。`
                   : '本报告由您的财富规划顾问编制。我们致力于以科学、透明、有温度的方式，为高净值家庭提供长期财富规划服务。'}
+              </EditableText>
+              <EditableText
+                fieldKey="aboutService"
+                style={{ margin: '0 0 16px', display: 'block', lineHeight: 1.9, color: '#0369a1', fontWeight: 500 }}
+                {...editProps}
+              >
+                财富规划绝不是一次性的交易，而是长期的陪伴。在未来的财富成长过程中，我们会为您持续监控投资组合的健康状况，进行及时的动态再平衡（Rebalancing）。我们将每半年为您提供一次深度的财务复盘，确保您的资产配置始终与人生目标保持同步。
               </EditableText>
               <EditableText
                 fieldKey="aboutUsFootnote"
