@@ -3,6 +3,7 @@ import { useLang } from './i18n/LangContext';
 import BrokerSync from './components/BrokerSync';
 import BrokerImport from './components/BrokerImport';
 import WealthReport from './components/WealthReport';
+import ClientBriefReport from './components/ClientBriefReport';
 import Sidebar from './components/Sidebar';
 import StrategyLabView from './components/StrategyLabView';
 import PortfolioView from './components/PortfolioView';
@@ -234,6 +235,7 @@ function App() {
   const [labChartFontSize, setLabChartFontSize] = useState(14);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [briefReportOpen, setBriefReportOpen] = useState(false);
   const [clientInfoModalOpen, setClientInfoModalOpen] = useState(false);
   const [clientInfo, setClientInfo] = useState(null);
   const [showMcDoc, setShowMcDoc] = useState(false);
@@ -1506,6 +1508,18 @@ function App() {
           onClose={() => setReportModalOpen(false)}
           onGenerateWord={handleGenerateWordReport}
           reportLoading={reportLoading}
+          onSwitchBrief={() => { setReportModalOpen(false); setBriefReportOpen(true); }}
+        />
+      )}
+      {briefReportOpen && labData?.monte_carlo && (
+        <ClientBriefReport
+          labData={labData}
+          labMcSettings={labMcSettings}
+          insuranceEnabled={insuranceEnabled}
+          insurancePlan={insurancePlan}
+          clientInfo={clientInfo}
+          onClose={() => setBriefReportOpen(false)}
+          onSwitchProfessional={() => { setBriefReportOpen(false); setReportModalOpen(true); }}
         />
       )}
       <BrokerSync show={showBrokerSync} onClose={() => setShowBrokerSync(false)} onImported={fetchPortfolios} />

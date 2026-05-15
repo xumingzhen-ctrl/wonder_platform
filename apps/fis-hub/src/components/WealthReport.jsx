@@ -134,7 +134,7 @@ function buildMilestones(chart, mcSettings, clientAge) {
 }
 
 // ── 主组件 ────────────────────────────────────────────────────
-const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled, clientInfo, onClose, onGenerateWord, reportLoading }) => {
+const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled, clientInfo, onClose, onGenerateWord, reportLoading, onSwitchBrief }) => {
   const mcResult = labData?.monte_carlo;
   if (!mcResult) return null;
 
@@ -334,6 +334,25 @@ const WealthReport = ({ labData, labMcSettings, insurancePlan, insuranceEnabled,
           <button onClick={handlePrint} style={{ background: '#1e3a8a', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>
             🖨️ 打印 / 导出 PDF
           </button>
+          {onSwitchBrief && (
+            <button
+              onClick={onSwitchBrief}
+              style={{
+                background: 'rgba(5,150,105,0.12)',
+                color: '#047857',
+                border: '1px solid rgba(5,150,105,0.35)',
+                padding: '10px 22px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                marginLeft: 8,
+              }}
+              title="切换到适合客户阅读的简明版报告"
+            >
+              📋 客户简报版
+            </button>
+          )}
           {onGenerateWord && (
             <button
               onClick={onGenerateWord}
