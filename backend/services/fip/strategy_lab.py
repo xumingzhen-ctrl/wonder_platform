@@ -782,7 +782,12 @@ class PortfolioOptimizer:
             insurance_plan=mc_settings.get("insurance_plan"),
             insurance_alpha_low=mc_settings.get("insurance_alpha_low", 0.8),
             insurance_alpha_high=mc_settings.get("insurance_alpha_high", 1.15),
-            portfolio_div_yield=mc_target.get("dividend_yield", 0.0)
+            # NOTE: portfolio_div_yield is intentionally 0.0 here.
+            # expected_return is derived from adjusted (total-return) prices, which already
+            # embed dividend reinvestment. A non-zero yield would double-count dividends:
+            # once via price growth (mu) and again as a separate cash inflow.
+            # Dividend yield remains displayed in the UI as a reference metric only.
+            portfolio_div_yield=0.0
         )
         
         mc_result["stressed_volatility"] = mc_volatility if mc_stress else None
