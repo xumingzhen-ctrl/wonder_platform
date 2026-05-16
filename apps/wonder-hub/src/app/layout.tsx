@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { TopNavWrapper } from "@/components/TopNavWrapper";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfairDisplay = Playfair_Display({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmSans = DM_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
 });
+
 
 export const metadata: Metadata = {
   title: "WONDER | 专业财务规划与投资",
@@ -26,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased light bg-background text-foreground`}
+      className={`${playfairDisplay.variable} ${dmSans.variable} font-sans h-full antialiased light bg-background text-foreground`}
     >
       <body className="min-h-full flex flex-col">
         <TopNavWrapper />
