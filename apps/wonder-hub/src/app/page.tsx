@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const features = [
   { title: "投资思维与感悟", desc: "聊资产配置、市场认知与家庭财富规划。", link: "/blog" },
-  { title: "财富诊断", desc: "家庭资产健康评估与现金流推演。", link: "/assessment" },
+  { title: "财富诊断", desc: "问卷评估、家庭财务体检与现金流推演三合一诊断中心。", link: "/assessment" },
   { title: "FIS 沙盘", desc: "独立资产管理与 PortfolioHub 模拟系统。", link: "http://fis.wonderwisdom.online" },
   { title: "行政中枢", desc: "企业/家族办公室后台管理与 B 端系统。", link: "http://company.wonderwisdom.online" },
   { title: "香港投资移民", desc: "New CIES 专题：资格评估、ILI投资方案与顾问预约。", link: "/immigration" },

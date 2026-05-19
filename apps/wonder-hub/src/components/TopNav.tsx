@@ -20,7 +20,7 @@ function LoginModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onSuccess: (user: { name: string; email: string }) => void;
+  onSuccess: (user: { name: string; email: string; role?: string }) => void;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
