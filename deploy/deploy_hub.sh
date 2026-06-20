@@ -55,7 +55,24 @@ echo -e "${BOLD}================================================${NC}"
 if [[ "$QUICK" == false ]]; then
   step "1/4" "本地构建 (Next.js standalone)..."
   cd "$LOCAL_HUB"
+
+  # ⚠️  关键：.env.local 优先级高于 .env.production
+  # NEXT_PUBLIC_* 变量在 build 时被硬编译进 bundle
+  # 必须临时隐藏 .env.local，否则生产构建会把 localhost:8000 写入 JS
+  if [[ -f ".env.local" ]]; then
+    warn ".env.local 已临时移除（防止覆盖 .env.production）"
+    mv .env.local .env.local.bak
+  fi
+
+  # 确保构建失败时也能恢复 .env.local
+  trap '[[ -f .env.local.bak ]] && mv .env.local.bak .env.local && warn ".env.local 已恢复"' EXIT
+
   npx next build
+
+  # 恢复 .env.local（供本地开发使用）
+  [[ -f ".env.local.bak" ]] && mv .env.local.bak .env.local && success ".env.local 已恢复"
+  trap - EXIT  # 清除 trap
+
   success "Next.js 构建完成"
 else
   step "1/4" "跳过构建（快速模式）"

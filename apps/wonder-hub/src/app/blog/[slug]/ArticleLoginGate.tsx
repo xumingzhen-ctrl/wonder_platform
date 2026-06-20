@@ -1,164 +1,105 @@
 "use client";
 
 /**
- * 文章内嵌登录/权限门
- * - 未登录 → 显示登录表单
- * - 已登录但 free 角色 → 显示权限不足提示
- * - 登录成功后存 JWT 到 cookie 并刷新
+ * 文章口令解锁门 (Passcode Gate)
+ * - 接受口令输入（不区分大小写，口令为 "wonder"）
+ * - 验证成功后在客户端写入 Cookie "wonder_passcode" 并刷新页面展示全文
  */
 
-import { useState, useEffect } from "react";
-
-// 有权阅读受限文章的角色（与 fis-hub / company-admin 一致）
-const PRIVILEGED_ROLES = ["admin", "premium", "advisor"];
+import { useState } from "react";
 
 export function ArticleLoginGate({ slug }: { slug: string }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [passcode, setPasscode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [checking, setChecking] = useState(true);
 
-  // 检查当前登录状态和角色
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setChecking(false);
-      return;
-    }
-    // 从 JWT payload 解码 role
-    try {
-      const parts = token.split(".");
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        setUserRole(payload.role || "free");
-      }
-    } catch {
-      // token 无效
-    }
-    setChecking(false);
-  }, []);
-
-  async function handleLogin(e: React.FormEvent) {
+  async function handleUnlock(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "登录失败");
 
-      const token = data.access_token;
-      const role = data.role || "free";
+    // 增加 350ms 的轻微延迟，用于呈现微动画，提升解锁的流畅感受
+    await new Promise((resolve) => setTimeout(resolve, 350));
 
-      // 存 localStorage + cookie
-      localStorage.setItem("token", token);
-      document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
-
-      // 检查角色
-      if (PRIVILEGED_ROLES.includes(role)) {
-        // 有权 → 刷新显示全文
-        window.location.reload();
-      } else {
-        // free 角色 → 显示权限不足
-        setUserRole(role);
-        setError("");
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "登录失败，请重试");
-    } finally {
+    if (passcode.trim().toLowerCase() === "wonder") {
+      // 写入 30 天有效的 Cookie
+      document.cookie = `wonder_passcode=wonder; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+      // 重新加载页面以拉取 Server 端的全文
+      window.location.reload();
+    } else {
+      setError("访问口令不正确，请重新输入");
       setLoading(false);
     }
   }
 
-  if (checking) return null;
-
-  // 已登录但权限不足
-  if (userRole && !PRIVILEGED_ROLES.includes(userRole)) {
-    return (
-      <div className="my-8 rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-8 shadow-sm text-center">
-        <div className="inline-flex w-14 h-14 items-center justify-center rounded-2xl bg-amber-100 text-2xl mb-4">
-          🔐
-        </div>
-        <h3 className="text-xl font-semibold text-card-foreground mb-2">
-          权限不足
-        </h3>
-        <p className="text-sm text-foreground/60 max-w-sm mx-auto leading-relaxed mb-4">
-          您已登录，但当前账户（{userRole}）无权查看客户通讯内容。
-          <br />
-          此内容仅对 WONDER 签约客户开放。
-        </p>
-        <p className="text-xs text-muted-foreground">
-          如需升级权限，请
-          <a href="mailto:hello@wonderwisdom.online" className="text-primary hover:underline ml-1">
-            联系顾问
-          </a>
-        </p>
-      </div>
-    );
-  }
-
-  // 未登录 → 显示登录表单
   return (
-    <div className="my-8 rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-8 shadow-sm">
-      <div className="text-center mb-6">
-        <div className="inline-flex w-14 h-14 items-center justify-center rounded-2xl bg-amber-100 text-2xl mb-4">
+    <div className="my-12 rounded-[2rem] border border-amber-200/60 bg-gradient-to-br from-amber-50/40 via-card to-card p-8 md:p-12 shadow-xl backdrop-blur-md max-w-xl mx-auto relative overflow-hidden group">
+      {/* Premium background glow */}
+      <div className="absolute -top-12 -right-12 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-700" />
+      
+      <div className="text-center mb-8 relative z-10">
+        <div className="inline-flex w-16 h-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 text-3xl mb-5 shadow-inner">
           🔒
         </div>
-        <h3 className="text-xl font-semibold text-card-foreground mb-2">
-          客户通讯 · 仅限受邀客户
+        <h3 className="text-2xl font-semibold text-card-foreground mb-3 tracking-tight">
+          客户内参 · 受邀专属
         </h3>
-        <p className="text-sm text-foreground/60 max-w-sm mx-auto leading-relaxed">
-          此内容为 WONDER 受邀客户专属，包含定期市场分析与组合调整建议。
+        <p className="text-base text-foreground/60 max-w-sm mx-auto leading-relaxed font-light">
+          此内容为 WONDER 客户专享。
           <br />
-          如您已是我们的客户，请登录以阅读全文。
+          请输入您的访问口令以解锁完整阅读权限。
         </p>
       </div>
 
-      <form onSubmit={handleLogin} className="max-w-sm mx-auto space-y-3">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="电子邮件"
-          required
-          className="form-input"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="密码"
-          required
-          className="form-input"
-        />
+      <form onSubmit={handleUnlock} className="max-w-md mx-auto space-y-4 relative z-10">
+        <div className="relative">
+          <input
+            type="text"
+            value={passcode}
+            onChange={(e) => {
+              setPasscode(e.target.value);
+              if (error) setError("");
+            }}
+            placeholder="请输入您的专属访问口令"
+            required
+            disabled={loading}
+            className="w-full h-14 px-5 rounded-2xl border border-border bg-background/80 text-foreground placeholder-foreground/30 focus:outline-none focus:border-primary/80 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-center text-lg tracking-wide shadow-inner"
+          />
+        </div>
+
         {error && (
-          <p className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg">
-            {error}
-          </p>
+          <div className="text-sm text-destructive bg-destructive/5 border border-destructive/10 px-4 py-3 rounded-xl text-center animate-shake">
+            ⚠️ {error}
+          </div>
         )}
+
         <button
           type="submit"
-          disabled={loading}
-          className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+          disabled={loading || !passcode}
+          className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-medium text-base hover:opacity-95 active:scale-[0.99] transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none shadow-md flex items-center justify-center gap-2"
         >
-          {loading ? "登录中..." : "登录查看全文"}
+          {loading ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-current" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              正在验证并解锁...
+            </>
+          ) : (
+            "解锁阅读全文"
+          )}
         </button>
       </form>
 
-      <div className="text-center mt-4 space-y-2">
-        <p className="text-xs text-muted-foreground">
-          从微信公众号点击的用户，请使用公众号文章中的专属链接直接访问
+      <div className="text-center mt-8 space-y-2 text-xs text-foreground/40 font-light relative z-10 border-t border-border/50 pt-6">
+        <p>
+          从微信公众号点击阅读的朋友，直接使用公众号文章中的专属链接即可自动授权访问
         </p>
-        <p className="text-xs text-muted-foreground">
-          尚未开通？
+        <p>
+          尚未获取口令？
           <a href="mailto:hello@wonderwisdom.online" className="text-primary hover:underline ml-1">
-            联系顾问申请访问权限
+            联系您的财富顾问获取
           </a>
         </p>
       </div>

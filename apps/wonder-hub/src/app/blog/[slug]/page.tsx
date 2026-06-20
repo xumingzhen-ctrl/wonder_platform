@@ -120,8 +120,15 @@ async function checkAccess(slug: string, searchParams: Record<string, string>): 
     return true;
   }
 
-  // 2. JWT token（cookie 传入）→ 解码 role，仅 admin/premium/advisor 放行
   const cookieStore = await cookies();
+
+  // 2. 口令校验（支持不分大小写的 wonder 口令直接解锁）
+  const wonderPasscode = cookieStore.get("wonder_passcode")?.value;
+  if (wonderPasscode?.toLowerCase() === "wonder") {
+    return true;
+  }
+
+  // 3. JWT token（cookie 传入）→ 解码 role，仅 admin/premium/advisor 放行
   const jwtCookie = cookieStore.get("token")?.value;
   if (jwtCookie) {
     const role = decodeJwtRole(jwtCookie);
