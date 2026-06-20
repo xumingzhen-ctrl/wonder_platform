@@ -408,7 +408,7 @@ class RealTimeProvider:
         if fmp_key and "your_fmp" not in fmp_key:
             try:
                 # FMP ETF Sector Weightings API
-                res = requests.get(f"https://financialmodelingprep.com/api/v4/etf-sector-weightings?symbol={isin}&apikey={fmp_key}", timeout=2)
+                res = requests.get(f"https://financialmodelingprep.com/stable/etf/sector-weightings?symbol={isin}&apikey={fmp_key}", timeout=2)
                 if res.status_code == 200 and isinstance(res.json(), list) and len(res.json()) > 0:
                     sectors = {item['sector']: float(item['weightPercentage'].strip('%'))/100 for item in res.json() if 'sector' in item}
                     return sectors, {}
@@ -450,7 +450,7 @@ class RealTimeProvider:
         # Priority 1: FMP (Extremely fast for standard ETFs/Stocks)
         if fmp_key and "your_fmp" not in fmp_key:
             try:
-                res = requests.get(f"https://financialmodelingprep.com/api/v3/quote/{isin}?apikey={fmp_key}", timeout=2)
+                res = requests.get(f"https://financialmodelingprep.com/stable/quote?symbol={isin}&apikey={fmp_key}", timeout=2)
                 if res.status_code == 200 and isinstance(res.json(), list) and len(res.json()) > 0:
                     data = res.json()[0]
                     return float(data.get('price', 0)), data.get('name')
@@ -630,13 +630,15 @@ class RealTimeProvider:
         # Priority 2: FMP
         if fmp_key and "your_fmp" not in fmp_key:
             try:
-                res = requests.get(f"https://financialmodelingprep.com/api/v3/historical-price-full/{isin}?from={start_str}&to={end_str}&apikey={fmp_key}", timeout=4)
-                if res.status_code == 200 and 'historical' in res.json():
-                    fmp_data = res.json()['historical']
-                    for item in fmp_data:
-                        results[item['date']] = float(item['close'])
-                    if len(results) > (days_back * 0.6):
-                        return results
+                res = requests.get(f"https://financialmodelingprep.com/stable/historical-price-eod/light?symbol={isin}&from={start_str}&to={end_str}&apikey={fmp_key}", timeout=4)
+                if res.status_code == 200:
+                    fmp_data = res.json()
+                    if isinstance(fmp_data, list):
+                        for item in fmp_data:
+                            if 'date' in item and 'price' in item:
+                                results[item['date']] = float(item['price'])
+                        if len(results) > (days_back * 0.6):
+                            return results
             except Exception:
                 pass
 
