@@ -65,20 +65,36 @@ def convert_to_jpeg_pages(file_bytes: bytes, filename: str) -> List[bytes]:
 
 
 def _image_to_jpegs(file_bytes: bytes, filename: str) -> List[bytes]:
-    """将单张图片（JPEG/PNG/HEIC）转换为 JPEG bytes"""
-    try:
-        img = Image.open(io.BytesIO(file_bytes))
-        img = img.convert("RGB")  # 统一转为 RGB（处理 RGBA / 灰度图）
+    """将单张图片（JPEG/PNG/HEIC）转换为 JPEG bytes
 
-        # 如果图片尺寸过大，做一次等比缩放（避免 base64 超出 API 限制）
-        max_dimension = 4096
-        if img.width > max_dimension or img.height > max_dimension:
-            img.thumbnail((max_dimension, max_dimension), Image.LANCZOS)
-            logger.info(f"图片 {filename} 已缩放至 {img.size}（原图过大）")
+    关键优化：发送给 AI 前先压缩，防止大图在内存中膨胀导致 OOM。
+    发票识别对分辨率要求不高，1600px / quality=75 已足够清晰读取文字。
+    """
+    try:
+        from PIL import ImageOps
+        img = Image.open(io.BytesIO(file_bytes))
+
+        # 修正 EXIF 旋转方向（手机拍照经常出现方向问题）
+        img = ImageOps.exif_transpose(img)
+
+        # 统一转为 RGB（处理 RGBA / 灰度图）
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+
+        # 限制最大边长：发票识别 1600px 已足够，大幅降低 base64 体积（防 OOM）
+        MAX_DIMENSION = 1600
+        if img.width > MAX_DIMENSION or img.height > MAX_DIMENSION:
+            img.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.LANCZOS)
+            logger.info(f"[预压缩] {filename} 已缩放至 {img.size}")
 
         output = io.BytesIO()
-        img.save(output, format="JPEG", quality=90, optimize=True)
-        return [output.getvalue()]
+        img.save(output, format="JPEG", quality=75, optimize=True)
+        compressed = output.getvalue()
+        logger.info(
+            f"[预压缩] {filename}: 原始 {len(file_bytes)//1024}KB → "
+            f"压缩后 {len(compressed)//1024}KB，送 AI 前完成"
+        )
+        return [compressed]
 
     except Exception as e:
         raise RuntimeError(f"图片转换失败 [{filename}]: {e}") from e
@@ -94,13 +110,19 @@ def _pdf_to_jpegs(file_bytes: bytes, filename: str) -> List[bytes]:
 
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
-            # dpi=150 对发票识别足够清晰，同时控制文件大小
-            mat = fitz.Matrix(150 / 72, 150 / 72)
+            # dpi=120 对发票识别足够，比 150 节省约 35% 内存（防 OOM）
+            mat = fitz.Matrix(120 / 72, 120 / 72)
             pix = page.get_pixmap(matrix=mat, colorspace=fitz.csRGB)
 
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+
+            # PDF 页同样限制最大边长
+            MAX_DIMENSION = 1600
+            if img.width > MAX_DIMENSION or img.height > MAX_DIMENSION:
+                img.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.LANCZOS)
+
             output = io.BytesIO()
-            img.save(output, format="JPEG", quality=90, optimize=True)
+            img.save(output, format="JPEG", quality=75, optimize=True)
             pages.append(output.getvalue())
 
             logger.debug(f"PDF [{filename}] 第 {page_num + 1}/{len(doc)} 页已转换")
