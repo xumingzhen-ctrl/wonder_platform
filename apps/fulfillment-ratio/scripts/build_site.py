@@ -455,8 +455,6 @@ def build(stats: dict, skin_key: str) -> str:
                      f"width:11px;height:11px;border-radius:3px;margin-right:7px'></span>"
                      f"{esc(comps[c]['short_zh'])}</td>")
             if not s.get("n"):
-                t.append("<td colspan='5' style='text-align:center;color:#888;font-size:12.5px;background:#faf9f6'>"
-                         "未披露（合规要求仅强制披露FR，不披露TCVR为严谨做法，避免保证现价掩盖真实红利表现）</td></tr>")
                 continue
             
             t.append(f"<td class='num'>{s['n']}</td>"

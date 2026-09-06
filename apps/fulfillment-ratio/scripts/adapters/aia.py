@@ -33,6 +33,7 @@ CODE = "AIA"
 SHORT = "友邦"
 URL = "https://www.aia.com.hk/zh-cn/products/further-product-information/participating-products/fulfillment-ratio"
 JSON_URL = "https://www.aia.com.hk/content/dam/hk-wise/json/further-product-information/2026/fulfillment-ratio.json"
+JSON_URL_TCVR = "https://www.aia.com.hk/content/dam/hk-wise/json/further-product-information/2026/total-cash-value-ratio.json"
 SOURCES = [("zh-cn-render", URL)]
 BASE = pathlib.Path(__file__).resolve().parent.parent.parent
 
@@ -41,11 +42,11 @@ _SUP_RE = re.compile(r"<sup>.*?</sup>", re.S)
 _GL16_FLOOR = 2010
 
 
-def _load_json(fetch_date: str, use_archive: bool) -> dict:
-    fpath = BASE / "data" / "raw" / CODE / fetch_date / "api" / "fulfillment-ratio.json"
+def _load_json(fetch_date: str, use_archive: bool, url: str, fname: str) -> dict:
+    fpath = BASE / "data" / "raw" / CODE / fetch_date / "api" / fname
     if use_archive and fpath.exists():
         return json.loads(fpath.read_text("utf-8"))
-    r = requests.get(JSON_URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=60)
+    r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=60)
     r.raise_for_status()
     fpath.parent.mkdir(parents=True, exist_ok=True)
     fpath.write_bytes(r.content)
@@ -53,12 +54,14 @@ def _load_json(fetch_date: str, use_archive: bool) -> dict:
 
 
 def parse(html: str, source_url: str, fetch_date: str, use_archive: bool = False):
-    data = _load_json(fetch_date, use_archive)
-    reporting_year = int(data["report_year"])
+    data_fr = _load_json(fetch_date, use_archive, JSON_URL, "fulfillment-ratio.json")
+    data_tcvr = _load_json(fetch_date, use_archive, JSON_URL_TCVR, "total-cash-value-ratio.json")
+    reporting_year = int(data_fr["report_year"])
     facts: list[dict] = []
-    stats = {"products": len(data["pData"]), "rows": 0}
+    stats = {"products": len(data_fr["pData"]), "rows": 0}
 
-    for p in data["pData"]:
+    # FR Parsing
+    for p in data_fr["pData"]:
         product_raw = p["productNm"]["zh-cn"].strip()
         ptype = p.get("type", {}).get("zh-cn", "").strip()
         for series_key, bonus_type in _BONUS_MAP.items():
@@ -86,6 +89,35 @@ def parse(html: str, source_url: str, fetch_date: str, use_archive: bool = False
                         policy_year_override=override,
                     ))
                     stats["rows"] += 1
+
+    # TCVR Parsing
+    for p in data_tcvr.get("pData", []):
+        product_raw = p["productNm"]["zh-cn"].strip()
+        ptype = p.get("type", {}).get("zh-cn", "").strip()
+        for series in p.get("row") or []:
+            currency = series.get("currency", {}).get("zh-cn", "所有") or "所有"
+            for d in series["data"]:
+                y = d["year"]
+                raw_val = _SUP_RE.sub("", d["ratio"]).strip()
+                if y.startswith("Before"):
+                    inception, y_end, override = _GL16_FLOOR, int(y.split()[-1]) - 1, 11
+                    label = f"第11个保单年度+({y})"
+                else:
+                    inception, y_end, override = int(y), None, None
+                    label = None
+                facts.append(make_fact(
+                    insurer_code=CODE, insurer_short=SHORT,
+                    product_raw=product_raw, product_type_raw=ptype,
+                    metric="TCVR", bonus_type="tcvr",
+                    reporting_year=reporting_year,
+                    inception_year=inception,
+                    raw_value=raw_val, source_url=JSON_URL_TCVR,
+                    fetch_date=fetch_date, currency=currency,
+                    inception_year_end=y_end,
+                    policy_year_label=label,
+                    policy_year_override=override,
+                ))
+                stats["rows"] += 1
 
     seen, uniq = set(), []
     for f in facts:
