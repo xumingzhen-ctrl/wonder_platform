@@ -67,6 +67,15 @@ tbody tr:hover{background:#faf9f6}
 .good{background:#E1F5EE;color:#0F6E56}
 .warn{background:#FAEEDA;color:#854F0B}
 .bad{background:#FCEBEB;color:#A32D2D}
+.yr-chip{display:inline-flex;border:1px solid #e9e7e1;border-radius:4px;font-size:11.5px;overflow:hidden;background:#fff;line-height:1;margin:1px 0}
+.yr-chip .yr{background:#f2f1ec;color:#6b6a65;padding:3px 5px;border-right:1px solid #e9e7e1}
+.yr-chip .val{padding:3px 5px;font-weight:600}
+.yr-chip.good{border-color:#b5e3d4} .yr-chip.good .yr{border-color:#b5e3d4;background:#e5f7ed}
+.yr-chip.good .val{color:#0F6E56;background:#f2fcf7}
+.yr-chip.warn{border-color:#f2e1c9} .yr-chip.warn .yr{border-color:#f2e1c9;background:#fcf3e3}
+.yr-chip.warn .val{color:#ba7517;background:#fffcf2}
+.yr-chip.bad{border-color:#f0d1d1} .yr-chip.bad .yr{border-color:#f0d1d1;background:#fae3e3}
+.yr-chip.bad .val{color:#A32D2D;background:#fff5f5}
 .note-box{background:#fff;border:1px solid #e9e7e1;border-left:3px solid #BA7517;
  border-radius:8px;padding:14px 18px;margin:18px 0;font-size:13.5px}
 .note-box.info{border-left-color:#185FA5}
@@ -655,7 +664,12 @@ def build(stats: dict, skin_key: str) -> str:
         s = p["stats"]
         if not s.get("n"):
             continue
-        ser = "　".join(f"{y}:{v:.0f}%" for y, v in list(p["series"].items())[:12])
+            
+        chips = []
+        for y, v in list(p["series"].items())[:15]:
+            c_cls = "good" if v >= 90 else ("warn" if v >= 70 else "bad")
+            chips.append(f"<span class='yr-chip {c_cls}'><span class='yr'>{y}</span><span class='val'>{v:.0f}%</span></span>")
+        ser_html = f"<div style='display:flex;flex-wrap:wrap;gap:4px;'>{''.join(chips)}</div>"
         
         # Format Metric for display
         metric_disp = "分红实现率(FR)" if p['metric'] == "FR" else "总现价比率(TCVR)"
@@ -669,7 +683,7 @@ def build(stats: dict, skin_key: str) -> str:
         a(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
         a(f"<td class='num'>{s['min']:.0f}–{s['max']:.0f}%</td>")
         a(f"<td class='num'>{s['ge90']:.0f}%</td>")
-        a(f"<td class='src'>{esc(ser)}</td></tr>")
+        a(f"<td>{ser_html}</td></tr>")
     a("</tbody></table></div>")
     a("</div></section>")
 
