@@ -1,0 +1,12 @@
+{
+  "insurer_code": "MANU",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.manulife.com.hk/zh-cn/individual/products/understanding-your-participating-policy/fulfillment-ratio.html",
+  "channel": "browser",
+  "slug": "zh-cn",
+  "status": 403,
+  "bytes": 385,
+  "elapsed_s": 5.43,
+  "note": "MANU/zh-cn",
+  "extra": {}
+}

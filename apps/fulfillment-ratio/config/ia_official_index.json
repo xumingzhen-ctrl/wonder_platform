@@ -1,0 +1,187 @@
+{
+    "fulfillment_ratio": [
+	    {
+            "insurer": ["AIA International Limited", "友邦保險 (國際) 有限公司", "友邦保险(国际)有限公司 "],
+            "insurer_storke": ["5", "5", "5"],
+            "webpages": [["https://www.aia.com.hk/en/products/further-product-information/participating-products/fulfillment-ratio"],["https://www.aia.com.hk/zh-hk/products/further-product-information/participating-products/fulfillment-ratio"],["https://www.aia.com.hk/zh-cn/products/further-product-information/participating-products/fulfillment-ratio"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+		{
+            "insurer": ["Assicurazioni Generali Società per Azioni", "忠意保險有限公司（香港分行）", "忠意保险有限公司（香港分行）"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.generali.com.hk/EN_US/claims_and_support/reference/generali_spa"],["https://www.generali.com.hk/ZH_HK/claims_and_support/reference/generali_spa"],["https://www.generali.com.hk/ZH_CN/claims_and_support/reference/generali_spa"]],
+            "update_frequency": ["In March each year", "每年3月", "每年3月"]
+        },
+		{
+            "insurer": ["AXA China Region Insurance Company (Hong Kong) Limited", "安盛金融保險(香港)有限公司", "安盛金融保险(香港)有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.axa.com.hk/en/article/fulfilment-ratios-and-total-value-ratios"],["https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios"],["https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios "]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+		{
+            "insurer": ["AXA China Region Insurance Company Limited", "安盛金融有限公司", "安盛金融有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.axa.com.hk/en/article/fulfilment-ratios-and-total-value-ratios"],["https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios"],["https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+		{
+            "insurer": ["AIA Everest Life Company Limited", "友邦雋峰人壽有限公司", "友邦隽峰人寿有限公司"],
+            "insurer_storke": ["5", "5", "5"],
+            "webpages": [["https://www.aia.com.hk/content/dam/hk-wise/pdf/aia-everest/aiae-fulfilment-ratio-eng.pdf.coredownload.inline.pdf"],["https://www.aia.com.hk/content/dam/hk-wise/pdf/aia-everest/aiae-fulfilment-ratio-tc.pdf.coredownload.inline.pdf"],["https://www.aia.com.hk/content/dam/hk-wise/pdf/aia-everest/aiae-fulfilment-ratio-sc.pdf.coredownload.inline.pdf"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+		{
+            "insurer": ["Blue Insurance Limited", "微藍保險有限公司", "微蓝保险有限公司"],
+            "insurer_storke": ["13", "13", "13"],
+            "webpages": [["https://www.blue.com.hk/en/participating_policies"],["https://www.blue.com.hk/hk/participating_policies"],["https://www.blue.com.hk/cn/participating_policies"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+		{
+            "insurer": ["BOC Group Life Assurance Company Limited", "中銀集團人壽保險有限公司", "中银集团人寿保险有限公司"],
+            "insurer_storke": ["5", "5", "5"],
+            "webpages": [["https://www.boclife.com.hk/en/support/financial-information/dividend-fulfillment-ratios.html"],["https://www.boclife.com.hk/tc/support/financial-information/dividend-fulfillment-ratios.html"],["https://www.boclife.com.hk/sc/support/financial-information/dividend-fulfillment-ratios.html"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+		{
+            "insurer": ["China Life Insurance (Overseas) Company Limited", "中國人壽保險（海外）股份有限公司", "中国人寿保险（海外）股份有限公司"],
+            "insurer_storke": ["5", "5", "5"],
+            "webpages": [["https://www.chinalife.com.hk/products/dividend-philosophy-and-investment-strategy"],["https://www.chinalife.com.hk/zh-hk/products/dividend-philosophy-and-investment-strategy"],["https://www.chinalife.com.hk/zh-cn/products/dividend-philosophy-and-investment-strategy"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+        {
+            "insurer": ["China Pacific Life Insurance (H.K.) Company Limited", "中國太平洋人壽保險(香港)有限公司", "中国太平洋人寿保险(香港)有限公司"],
+            "insurer_storke": ["5", "5", "5"],
+            "webpages": [["https://www.cpiclifehk.com.hk/en/customerSupport/importantInfo"],["https://www.cpiclifehk.com.hk/customerSupport/importantInfo"],["https://www.cpiclifehk.com.hk/sc/customerSupport/importantInfo"]],
+            "update_frequency": ["In April each year", "每年4月", "每年4月"]
+        
+        },
+		{
+            "insurer": ["China Taiping Life Insurance (Hong Kong) Company Limited", "中國太平人壽保險（香港）有限公司", "中国太平人寿保险（香港）有限公司"],
+            "insurer_storke": ["5", "5", "5"],
+            "webpages": [["https://tplhk.cntaiping.com/en/info/fulfillment_ratio"],["https://tplhk.cntaiping.com/info/fulfillment_ratio"],["https://tplhk.cntaiping.com/info/fulfillment_ratio"]],
+            "update_frequency": ["In April each year", "每年4月", "每年4月"]
+        },
+		{
+            "insurer": ["Chubb Life Insurance Hong Kong Limited", "安達人壽保險香港有限公司", "安达人寿保险香港有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.chubblife.com.hk/en/customer-service/fulfillment-ratios-of-dividend.html"],["https://www.chubblife.com.hk/zh/customer-service/fulfillment-ratios-of-dividend.html"],["https://www.chubblife.com.hk/cn/customer-service/fulfillment-ratios-of-dividend.html"]],
+            "update_frequency": ["In March each year", "每年3月", "每年3月"]
+        },
+		{
+            "insurer": ["Chow Tai Fook Life Insurance Company Limited", "周大福人壽保險有限公司", "周大福人寿保险有限公司"],
+            "insurer_storke": ["15", "15", "15"],
+            "webpages": [["https://www.ctflife.com.hk/en/support/important-information/fulfillment-ratios-dividends"],["https://www.ctflife.com.hk/tc/support/important-information/fulfillment-ratios-dividends"],["https://www.ctflife.com.hk/sc/support/important-information/fulfillment-ratios-dividends"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        },
+		{
+            "insurer": ["Fubon Life Insurance (Hong Kong) Company Limited", "富邦人壽保險（香港）有限公司", "富邦人寿保险（香港）有限公司"],
+            "insurer_storke": ["15", "15", "15"],
+            "webpages": [["https://www.fubonlife.com.hk/fulfillment-ratios_crediting-interest_en.html"],["https://www.fubonlife.com.hk/fulfillment-ratios_crediting-interest.html"],["https://www.fubonlife.com.hk/fulfillment-ratios_crediting-interest.html"]],
+            "update_frequency": ["In February each year", "每年2月", "每年2月"]
+        }
+		,
+		{
+            "insurer": ["FWD Life (Hong Kong) Limited", "富衛人壽（香港）有限公司", "富卫人寿（香港）有限公司"],
+            "insurer_storke": ["15", "15", "15"],
+            "webpages": [["https://www.fwdlife.hk/en/support-claims/regulatory-disclosures/"],["https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/"],["https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }
+		,
+		{
+            "insurer": ["FWD Life Assurance Company (Hong Kong) Limited", "富衛人壽保險（香港）有限公司", "富卫人寿保险（香港）有限公司"],
+            "insurer_storke": ["15", "15", "15"],
+            "webpages": [["https://www.fwdlife.hk/en/support-claims/regulatory-disclosures/"],["https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/"],["https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }
+		,
+		{
+            "insurer": ["FWD Life Insurance Company (Bermuda) Limited", "富衛人壽保險（百慕達）有限公司", "富卫人寿保险（百慕达）有限公司"],
+            "insurer_storke": ["15", "15", "15"],
+            "webpages": [["https://www.fwd.com.hk/en/regulatory-disclosures/fulfillment-ratios/"],["https://www.fwd.com.hk/regulatory-disclosures/fulfillment-ratios/"],["https://www.fwd.com.hk/regulatory-disclosures/fulfillment-ratios/"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }
+		,
+		{
+            "insurer": ["Generali Life (Hong Kong) Limited", "忠意人壽（香港）有限公司", "忠意人寿（香港）有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.generali.com.hk/EN_US/claims_and_support/reference/generali_life"],["https://www.generali.com.hk/ZH_HK/claims_and_support/reference/generali_life"],["https://www.generali.com.hk/ZH_CN/claims_and_support/reference/generali_life"]],
+            "update_frequency": ["In March each year", "每年3月", "每年3月"]
+        }
+		,
+		{
+            "insurer": ["Hang Seng Insurance Company Limited", "恒生保險有限公司", "恒生保险有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.hangseng.com/en-hk/personal/insurance-mpf/fulfillment-ratio/"],["https://www.hangseng.com/zh-hk/personal/insurance-mpf/fulfillment-ratio/"],["https://www.hangseng.com/zh-cn/personal/insurance-mpf/fulfillment-ratio/"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }
+		,
+		{
+            "insurer": ["Hong Kong Life Insurance Limited", "香港人壽保險有限公司", "香港人寿保险有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.hklife.com.hk/en/customer-info/fulfillment-ratios"],["https://www.hklife.com.hk/tc/customer-info/fulfillment-ratios"],["https://www.hklife.com.hk/sc/customer-info/fulfillment-ratios"]],
+            "update_frequency": ["In May each year", "每年5月", "每年5月"]
+        }		
+		,
+		{
+            "insurer": ["HSBC Life (International) Limited", "滙豐人壽保險（國際）有限公司", "汇丰人寿保险（国际）有限公司"],
+            "insurer_storke": ["15", "15", "15"],
+            "webpages": [["https://www.hsbc.com.hk/misc/insurance/fulfillment-ratio/"],["https://www.hsbc.com.hk/zh-hk/misc/insurance/fulfillment-ratio/"],["https://www.hsbc.com.hk/zh-cn/misc/insurance/fulfillment-ratio/"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }		
+		,
+		{
+            "insurer": ["Manulife (International) Limited", "宏利人壽保險（國際）有限公司", "宏利人寿保险（国际）有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.manulife.com.hk/en/individual/products/understanding-your-participating-policy/fulfillment-ratio.html"],["https://www.manulife.com.hk/zh-hk/individual/products/understanding-your-participating-policy/fulfillment-ratio.html"],["https://www.manulife.com.hk/zh-cn/individual/products/understanding-your-participating-policy/fulfillment-ratio.html"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }
+
+		,
+		{
+            "insurer": ["Prudential Hong Kong Limited", "保誠保險有限公司", "保诚保险有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.prudential.com.hk/performance/fulfillment-ratio/en/index.html"],["https://www.prudential.com.hk/performance/fulfillment-ratio/tc/"],["https://www.prudential.com.hk/performance/fulfillment-ratio/tc/"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }
+
+		,
+		{
+            "insurer": ["Sun Life Hong Kong Limited", "香港永明金融有限公司", "香港永明金融有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.sunlife.com.hk/en/insurance/savings-and-life/fulfillment-ratios-of-respective-products/?WT.mc_id=en-hk:others:referral:IA:content:awareness:branding:IA_referral:sitelink"],["https://www.sunlife.com.hk/zh-hant/insurance/savings-and-life/fulfillment-ratios-of-respective-products/?WT.mc_id=zh-hk:others:referral:IA:content:awareness:branding:IA_referral:sitelink"],["https://www.sunlife.com.hk/zh-hans/insurance/savings-and-life/fulfillment-ratios-of-respective-products/?WT.mc_id=sc-hk:others:referral:IA:content:awareness:branding:IA_referral:sitelink"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }
+
+
+		,
+		{
+            "insurer": ["Tahoe Life Insurance Company Limited", "泰禾人壽保險有限公司", "泰禾人寿保险有限公司"],
+            "insurer_storke": ["10", "10", "10"],
+            "webpages": [["https://www.tahoelife.com.hk/tl/export/sites/default/.images/PDF/hfr_en.pdf"],["https://www.tahoelife.com.hk/tl/export/sites/default/.images/PDF/hfr_tc.pdf"],["https://www.tahoelife.com.hk/tl/export/sites/default/.images/PDF/hfr_sc.pdf"]],
+            "update_frequency": ["In August each year", "每年8月", "每年8月"]
+        }
+
+		,
+		{
+            "insurer": ["Well Link Life Insurance Company Limited", "立橋人壽保險有限公司", "立桥人寿保险有限公司"],
+            "insurer_storke": ["5", "5", "5"],
+            "webpages": [["https://www.wli.com.hk/en/SitemapDividendPhilosophy.jhtml"],["https://www.wli.com.hk/SitemapDividendPhilosophy.jhtml"],["https://www.wli.com.hk/SitemapDividendPhilosophy.jhtml"]],
+            "update_frequency": ["In January each year", "每年1月", "每年1月"]
+        }	
+		,
+		{
+            "insurer": ["YF Life Insurance International Limited", "萬通保險國際有限公司", "万通保险国际有限公司"],
+            "insurer_storke": ["15", "15", "15"],
+            "webpages": [["https://corp.yflife.com/en/Hong-Kong/Individual/Services/Useful-Information/Investment-Strategy"],["https://corp.yflife.com/tc/Hong-Kong/Individual/Services/Useful-Information/Investment-Strategy"],["https://corp.yflife.com/sc/Hong-Kong/Individual/Services/Useful-Information/Investment-Strategy"]],
+            "update_frequency": ["In April each year", "每年4月", "每年4月"]
+        },
+        {
+            "insurer": ["Zurich Life Insurance (Hong Kong) Limited", "蘇黎世人壽保險（香港）有限公司", "苏黎世人寿保险（香港）有限公司"],
+            "insurer_storke": ["20", "20", "20"],
+            "webpages": [["https://www.zurich.com.hk/en/customer-services/life-policy-services/zlihk#important-information"],["https://www.zurich.com.hk/zh-hk/customer-services/life-policy-services/zlihk#important-information"],["https://www.zurich.com.hk/zh-hk/customer-services/life-policy-services/zlihk#important-information"]],
+            "update_frequency": ["In June each year", "每年6月", "每年6月"]
+        }	
+    ],
+    "showlastupdate":"2021\/3\/19",
+    "result":"true"
+}

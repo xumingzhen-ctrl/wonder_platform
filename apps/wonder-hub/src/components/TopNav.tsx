@@ -226,7 +226,17 @@ export function TopNav({ currentPath }: { currentPath?: string }) {
             >
               财务诊断
             </Link>
+            <a
+              href="/fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors flex items-center gap-1 text-primary/90 font-medium"
+            >
+              <span>分红实现率</span>
+              <span className="text-[10px] px-1.5 py-0.2 bg-primary/10 text-primary rounded-full font-mono">GL16</span>
+            </a>
           </div>
+
 
           {/* 登录区 */}
           <div className="flex items-center gap-3">

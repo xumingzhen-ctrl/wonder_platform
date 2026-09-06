@@ -1,0 +1,12 @@
+{
+  "insurer_code": "HSBC",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.hsbc.com.hk/zh-cn/misc/insurance/fulfillment-ratio/endowment/",
+  "channel": "static",
+  "slug": "endowment",
+  "status": 200,
+  "bytes": 68082,
+  "elapsed_s": 0.77,
+  "note": "HSBC subpage",
+  "extra": {}
+}

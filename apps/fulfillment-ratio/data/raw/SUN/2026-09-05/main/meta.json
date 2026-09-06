@@ -1,0 +1,11 @@
+{
+  "insurer_code": "SUN",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.sunlife.com.hk/zh-hans/insurance/fulfillment-ratios-of-respective-products/",
+  "channel": "static",
+  "status": 200,
+  "bytes": 496206,
+  "elapsed_s": 0.0,
+  "note": "IA索引URL指向savings-and-life路径(仅个案);真实产品级数据在此路径",
+  "extra": {}
+}

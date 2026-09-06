@@ -1,0 +1,12 @@
+{
+  "insurer_code": "HSBC",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.hsbc.com.hk/zh-cn/misc/insurance/fulfillment-ratio/",
+  "channel": "static",
+  "slug": "main",
+  "status": 200,
+  "bytes": 49006,
+  "elapsed_s": 0.82,
+  "note": "P1 initial fetch",
+  "extra": {}
+}

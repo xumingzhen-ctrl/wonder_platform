@@ -1,0 +1,12 @@
+{
+  "insurer_code": "YF",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.yflife.com/sc/support/useful-information/investment-strategy/",
+  "channel": "static",
+  "slug": "main",
+  "status": 200,
+  "bytes": 1074702,
+  "elapsed_s": 0.61,
+  "note": "YF real FR page (www host)",
+  "extra": {}
+}

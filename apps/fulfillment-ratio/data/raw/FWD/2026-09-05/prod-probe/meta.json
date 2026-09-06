@@ -1,0 +1,12 @@
+{
+  "insurer_code": "FWD",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.fwd.com.hk/regulatory-disclosures/fulfillment-ratios/aeconolife-20/",
+  "channel": "static",
+  "slug": "prod-probe",
+  "status": 200,
+  "bytes": 1263257,
+  "elapsed_s": 0.53,
+  "note": "FWD/prod-probe",
+  "extra": {}
+}

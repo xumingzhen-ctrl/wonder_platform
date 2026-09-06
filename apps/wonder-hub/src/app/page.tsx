@@ -43,20 +43,58 @@ export default function Home() {
       </section>
 
       {/* Feature Navigation Grid */}
-      <section className="w-full max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-6 pb-32">
+      <section className="w-full max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 pb-32">
         {[
+          { title: "分紅實現率", desc: "香港 12 家主流險企 GL16 分紅兌現數據庫與深度導讀。", link: "/fr", isExternal: true, highlight: true },
           { title: "專業研究", desc: "前沿的宏觀經濟與資產配置文章。", link: "/blog" },
           { title: "健康診斷", desc: "評估您的家庭資產負債與收支風險。", link: "/assessment#diagnostic" },
           { title: "組合推演", desc: "基於複利與現金流折現的長期預測。", link: "/assessment#simulation" },
           { title: "企業保障", desc: "雇員補償、MPF 及團體醫療方案詢價。", link: "/insurance" },
         ].map((item, idx) => (
-          <Link href={item.link} key={idx} className="group relative p-8 rounded-[2rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-xl hover:bg-card transition-all duration-500 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <h3 className="text-2xl font-semibold mb-3 text-card-foreground">{item.title}</h3>
-            <p className="text-base text-foreground/80 font-light leading-relaxed">{item.desc}</p>
-          </Link>
+          item.isExternal ? (
+            <a 
+              href={item.link} 
+              key={idx} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={cn(
+                "group relative p-6 rounded-[2rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-xl hover:bg-card transition-all duration-500 overflow-hidden flex flex-col justify-between",
+                item.highlight && "border-primary/40 bg-primary/5"
+              )}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-semibold text-card-foreground">{item.title}</h3>
+                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-primary/20 text-primary font-bold">LIVE</span>
+                </div>
+                <p className="text-sm text-foreground/80 font-light leading-relaxed">{item.desc}</p>
+              </div>
+              <div className="mt-4 text-xs text-primary font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>查閱官方數據</span>
+                <span>→</span>
+              </div>
+            </a>
+          ) : (
+            <Link 
+              href={item.link} 
+              key={idx} 
+              className="group relative p-6 rounded-[2rem] border border-border bg-card/40 backdrop-blur-sm hover:shadow-xl hover:bg-card transition-all duration-500 overflow-hidden flex flex-col justify-between"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div>
+                <h3 className="text-xl font-semibold mb-2 text-card-foreground">{item.title}</h3>
+                <p className="text-sm text-foreground/80 font-light leading-relaxed">{item.desc}</p>
+              </div>
+              <div className="mt-4 text-xs text-foreground/50 group-hover:text-foreground font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>進入系統</span>
+                <span>→</span>
+              </div>
+            </Link>
+          )
         ))}
       </section>
+
     </main>
   );
 }

@@ -1,0 +1,12 @@
+{
+  "insurer_code": "FWD",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.fwd.com.hk/regulatory-disclosures/fulfillment-ratios/",
+  "channel": "static",
+  "slug": "fwd-tc",
+  "status": 200,
+  "bytes": 1326331,
+  "elapsed_s": 0.62,
+  "note": "FWD/fwd-tc",
+  "extra": {}
+}

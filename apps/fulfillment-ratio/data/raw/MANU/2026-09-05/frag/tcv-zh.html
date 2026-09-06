@@ -1,0 +1,220 @@
+<script src="https://tools.manulife.com.hk/general/assets/jquery-3.5.1.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="https://tools.manulife.com.hk/fulfillment-tcv-2024/css/style.css" /> -->
+<link rel="stylesheet" type="text/css" href="https://tools.manulife.com.hk/fulfillment-tcv-2024/html/common/style.css?144779784" />
+<link rel="stylesheet" type="text/css" href="https://tools.manulife.com.hk/fulfillment-tcv-2024/html/common/cusStyle.css?1435525072" />
+<script src="https://tools.manulife.com.hk/fulfillment-tcv-2024/html/common/cus.js?890068955"></script>
+<input type="hidden" name="lang" id="lang-tcv" value="tc">
+<input type="hidden" name="selected1" id="selected-tcv1" value="">
+<input type="hidden" name="selected2" id="selected-tcv2" value="">
+<main class="fulfillment-ratio shadow tc">
+	<div class="top-section">
+		<div class="flex">
+			<div class="intro">
+				<!-- <h5>（最後更新日期為2024年6月30日）</h5> -->
+				<p>以下為宏利在香港及澳門部份（非全部）的分紅保險產品之過往總現金價值比率的概覽。此概覽只包括這些產品自2010年以來有新保單簽發且於2025申報年度有仍然保單生效之各個產品系列。</p>
+				<p>總現金價值比率顯示所有相關保單於其各自保單年度的實際表現與銷售時說明文件（建議書）所示的預計金額之差別，只旨在作為參考，並不應解讀成對將來表現的預測或估算。總現金價值比率及過往的表現並不應解讀成對分紅保險產品將來表現的指標。</p>
+
+				<div class="cusTeaserBanner pt-30">
+					<div class="item itemA"><i class="mnlicon-Calculator"></i></div>
+					<div  class="item itemB">
+						<p><strong>總現金價值比率是如何計算的？</strong></p>
+						<p>總現金價值比率是根據在申報年度所有相關保單的實際總現金價值，包括所有適用的保證成份（例如保證現金價值、保證現金儲備、保證每月入息、保證每月年金及／或保證獎賞）及所有適用的非保證成份（例如每年紅利、終期紅利、特別紅利、非保證現金儲備、非保證每月入息及／或非保證每月年金），比對其於銷售時說明文件（建議書）上所示之預計總現金價值（即總退保價值）所計算的比率。</p>
+					</div>
+				</div>
+					
+				<div class="pb-30">
+					<p>就計算總現金價值比率時，假設：</p>
+					<ul class="cusList">
+						<li>自保單簽發以來所有已公佈之每年紅利及每月入息 / 每月年金 / 現金儲備（如有）都積存於宏利以按照適用於相關保單之實際利率積存生息。</li>
+						<li>所有總現金價值比率的計算均假設所有有關保單自保單簽發日起至申報年度終結為止所有應繳保費已被全數支付、沒有提前繳付保費、沒有作出保單貸款，沒有行使任何保單選項以及沒有從積存金額提取款項。</li>
+					</ul>
+				</div>
+				<p>請注意，總現金價值比率僅以比較實際累積表現與銷售時所示之預計金額作為參考，並與分紅實現率的計算基礎不相同。</p>
+				<p>未來實際的總現金價值比率可能會較顯示的過往總現金價值比率較低或較高。</p>
+			</div>
+		</div>
+		<div class="divider"></div>
+	</div>
+	<div class="search-section"  style="display: none;">
+		<div class="filter line1">
+			<span>您想查閱</span>
+			<span class="nowrap">
+			<div class="selection" id="selection-tcv1">
+				<span class="select-product truncate" onclick="openDroplistTCV('1')">
+					<span id="selectedText-tcv1">選擇產品</span>
+				</span>
+				<div class="selection-arrow-container" onclick="openDroplistTCV('1')">
+					<div class="selection-arrow"></div>
+				</div>
+				<div class="drop-down p-drop scroll" id="dropdown-tcv1">
+					<div class="drop-down-list">
+												<div class="group">
+							<span class=" truncate">分紅人壽及儲蓄</span>
+						</div>
+
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','宏浚傳承保障計劃','no')">
+							<span class=" truncate">宏浚傳承保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','宏摯傳承保障計劃','美元||  非美元')">
+							<span class=" truncate">宏摯傳承保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','財摯家傳保障計劃','美元||港元')">
+							<span class=" truncate">財摯家傳保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','財摯傳承保障計劃','美元||港元')">
+							<span class=" truncate">財摯傳承保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','宏利環球貨幣保障計劃','美元||  非美元')">
+							<span class=" truncate">宏利環球貨幣保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','豐譽傳承保障計劃2','no')">
+							<span class=" truncate">豐譽傳承保障計劃2</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','創富傳承保障計劃2','no')">
+							<span class=" truncate">創富傳承保障計劃2</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','豐譽傳承保障計劃','no')">
+							<span class=" truncate">豐譽傳承保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','創富傳承保障計劃','no')">
+							<span class=" truncate">創富傳承保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','宏達儲蓄保障計劃','no')">
+							<span class=" truncate">宏達儲蓄保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','宏富儲蓄保險計劃','no')">
+							<span class=" truncate">宏富儲蓄保險計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','財富智選','  非港元||港元')">
+							<span class=" truncate">財富智選</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','尊貴一生','no')">
+							<span class=" truncate">尊貴一生</span>
+						</a>
+																		<div class="group">
+							<span class=" truncate">分紅入息計劃</span>
+						</div>
+
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','富足自主年金計劃','美元||港元')">
+							<span class=" truncate">富足自主年金計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','赤霞珠終身壽險計劃2','美元||港元')">
+							<span class=" truncate">赤霞珠終身壽險計劃2</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','世紀傳承保障計劃','美元||港元')">
+							<span class=" truncate">世紀傳承保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','歲稅樂享延期年金','no')">
+							<span class=" truncate">歲稅樂享延期年金</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','歲稅無憂延期年金','美元||港元')">
+							<span class=" truncate">歲稅無憂延期年金</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','靈活自在年金計劃','美元||港元')">
+							<span class=" truncate">靈活自在年金計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','富譽儲蓄保障計劃 / 富譽儲蓄保障計劃（特級保障）','美元||港元')">
+							<span class=" truncate">富譽儲蓄保障計劃 / 富譽儲蓄保障計劃（特級保障）</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','宏悅年金計劃','美元||港元')">
+							<span class=" truncate">宏悅年金計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','雋享保障計劃','no')">
+							<span class=" truncate">雋享保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','理想退休入息計劃','美元||港元')">
+							<span class=" truncate">理想退休入息計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','赤霞珠終身壽險計劃','美元||港元')">
+							<span class=" truncate">赤霞珠終身壽險計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','保證退休入息保','  非港元||港元')">
+							<span class=" truncate">保證退休入息保</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','教育津貼計劃','美元||港元')">
+							<span class=" truncate">教育津貼計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','卓越退休入息保 ','美元||港元')">
+							<span class=" truncate">卓越退休入息保 </span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','智裕儲蓄保','美元||港元')">
+							<span class=" truncate">智裕儲蓄保</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','創富之選','  非港元||港元')">
+							<span class=" truncate">創富之選</span>
+						</a>
+																		<div class="group">
+							<span class=" truncate">分紅終身人壽</span>
+						</div>
+
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','盈傳創富（世譽）保障計劃','no')">
+							<span class=" truncate">盈傳創富（世譽）保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','盈傳創富保障計劃','no')">
+							<span class=" truncate">盈傳創富保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','尊尚一生保障計劃','no')">
+							<span class=" truncate">尊尚一生保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','一本萬利保障計劃','no')">
+							<span class=" truncate">一本萬利保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','卓越保障計劃系列','美元||港元')">
+							<span class=" truncate">卓越保障計劃系列</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','卓越「新世代」保障計劃','  非港元||港元')">
+							<span class=" truncate">卓越「新世代」保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','卓越「寫意生活」保障計劃','美元||港元')">
+							<span class=" truncate">卓越「寫意生活」保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','卓越優惠保障計劃','美元||港元')">
+							<span class=" truncate">卓越優惠保障計劃</span>
+						</a>
+												<a class="item" href="javascript:void(0)" onclick="selectedItemTCV('1','長者人壽保障計劃','  非港元||港元')">
+							<span class=" truncate">長者人壽保障計劃</span>
+						</a>
+																		
+					</div>
+				</div>
+			</div>
+			<span id="selection1_text-tcv1"></span>
+			</span>
+		</div>
+		<div class="filter line2" style="display:none" id="box-tcv2">
+			<span class="currency" id="currencyBox-tcv">
+				<span></span>			
+				<div class="s-inline ">
+					<span></span>
+					<div class="selection select-currency" id="selection-tcv2">
+						<span class="" id="selectedText-tcv2" onclick="openDroplistTCV('2')">港幣／美金／非港幣／非美金</span>
+						<div class="selection-arrow-container" onclick="openDroplistTCV('2')">
+							<div class="selection-arrow"></div>
+						</div>
+						<div class="drop-down" id="dropdown-tcv2">
+							<div class="drop-down-list" id="drop-down-list-currency-tcv">
+								<a class="item" href="javascript:void(0)" onclick="">美金</a>
+								<a class="item" href="javascript:void(0)" onclick="">港幣</a>
+								<a class="item" href="javascript:void(0)" onclick="">非美金</a>
+								<a class="item" href="javascript:void(0)" onclick="">非港幣</a>
+							</div>
+						</div>
+					</div>
+					<span>保單的總現金價值比率。</span>
+				</div>
+			</span>
+		</div>
+
+		<div class="button-wrapper">
+			<a class="cta-btn btn-v2 error hidden" href="javascript:void(0);" onclick="resetActionTCV(1);">
+				<div class="searchresult">重設</div>
+			</a>
+			<a class="cta-btn error hidden" href="javascript:void(0);" onclick="" id="cta-btn-search-tcv">
+				<div class="searchresult">搜尋</div>
+			</a>
+		</div>		
+	</div>
+	<div class="resultContentStartTCV"></div>
+	<div id="resultTables-tcv"></div>
+	
+</main>

@@ -1,0 +1,12 @@
+{
+  "insurer_code": "AXA",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.axa.com.hk/zh/fulfilment-ratios-total-value-ratios-totalassure-critical-illness-plan",
+  "channel": "static",
+  "slug": "prod-probe",
+  "status": 200,
+  "bytes": 239925,
+  "elapsed_s": 1.12,
+  "note": "AXA/prod-probe",
+  "extra": {}
+}

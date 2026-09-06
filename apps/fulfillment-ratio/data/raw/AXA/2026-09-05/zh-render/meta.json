@@ -1,0 +1,12 @@
+{
+  "insurer_code": "AXA",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios",
+  "channel": "browser",
+  "slug": "zh-render",
+  "status": 200,
+  "bytes": 131876,
+  "elapsed_s": 6.64,
+  "note": "AXA/zh-render",
+  "extra": {}
+}

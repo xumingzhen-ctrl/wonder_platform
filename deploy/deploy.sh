@@ -107,6 +107,15 @@ echo "  📦 构建 FIS Hub..."
 npx vite build
 echo "  ✅ FIS Hub 构建完成"
 
+# Fulfillment Ratio（静态单文件应用编译）
+if [ -d "$PROJECT_DIR/apps/fulfillment-ratio" ]; then
+    cd "$PROJECT_DIR/apps/fulfillment-ratio"
+    echo "  📦 编译分红实现率静态数据库..."
+    bash build.sh || true
+    echo "  ✅ 分红实现率静态页面已更新"
+fi
+
+
 # ── 7. 启动所有服务 ──────────────────────────────
 echo ""
 echo "[7/7] 启动所有服务..."

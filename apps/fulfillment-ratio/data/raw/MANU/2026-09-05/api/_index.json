@@ -1,0 +1,980 @@
+[
+ {
+  "file": "fr-000.html",
+  "metric": "fr",
+  "product": "宏浚傳承保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-001.html",
+  "metric": "fr",
+  "product": "宏摯傳承保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-002.html",
+  "metric": "fr",
+  "product": "宏摯傳承保障計劃",
+  "currency": "非美元"
+ },
+ {
+  "file": "fr-003.html",
+  "metric": "fr",
+  "product": "財摯家傳保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-004.html",
+  "metric": "fr",
+  "product": "財摯家傳保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-005.html",
+  "metric": "fr",
+  "product": "財摯傳承保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-006.html",
+  "metric": "fr",
+  "product": "財摯傳承保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-007.html",
+  "metric": "fr",
+  "product": "宏利環球貨幣保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-008.html",
+  "metric": "fr",
+  "product": "宏利環球貨幣保障計劃",
+  "currency": "非美元"
+ },
+ {
+  "file": "fr-009.html",
+  "metric": "fr",
+  "product": "豐譽傳承保障計劃2",
+  "currency": ""
+ },
+ {
+  "file": "fr-010.html",
+  "metric": "fr",
+  "product": "創富傳承保障計劃2",
+  "currency": ""
+ },
+ {
+  "file": "fr-011.html",
+  "metric": "fr",
+  "product": "豐譽傳承保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-012.html",
+  "metric": "fr",
+  "product": "創富傳承保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-013.html",
+  "metric": "fr",
+  "product": "美好前途教育計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-014.html",
+  "metric": "fr",
+  "product": "宏達儲蓄保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-015.html",
+  "metric": "fr",
+  "product": "宏富儲蓄保險計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-016.html",
+  "metric": "fr",
+  "product": "財富智選",
+  "currency": "非港元"
+ },
+ {
+  "file": "fr-017.html",
+  "metric": "fr",
+  "product": "財富智選",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-018.html",
+  "metric": "fr",
+  "product": "尊貴一生",
+  "currency": ""
+ },
+ {
+  "file": "fr-019.html",
+  "metric": "fr",
+  "product": "盈傳創富保障計劃3 - 優選版",
+  "currency": ""
+ },
+ {
+  "file": "fr-020.html",
+  "metric": "fr",
+  "product": "盈傳創富保障計劃3",
+  "currency": ""
+ },
+ {
+  "file": "fr-021.html",
+  "metric": "fr",
+  "product": "卓越終身保",
+  "currency": ""
+ },
+ {
+  "file": "fr-022.html",
+  "metric": "fr",
+  "product": "優越終身保",
+  "currency": ""
+ },
+ {
+  "file": "fr-023.html",
+  "metric": "fr",
+  "product": "盈傳創富保障計劃2",
+  "currency": ""
+ },
+ {
+  "file": "fr-024.html",
+  "metric": "fr",
+  "product": "盈傳創富（世譽）保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-025.html",
+  "metric": "fr",
+  "product": "盈傳創富保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-026.html",
+  "metric": "fr",
+  "product": "尊尚一生保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-027.html",
+  "metric": "fr",
+  "product": "宏達百年儲蓄保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-028.html",
+  "metric": "fr",
+  "product": "一本萬利保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-029.html",
+  "metric": "fr",
+  "product": "卓越保障計劃系列",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-030.html",
+  "metric": "fr",
+  "product": "卓越保障計劃系列",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-031.html",
+  "metric": "fr",
+  "product": "卓越「新世代」保障計劃",
+  "currency": "非港元"
+ },
+ {
+  "file": "fr-032.html",
+  "metric": "fr",
+  "product": "卓越「新世代」保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-033.html",
+  "metric": "fr",
+  "product": "卓越「寫意生活」保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-034.html",
+  "metric": "fr",
+  "product": "卓越「寫意生活」保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-035.html",
+  "metric": "fr",
+  "product": "卓越優惠保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-036.html",
+  "metric": "fr",
+  "product": "卓越優惠保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-037.html",
+  "metric": "fr",
+  "product": "長者人壽保障計劃",
+  "currency": "非港元"
+ },
+ {
+  "file": "fr-038.html",
+  "metric": "fr",
+  "product": "長者人壽保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-039.html",
+  "metric": "fr",
+  "product": "富足自主年金計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-040.html",
+  "metric": "fr",
+  "product": "富足自主年金計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-041.html",
+  "metric": "fr",
+  "product": "赤霞珠終身壽險計劃2",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-042.html",
+  "metric": "fr",
+  "product": "赤霞珠終身壽險計劃2",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-043.html",
+  "metric": "fr",
+  "product": "世紀傳承保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-044.html",
+  "metric": "fr",
+  "product": "世紀傳承保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-045.html",
+  "metric": "fr",
+  "product": "歲稅樂享延期年金",
+  "currency": ""
+ },
+ {
+  "file": "fr-046.html",
+  "metric": "fr",
+  "product": "歲稅無憂延期年金",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-047.html",
+  "metric": "fr",
+  "product": "歲稅無憂延期年金",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-048.html",
+  "metric": "fr",
+  "product": "靈活自在年金計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-049.html",
+  "metric": "fr",
+  "product": "靈活自在年金計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-050.html",
+  "metric": "fr",
+  "product": "富譽儲蓄保障計劃 / 富譽儲蓄保障計劃（特級保障）",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-051.html",
+  "metric": "fr",
+  "product": "富譽儲蓄保障計劃 / 富譽儲蓄保障計劃（特級保障）",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-052.html",
+  "metric": "fr",
+  "product": "宏悅年金計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-053.html",
+  "metric": "fr",
+  "product": "宏悅年金計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-054.html",
+  "metric": "fr",
+  "product": "雋享保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "fr-055.html",
+  "metric": "fr",
+  "product": "理想退休入息計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-056.html",
+  "metric": "fr",
+  "product": "理想退休入息計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-057.html",
+  "metric": "fr",
+  "product": "赤霞珠終身壽險計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-058.html",
+  "metric": "fr",
+  "product": "赤霞珠終身壽險計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-059.html",
+  "metric": "fr",
+  "product": "保證退休入息保",
+  "currency": "非港元"
+ },
+ {
+  "file": "fr-060.html",
+  "metric": "fr",
+  "product": "保證退休入息保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-061.html",
+  "metric": "fr",
+  "product": "教育津貼計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-062.html",
+  "metric": "fr",
+  "product": "教育津貼計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-063.html",
+  "metric": "fr",
+  "product": "卓越退休入息保 ",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-064.html",
+  "metric": "fr",
+  "product": "卓越退休入息保 ",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-065.html",
+  "metric": "fr",
+  "product": "智裕儲蓄保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-066.html",
+  "metric": "fr",
+  "product": "智裕儲蓄保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-067.html",
+  "metric": "fr",
+  "product": "創富之選",
+  "currency": "非港元"
+ },
+ {
+  "file": "fr-068.html",
+  "metric": "fr",
+  "product": "創富之選",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-069.html",
+  "metric": "fr",
+  "product": "宏健守護危疾入息保障",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-070.html",
+  "metric": "fr",
+  "product": "宏健守護危疾入息保障",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-071.html",
+  "metric": "fr",
+  "product": "宏伴護航危疾入息保障",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-072.html",
+  "metric": "fr",
+  "product": "宏伴護航危疾入息保障",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-073.html",
+  "metric": "fr",
+  "product": "活耀人生危疾保PRO",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-074.html",
+  "metric": "fr",
+  "product": "活耀人生危疾保PRO",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-075.html",
+  "metric": "fr",
+  "product": "宏利守護無間危疾保 / 守護無間危疾保 (保寶未來)",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-076.html",
+  "metric": "fr",
+  "product": "宏利守護無間危疾保 / 守護無間危疾保 (保寶未來)",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-077.html",
+  "metric": "fr",
+  "product": "活耀人生危疾保2 / 2（加強版）",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-078.html",
+  "metric": "fr",
+  "product": "活耀人生危疾保2 / 2（加強版）",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-079.html",
+  "metric": "fr",
+  "product": "悠然危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-080.html",
+  "metric": "fr",
+  "product": "悠然危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-081.html",
+  "metric": "fr",
+  "product": "心愛一家保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-082.html",
+  "metric": "fr",
+  "product": "心愛一家保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-083.html",
+  "metric": "fr",
+  "product": "活耀人生危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-084.html",
+  "metric": "fr",
+  "product": "活耀人生危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-085.html",
+  "metric": "fr",
+  "product": "樂康無憂危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-086.html",
+  "metric": "fr",
+  "product": "樂康無憂危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-087.html",
+  "metric": "fr",
+  "product": "樂健無憂危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-088.html",
+  "metric": "fr",
+  "product": "樂健無憂危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-089.html",
+  "metric": "fr",
+  "product": "樂活無憂危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-090.html",
+  "metric": "fr",
+  "product": "樂活無憂危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-091.html",
+  "metric": "fr",
+  "product": "自在生活危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-092.html",
+  "metric": "fr",
+  "product": "自在生活危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-093.html",
+  "metric": "fr",
+  "product": "樂享人生危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-094.html",
+  "metric": "fr",
+  "product": "樂享人生危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-095.html",
+  "metric": "fr",
+  "product": "活得精彩危疾保",
+  "currency": "美元"
+ },
+ {
+  "file": "fr-096.html",
+  "metric": "fr",
+  "product": "活得精彩危疾保",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-097.html",
+  "metric": "fr",
+  "product": "綽悅女性保障計劃",
+  "currency": "非港元"
+ },
+ {
+  "file": "fr-098.html",
+  "metric": "fr",
+  "product": "綽悅女性保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "fr-099.html",
+  "metric": "fr",
+  "product": "綽慧女性保障計劃",
+  "currency": "非港元"
+ },
+ {
+  "file": "fr-100.html",
+  "metric": "fr",
+  "product": "綽慧女性保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-101.html",
+  "metric": "tcv",
+  "product": "宏浚傳承保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-102.html",
+  "metric": "tcv",
+  "product": "宏摯傳承保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-103.html",
+  "metric": "tcv",
+  "product": "宏摯傳承保障計劃",
+  "currency": "非美元"
+ },
+ {
+  "file": "tcv-104.html",
+  "metric": "tcv",
+  "product": "財摯家傳保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-105.html",
+  "metric": "tcv",
+  "product": "財摯家傳保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-106.html",
+  "metric": "tcv",
+  "product": "財摯傳承保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-107.html",
+  "metric": "tcv",
+  "product": "財摯傳承保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-108.html",
+  "metric": "tcv",
+  "product": "宏利環球貨幣保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-109.html",
+  "metric": "tcv",
+  "product": "宏利環球貨幣保障計劃",
+  "currency": "非美元"
+ },
+ {
+  "file": "tcv-110.html",
+  "metric": "tcv",
+  "product": "豐譽傳承保障計劃2",
+  "currency": ""
+ },
+ {
+  "file": "tcv-111.html",
+  "metric": "tcv",
+  "product": "創富傳承保障計劃2",
+  "currency": ""
+ },
+ {
+  "file": "tcv-112.html",
+  "metric": "tcv",
+  "product": "豐譽傳承保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-113.html",
+  "metric": "tcv",
+  "product": "創富傳承保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-114.html",
+  "metric": "tcv",
+  "product": "宏達儲蓄保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-115.html",
+  "metric": "tcv",
+  "product": "宏富儲蓄保險計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-116.html",
+  "metric": "tcv",
+  "product": "財富智選",
+  "currency": "非港元"
+ },
+ {
+  "file": "tcv-117.html",
+  "metric": "tcv",
+  "product": "財富智選",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-118.html",
+  "metric": "tcv",
+  "product": "尊貴一生",
+  "currency": ""
+ },
+ {
+  "file": "tcv-119.html",
+  "metric": "tcv",
+  "product": "富足自主年金計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-120.html",
+  "metric": "tcv",
+  "product": "富足自主年金計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-121.html",
+  "metric": "tcv",
+  "product": "赤霞珠終身壽險計劃2",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-122.html",
+  "metric": "tcv",
+  "product": "赤霞珠終身壽險計劃2",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-123.html",
+  "metric": "tcv",
+  "product": "世紀傳承保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-124.html",
+  "metric": "tcv",
+  "product": "世紀傳承保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-125.html",
+  "metric": "tcv",
+  "product": "歲稅樂享延期年金",
+  "currency": ""
+ },
+ {
+  "file": "tcv-126.html",
+  "metric": "tcv",
+  "product": "歲稅無憂延期年金",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-127.html",
+  "metric": "tcv",
+  "product": "歲稅無憂延期年金",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-128.html",
+  "metric": "tcv",
+  "product": "靈活自在年金計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-129.html",
+  "metric": "tcv",
+  "product": "靈活自在年金計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-130.html",
+  "metric": "tcv",
+  "product": "富譽儲蓄保障計劃 / 富譽儲蓄保障計劃（特級保障）",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-131.html",
+  "metric": "tcv",
+  "product": "富譽儲蓄保障計劃 / 富譽儲蓄保障計劃（特級保障）",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-132.html",
+  "metric": "tcv",
+  "product": "宏悅年金計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-133.html",
+  "metric": "tcv",
+  "product": "宏悅年金計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-134.html",
+  "metric": "tcv",
+  "product": "雋享保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-135.html",
+  "metric": "tcv",
+  "product": "理想退休入息計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-136.html",
+  "metric": "tcv",
+  "product": "理想退休入息計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-137.html",
+  "metric": "tcv",
+  "product": "赤霞珠終身壽險計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-138.html",
+  "metric": "tcv",
+  "product": "赤霞珠終身壽險計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-139.html",
+  "metric": "tcv",
+  "product": "保證退休入息保",
+  "currency": "非港元"
+ },
+ {
+  "file": "tcv-140.html",
+  "metric": "tcv",
+  "product": "保證退休入息保",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-141.html",
+  "metric": "tcv",
+  "product": "教育津貼計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-142.html",
+  "metric": "tcv",
+  "product": "教育津貼計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-143.html",
+  "metric": "tcv",
+  "product": "卓越退休入息保 ",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-144.html",
+  "metric": "tcv",
+  "product": "卓越退休入息保 ",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-145.html",
+  "metric": "tcv",
+  "product": "智裕儲蓄保",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-146.html",
+  "metric": "tcv",
+  "product": "智裕儲蓄保",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-147.html",
+  "metric": "tcv",
+  "product": "創富之選",
+  "currency": "非港元"
+ },
+ {
+  "file": "tcv-148.html",
+  "metric": "tcv",
+  "product": "創富之選",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-149.html",
+  "metric": "tcv",
+  "product": "盈傳創富（世譽）保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-150.html",
+  "metric": "tcv",
+  "product": "盈傳創富保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-151.html",
+  "metric": "tcv",
+  "product": "尊尚一生保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-152.html",
+  "metric": "tcv",
+  "product": "一本萬利保障計劃",
+  "currency": ""
+ },
+ {
+  "file": "tcv-153.html",
+  "metric": "tcv",
+  "product": "卓越保障計劃系列",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-154.html",
+  "metric": "tcv",
+  "product": "卓越保障計劃系列",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-155.html",
+  "metric": "tcv",
+  "product": "卓越「新世代」保障計劃",
+  "currency": "非港元"
+ },
+ {
+  "file": "tcv-156.html",
+  "metric": "tcv",
+  "product": "卓越「新世代」保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-157.html",
+  "metric": "tcv",
+  "product": "卓越「寫意生活」保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-158.html",
+  "metric": "tcv",
+  "product": "卓越「寫意生活」保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-159.html",
+  "metric": "tcv",
+  "product": "卓越優惠保障計劃",
+  "currency": "美元"
+ },
+ {
+  "file": "tcv-160.html",
+  "metric": "tcv",
+  "product": "卓越優惠保障計劃",
+  "currency": "港元"
+ },
+ {
+  "file": "tcv-161.html",
+  "metric": "tcv",
+  "product": "長者人壽保障計劃",
+  "currency": "非港元"
+ },
+ {
+  "file": "tcv-162.html",
+  "metric": "tcv",
+  "product": "長者人壽保障計劃",
+  "currency": "港元"
+ }
+]

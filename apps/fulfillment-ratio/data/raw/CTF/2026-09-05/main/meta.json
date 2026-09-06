@@ -1,0 +1,12 @@
+{
+  "insurer_code": "CTF",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.ctflife.com.hk/sc/support/important-information/fulfillment-ratios-dividends",
+  "channel": "static",
+  "slug": "main",
+  "status": 200,
+  "bytes": 905581,
+  "elapsed_s": 0.96,
+  "note": "P1 initial fetch",
+  "extra": {}
+}

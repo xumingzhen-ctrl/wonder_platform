@@ -1,0 +1,236 @@
+{
+  "AIA": {
+    "code": "AIA",
+    "short_zh": "友邦",
+    "channel_hint": "browser",
+    "legal_entities": [
+      {
+        "legal_name_zh": "友邦保险(国际)有限公司",
+        "legal_name_en": "AIA International Limited",
+        "urls": {
+          "zh_cn": "https://www.aia.com.hk/zh-cn/products/further-product-information/participating-products/fulfillment-ratio",
+          "zh_hk": "https://www.aia.com.hk/zh-hk/products/further-product-information/participating-products/fulfillment-ratio",
+          "en": "https://www.aia.com.hk/en/products/further-product-information/participating-products/fulfillment-ratio"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "PRU": {
+    "code": "PRU",
+    "short_zh": "保诚",
+    "channel_hint": "browser",
+    "legal_entities": [
+      {
+        "legal_name_zh": "保诚保险有限公司",
+        "legal_name_en": "Prudential Hong Kong Limited",
+        "urls": {
+          "zh_cn": "https://www.prudential.com.hk/performance/fulfillment-ratio/tc/",
+          "zh_hk": "https://www.prudential.com.hk/performance/fulfillment-ratio/tc/",
+          "en": "https://www.prudential.com.hk/performance/fulfillment-ratio/en/index.html"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "AXA": {
+    "code": "AXA",
+    "short_zh": "安盛",
+    "channel_hint": "browser",
+    "legal_entities": [
+      {
+        "legal_name_zh": "安盛金融保险(香港)有限公司",
+        "legal_name_en": "AXA China Region Insurance Company (Hong Kong) Limited",
+        "urls": {
+          "zh_cn": "https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios",
+          "zh_hk": "https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios",
+          "en": "https://www.axa.com.hk/en/article/fulfilment-ratios-and-total-value-ratios"
+        },
+        "update_frequency_zh": "每年6月"
+      },
+      {
+        "legal_name_zh": "安盛金融有限公司",
+        "legal_name_en": "AXA China Region Insurance Company Limited",
+        "urls": {
+          "zh_cn": "https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios",
+          "zh_hk": "https://www.axa.com.hk/zh/article/fulfilment-ratios-and-total-value-ratios",
+          "en": "https://www.axa.com.hk/en/article/fulfilment-ratios-and-total-value-ratios"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "MANU": {
+    "code": "MANU",
+    "short_zh": "宏利",
+    "channel_hint": "browser",
+    "legal_entities": [
+      {
+        "legal_name_zh": "宏利人寿保险（国际）有限公司",
+        "legal_name_en": "Manulife (International) Limited",
+        "urls": {
+          "zh_cn": "https://www.manulife.com.hk/zh-cn/individual/products/understanding-your-participating-policy/fulfillment-ratio.html",
+          "zh_hk": "https://www.manulife.com.hk/zh-hk/individual/products/understanding-your-participating-policy/fulfillment-ratio.html",
+          "en": "https://www.manulife.com.hk/en/individual/products/understanding-your-participating-policy/fulfillment-ratio.html"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "SUN": {
+    "code": "SUN",
+    "short_zh": "永明",
+    "channel_hint": "static",
+    "legal_entities": [
+      {
+        "legal_name_zh": "香港永明金融有限公司",
+        "legal_name_en": "Sun Life Hong Kong Limited",
+        "urls": {
+          "zh_cn": "https://www.sunlife.com.hk/zh-hans/insurance/savings-and-life/fulfillment-ratios-of-respective-products/?WT.mc_id=sc-hk:others:referral:IA:content:awareness:branding:IA_referral:sitelink",
+          "zh_hk": "https://www.sunlife.com.hk/zh-hant/insurance/savings-and-life/fulfillment-ratios-of-respective-products/?WT.mc_id=zh-hk:others:referral:IA:content:awareness:branding:IA_referral:sitelink",
+          "en": "https://www.sunlife.com.hk/en/insurance/savings-and-life/fulfillment-ratios-of-respective-products/?WT.mc_id=en-hk:others:referral:IA:content:awareness:branding:IA_referral:sitelink"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "CLO": {
+    "code": "CLO",
+    "short_zh": "国寿海外",
+    "channel_hint": "static",
+    "legal_entities": [
+      {
+        "legal_name_zh": "中国人寿保险（海外）股份有限公司",
+        "legal_name_en": "China Life Insurance (Overseas) Company Limited",
+        "urls": {
+          "zh_cn": "https://www.chinalife.com.hk/zh-cn/products/dividend-philosophy-and-investment-strategy",
+          "zh_hk": "https://www.chinalife.com.hk/zh-hk/products/dividend-philosophy-and-investment-strategy",
+          "en": "https://www.chinalife.com.hk/products/dividend-philosophy-and-investment-strategy"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "FWD": {
+    "code": "FWD",
+    "short_zh": "富卫",
+    "channel_hint": "mixed",
+    "legal_entities": [
+      {
+        "legal_name_zh": "富卫人寿（香港）有限公司",
+        "legal_name_en": "FWD Life (Hong Kong) Limited",
+        "urls": {
+          "zh_cn": "https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/",
+          "zh_hk": "https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/",
+          "en": "https://www.fwdlife.hk/en/support-claims/regulatory-disclosures/"
+        },
+        "update_frequency_zh": "每年6月"
+      },
+      {
+        "legal_name_zh": "富卫人寿保险（香港）有限公司",
+        "legal_name_en": "FWD Life Assurance Company (Hong Kong) Limited",
+        "urls": {
+          "zh_cn": "https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/",
+          "zh_hk": "https://www.fwdlife.hk/tc/support-claims/regulatory-disclosures/",
+          "en": "https://www.fwdlife.hk/en/support-claims/regulatory-disclosures/"
+        },
+        "update_frequency_zh": "每年6月"
+      },
+      {
+        "legal_name_zh": "富卫人寿保险（百慕达）有限公司",
+        "legal_name_en": "FWD Life Insurance Company (Bermuda) Limited",
+        "urls": {
+          "zh_cn": "https://www.fwd.com.hk/regulatory-disclosures/fulfillment-ratios/",
+          "zh_hk": "https://www.fwd.com.hk/regulatory-disclosures/fulfillment-ratios/",
+          "en": "https://www.fwd.com.hk/en/regulatory-disclosures/fulfillment-ratios/"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "CTF": {
+    "code": "CTF",
+    "short_zh": "周大福",
+    "channel_hint": "static",
+    "legal_entities": [
+      {
+        "legal_name_zh": "周大福人寿保险有限公司",
+        "legal_name_en": "Chow Tai Fook Life Insurance Company Limited",
+        "urls": {
+          "zh_cn": "https://www.ctflife.com.hk/sc/support/important-information/fulfillment-ratios-dividends",
+          "zh_hk": "https://www.ctflife.com.hk/tc/support/important-information/fulfillment-ratios-dividends",
+          "en": "https://www.ctflife.com.hk/en/support/important-information/fulfillment-ratios-dividends"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "YF": {
+    "code": "YF",
+    "short_zh": "万通",
+    "channel_hint": "static",
+    "legal_entities": [
+      {
+        "legal_name_zh": "万通保险国际有限公司",
+        "legal_name_en": "YF Life Insurance International Limited",
+        "urls": {
+          "zh_cn": "https://corp.yflife.com/sc/Hong-Kong/Individual/Services/Useful-Information/Investment-Strategy",
+          "zh_hk": "https://corp.yflife.com/tc/Hong-Kong/Individual/Services/Useful-Information/Investment-Strategy",
+          "en": "https://corp.yflife.com/en/Hong-Kong/Individual/Services/Useful-Information/Investment-Strategy"
+        },
+        "update_frequency_zh": "每年4月"
+      }
+    ]
+  },
+  "BOC": {
+    "code": "BOC",
+    "short_zh": "中银人寿",
+    "channel_hint": "static",
+    "legal_entities": [
+      {
+        "legal_name_zh": "中银集团人寿保险有限公司",
+        "legal_name_en": "BOC Group Life Assurance Company Limited",
+        "urls": {
+          "zh_cn": "https://www.boclife.com.hk/sc/support/financial-information/dividend-fulfillment-ratios.html",
+          "zh_hk": "https://www.boclife.com.hk/tc/support/financial-information/dividend-fulfillment-ratios.html",
+          "en": "https://www.boclife.com.hk/en/support/financial-information/dividend-fulfillment-ratios.html"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "HSBC": {
+    "code": "HSBC",
+    "short_zh": "汇丰人寿",
+    "channel_hint": "static",
+    "legal_entities": [
+      {
+        "legal_name_zh": "汇丰人寿保险（国际）有限公司",
+        "legal_name_en": "HSBC Life (International) Limited",
+        "urls": {
+          "zh_cn": "https://www.hsbc.com.hk/zh-cn/misc/insurance/fulfillment-ratio/",
+          "zh_hk": "https://www.hsbc.com.hk/zh-hk/misc/insurance/fulfillment-ratio/",
+          "en": "https://www.hsbc.com.hk/misc/insurance/fulfillment-ratio/"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  },
+  "HANG": {
+    "code": "HANG",
+    "short_zh": "恒生保险",
+    "channel_hint": "static",
+    "legal_entities": [
+      {
+        "legal_name_zh": "恒生保险有限公司",
+        "legal_name_en": "Hang Seng Insurance Company Limited",
+        "urls": {
+          "zh_cn": "https://www.hangseng.com/zh-cn/personal/insurance-mpf/fulfillment-ratio/",
+          "zh_hk": "https://www.hangseng.com/zh-hk/personal/insurance-mpf/fulfillment-ratio/",
+          "en": "https://www.hangseng.com/en-hk/personal/insurance-mpf/fulfillment-ratio/"
+        },
+        "update_frequency_zh": "每年6月"
+      }
+    ]
+  }
+}

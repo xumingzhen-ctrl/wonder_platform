@@ -1,0 +1,11 @@
+var cc ="";
+cc +='<script src="https://www.manulife.com.hk/etc.clientlibs/clientlibs/granite/jquery.min.js"></script>';
+//cc +='<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>';
+cc +='<script type="text/javascript">';
+cc +='$(document).ready(function(){';
+cc +='	$( "#fulfillment-content" ).load( "https://tools.manulife.com.hk/fulfillment-ratio-2024/html/zh/", function() {';
+cc +='	});';
+cc +='});';
+cc +='</script>';
+cc +='<div id="fulfillment-content" style="display:block"></div>';
+document.write(cc);

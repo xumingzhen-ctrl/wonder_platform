@@ -1,0 +1,218 @@
+{
+  "_comment": "归一化词典。各保司用词不统一（繁简/港陆/英中混用），需映射到同一枚举。",
+  "bonus_type": {
+    "_doc": "红利/指标类型。key 为内部枚举值，keywords 为匹配关键词（小写比较，去空格）",
+    "annual": {
+      "zh": "周年红利",
+      "aliases": [
+        "現金紅利",
+        "现金红利"
+      ],
+      "keywords": [
+        "週年紅利",
+        "周年红利",
+        "現金紅利",
+        "现金红利",
+        "annual dividend",
+        "cash dividend",
+        "cash bonus",
+        "週年紅利/現金紅利",
+        "周年红利/现金红利",
+        "每年紅利",
+        "每年红利",
+        "額外紅利",
+        "额外红利",
+        "年終紅利",
+        "年终红利"
+      ]
+    },
+    "reversionary": {
+      "zh": "归原红利",
+      "aliases": [
+        "復歸紅利",
+        "保額增值紅利"
+      ],
+      "keywords": [
+        "歸原紅利",
+        "归原红利",
+        "復歸紅利",
+        "复归红利",
+        "保額增值紅利",
+        "保额增值红利",
+        "增額紅利",
+        "增额红利",
+        "reversionary bonus",
+        "reversionary"
+      ]
+    },
+    "terminal": {
+      "zh": "终期红利",
+      "aliases": [
+        "特別紅利",
+        "終期分紅"
+      ],
+      "keywords": [
+        "終期紅利",
+        "终期红利",
+        "特別紅利",
+        "特别红利",
+        "終期分紅",
+        "终期分红",
+        "期滿紅利",
+        "期满红利",
+        "terminal dividend",
+        "terminal bonus",
+        "terminal"
+      ]
+    },
+    "tcvr": {
+      "zh": "总现金价值比率",
+      "aliases": [
+        "總現金價值比率"
+      ],
+      "keywords": [
+        "總現金價值比率",
+        "总现金价值比率",
+        "total cash value ratio",
+        "total cash value",
+        "tcvr"
+      ]
+    }
+  },
+  "product_type": {
+    "_doc": "产品类型。以【产品名】为主判据，官方『产品种类』栏只作兜底。理由：永明官方仅分『分红终身人寿/分红储蓄』两类，47 个产品里混着危疾、年金、储蓄，直接用官方分类会污染储蓄险统计。顺序敏感，先命中者胜。",
+    "order": [
+      "ci",
+      "medical",
+      "annuity",
+      "savings",
+      "wholelife",
+      "other"
+    ],
+    "ci": {
+      "zh": "危疾",
+      "name_keywords": [
+        "危疾",
+        "重大疾病",
+        "critical illness",
+        "癌症"
+      ],
+      "official_keywords": [
+        "危疾",
+        "重大疾病"
+      ]
+    },
+    "medical": {
+      "zh": "医疗",
+      "name_keywords": [
+        "醫療",
+        "医疗",
+        "medical",
+        "住院",
+        "康護",
+        "康护"
+      ],
+      "official_keywords": [
+        "醫療",
+        "医疗",
+        "medical"
+      ]
+    },
+    "annuity": {
+      "zh": "年金",
+      "name_keywords": [
+        "年金",
+        "annuity",
+        "退休",
+        "入息",
+        "頤養",
+        "颐养"
+      ],
+      "official_keywords": [
+        "年金",
+        "annuity"
+      ]
+    },
+    "savings": {
+      "zh": "储蓄人寿",
+      "name_keywords": [
+        "储蓄",
+        "儲蓄",
+        "savings",
+        "endowment",
+        "传承",
+        "傳承",
+        "多元货币",
+        "多元貨幣",
+        "货币",
+        "貨幣",
+        "锦囊",
+        "錦囊",
+        "蓄",
+        "世代",
+        "环球",
+        "環球"
+      ],
+      "official_keywords": [
+        "分红储蓄",
+        "儲蓄"
+      ]
+    },
+    "wholelife": {
+      "zh": "终身人寿",
+      "name_keywords": [
+        "人寿",
+        "人壽",
+        "终身",
+        "終身",
+        "whole life",
+        "生命",
+        "保障"
+      ],
+      "official_keywords": [
+        "分红终身人寿",
+        "终身",
+        "終身"
+      ]
+    },
+    "other": {
+      "zh": "其他",
+      "name_keywords": [],
+      "official_keywords": []
+    }
+  },
+  "na_tokens": {
+    "_doc": "表格中的『无数据』标记，不是 0，也不是缺失——是官方声明不适用。必须保留区分，不能当 0 参与统计",
+    "tokens": [
+      "不適用",
+      "不适用",
+      "n.a.",
+      "n/a",
+      "na",
+      "-",
+      "–",
+      "—",
+      "尚未推出",
+      "尚未推出(4)",
+      "已停售",
+      "沒有",
+      "没有",
+      "無",
+      "无",
+      "not applicable",
+      "not yet launched",
+      "n.a",
+      ""
+    ]
+  },
+  "ratio_parse": {
+    "_doc": "比率字符串解析规则",
+    "patterns": [
+      "^>?\\s*(\\d{1,4}(?:\\.\\d+)?)\\s*%$",
+      "^(\\d{1,4}(?:\\.\\d+)?)$"
+    ],
+    "suspicious_low": 20,
+    "suspicious_high": 400,
+    "_note": "超出 [20%, 400%] 区间的数值标记 suspicious 供人工复核，不自动剔除"
+  }
+}

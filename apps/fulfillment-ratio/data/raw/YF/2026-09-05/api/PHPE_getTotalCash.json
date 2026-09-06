@@ -1,0 +1,1 @@
+{"code": 200, "success": true, "msg": "Operation successful!", "errorMsg": "", "data": {"benefits": [{"values": ["Product was not yet launched in the respective year and thus no value is shown."], "sups": [null], "name": "Total Cash Value"}], "years": ["Policy Year"], "header": {"rightTitle": "Total Cash Value Ratio for reporting year 2025"}}}

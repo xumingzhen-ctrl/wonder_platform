@@ -1,0 +1,12 @@
+{
+  "insurer_code": "HANG",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.hangseng.com/zh-cn/personal/insurance-mpf/fulfillment-ratio/",
+  "channel": "static",
+  "slug": "main",
+  "status": 200,
+  "bytes": 735281,
+  "elapsed_s": 0.72,
+  "note": "P1 initial fetch",
+  "extra": {}
+}

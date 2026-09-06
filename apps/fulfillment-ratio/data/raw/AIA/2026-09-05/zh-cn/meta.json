@@ -1,0 +1,12 @@
+{
+  "insurer_code": "AIA",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.aia.com.hk/zh-cn/products/further-product-information/participating-products/fulfillment-ratio",
+  "channel": "static",
+  "slug": "zh-cn",
+  "status": 200,
+  "bytes": 394442,
+  "elapsed_s": 0.66,
+  "note": "AIA/zh-cn",
+  "extra": {}
+}

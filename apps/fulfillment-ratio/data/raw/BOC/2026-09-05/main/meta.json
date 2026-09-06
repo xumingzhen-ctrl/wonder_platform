@@ -1,0 +1,12 @@
+{
+  "insurer_code": "BOC",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.boclife.com.hk/sc/support/financial-information/dividend-fulfillment-ratios.html",
+  "channel": "static",
+  "slug": "main",
+  "status": 200,
+  "bytes": 2341162,
+  "elapsed_s": 0.98,
+  "note": "P1 refetch (encoding fix)",
+  "extra": {}
+}

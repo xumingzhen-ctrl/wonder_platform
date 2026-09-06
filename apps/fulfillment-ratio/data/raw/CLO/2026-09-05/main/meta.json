@@ -1,0 +1,12 @@
+{
+  "insurer_code": "CLO",
+  "fetch_date": "2026-09-05",
+  "url": "https://www.chinalife.com.hk/zh-cn/products/dividend-philosophy-and-investment-strategy",
+  "channel": "static",
+  "slug": "main",
+  "status": 200,
+  "bytes": 129215,
+  "elapsed_s": 0.1,
+  "note": "P1 refetch (encoding fix)",
+  "extra": {}
+}
