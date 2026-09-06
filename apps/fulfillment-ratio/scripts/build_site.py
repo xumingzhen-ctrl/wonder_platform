@@ -215,7 +215,8 @@ def line_chart(series_map, unit="%", ref=100, height=270):
     def py(v):
         return pad_t + (1 - (v - y0) / (y1 - y0)) * plot_h
 
-    out = [f'<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="趋势折线图">']
+    out = [f'<svg class="chart line-chart-svg" viewBox="0 0 {w} {h}" role="img" aria-label="趋势折线图">']
+    out.append('<style>.chart-path{transition:stroke-width 0.2s;cursor:pointer;} .chart-path:hover{stroke-width:4px;} .chart-circle{transition:r 0.2s;cursor:pointer;} .chart-circle:hover{r:6px;}</style>')
     for gv in range(int(y0 // 25) * 25, int(y1) + 26, 25):
         if y0 <= gv <= y1:
             yy = py(gv)
@@ -236,13 +237,13 @@ def line_chart(series_map, unit="%", ref=100, height=270):
         pts = sorted(pts)
         d = " ".join(f"{'M' if k == 0 else 'L'}{px(x):.1f},{py(y):.1f}"
                      for k, (x, y) in enumerate(pts) if y is not None)
-        out.append(f'<path d="{d}" fill="none" stroke="{col}" stroke-width="2.2" '
-                   f'stroke-linejoin="round"/>')
+        out.append(f'<path d="{d}" class="chart-path" fill="none" stroke="{col}" stroke-width="2.2" '
+                   f'stroke-linejoin="round"><title>{esc(name)}</title></path>')
         for x, y in pts:
             if y is None:
                 continue
-            out.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="3.2" fill="#fff" '
-                       f'stroke="{col}" stroke-width="2"/>')
+            out.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="3.2" class="chart-circle" fill="#fff" '
+                       f'stroke="{col}" stroke-width="2"><title>{esc(name)}: {y}% (保单生效第{x}年)</title></circle>')
     out.append("</svg>")
     return "".join(out)
 
@@ -441,26 +442,27 @@ def build(stats: dict, skin_key: str) -> str:
     def _cmp_table(stats_map, metric_name):
         t = [f"<h3>{metric_name}</h3>"]
         t.append("<table><thead><tr><th>公司</th><th class='num'>有效产品数</th>"
-                 "<th class='num'>中位数</th><th class='num'>25%-75% 分位<br>(中段区间)</th>"
-                 "<th class='num'>≥100% 占比</th><th class='num'>≥90% 占比</th>"
-                 "<th class='num'>&lt;70% 占比</th><th class='num'>离差中位<br>(偏离度)</th>"
+                 "<th class='num'>中位数</th>"
+                 "<th class='num'>≥100% 占比</th><th class='num'>≥90% 占比 (达标优秀率)</th>"
+                 "<th class='num'>&lt;70% 占比</th>"
                  "</tr></thead><tbody>")
         for c in codes:
             s = stats_map.get(c) or {}
-            if not s.get("n"):
-                continue
             col = color_for(c)
             t.append(f"<tr><td><span class='sw' style='background:{col};display:inline-block;"
                      f"width:11px;height:11px;border-radius:3px;margin-right:7px'></span>"
                      f"{esc(comps[c]['short_zh'])}</td>")
+            if not s.get("n"):
+                t.append("<td colspan='5' style='text-align:center;color:#888;font-size:12.5px;background:#faf9f6'>"
+                         "未披露（合规要求仅强制披露FR，不披露TCVR为严谨做法，避免保证现价掩盖真实红利表现）</td></tr>")
+                continue
+            
             t.append(f"<td class='num'>{s['n']}</td>"
                      f"<td class='num'><b>{s['median']:.0f}%</b></td>")
-            t.append(f"<td class='num'>{s['p25']:.0f}–{s['p75']:.0f}%</td>")
             t.append(f"<td class='num'>{s['ge100']:.0f}%</td>")
             cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
             t.append(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td>")
-            t.append(f"<td class='num'>{s['lt70']:.0f}%</td>")
-            t.append(f"<td class='num'>{s['dev_median']:.0f}</td></tr>")
+            t.append(f"<td class='num'>{s['lt70']:.0f}%</td></tr>")
         t.append("</tbody></table>")
         return "".join(t)
 
@@ -497,8 +499,7 @@ def build(stats: dict, skin_key: str) -> str:
       "的红利机制与投资账户完全不同，混在一起算出来的数字没有意义。</p>")
     order = ["savings", "wholelife", "annuity", "ci", "medical", "other"]
     a("<table><thead><tr><th>公司</th><th>产品类型</th><th class='num'>有效产品数</th>"
-      "<th class='num'>中位数</th><th class='num'>25%-75% 分位<br>(中段区间)</th><th class='num'>≥90% 占比</th>"
-      "<th class='num'>离差中位<br>(偏离度)</th></tr></thead><tbody>")
+      "<th class='num'>中位数</th><th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>")
     for c in codes:
         types = stats["by_company_product_type"].get(c, {})
         first = True
@@ -511,10 +512,15 @@ def build(stats: dict, skin_key: str) -> str:
             cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
             a(f"<tr><td>{name}</td><td>{esc(L['product_type'].get(pt, pt))}</td>")
             a(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
-            a(f"<td class='num'>{s['p25']:.0f}–{s['p75']:.0f}%</td>")
-            a(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td>")
-            a(f"<td class='num'>{s['dev_median']:.0f}</td></tr>")
+            a(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
     a("</tbody></table>")
+    
+    a("<div class='note-box info' style='margin-top:16px'>"
+      "<p><b>💡 数据偏差提示（如何客观评价“达标优秀率”？）</b></p>"
+      "<p>统计 <b>≥90% 占比</b> 时，各年份的保单在公式中权重相等。像 <b>友邦 (AIA)</b> 这样历史悠久的龙头险企，主动披露了多达数十款、跨越10年以上历史周期的老旧保单（历经多次全球金融海啸考验），由于包含了大量早期已停售且底层结构不同的产品，其全盘统计的比例在客观上会被拉平。</p>"
+      "<p>相反，部分险企仅披露近年发行的少数新产品（大多处于容易实现高分红的“前三年蜜月期”），这在统计学上会产生“幸存者偏差”，人为垫高了其达标率。</p>"
+      "<p><b>结论</b>：评估险企的真实兑现能力，不能单纯只看全量历史产品的混合均值，而应重点参考<b>「友邦旗舰专区」</b>中核心主打产品的优异表现，以及长达 10 年以上的长期兑现趋势。</p>"
+      "</div>")
 
     brows = []
     for pt in order:
@@ -540,8 +546,8 @@ def build(stats: dict, skin_key: str) -> str:
       "总现金价值比率（TCVR）把保证现金价值一并计入，更接近客户实际能拿回的总额。"
       "两者不可互相替代。</p>")
     a("<table><thead><tr><th>公司</th><th>指标</th><th>红利类型</th>"
-      "<th class='num'>有效产品数</th><th class='num'>中位数</th><th class='num'>25%-75% 分位<br>(中段区间)</th>"
-      "<th class='num'>≥90% 占比</th></tr></thead><tbody>")
+      "<th class='num'>有效产品数</th><th class='num'>中位数</th>"
+      "<th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>")
     for c in codes:
         bym = stats["by_company_bonus"].get(c, {})
         for metric in ["FR", "TCVR"]:
@@ -562,7 +568,6 @@ def build(stats: dict, skin_key: str) -> str:
                   f"<td>{esc(L['bonus_type'].get(bt, bt))}</td>")
                 a(f"<td class='num'>{s['n']}</td>"
                   f"<td class='num'><b>{s['median']:.0f}%</b></td>")
-                a(f"<td class='num'>{s['p25']:.0f}–{s['p75']:.0f}%</td>")
                 a(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
     a("</tbody></table>")
     a("</div></section>")
