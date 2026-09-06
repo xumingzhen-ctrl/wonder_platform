@@ -76,9 +76,11 @@ tbody tr:hover{background:#faf9f6}
 .filters select,.filters input{font:inherit;font-size:13px;padding:7px 10px;border:1px solid #ddd9d1;
  border-radius:7px;background:#fff;color:#1c1c1a}
 .filters input{min-width:180px}
+.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #e9e7e1;border-radius:10px;margin-bottom:20px}
+.table-responsive table{border:none;border-radius:0}
 .tbl-scroll{max-height:560px;overflow:auto;border-radius:10px;border:1px solid #e9e7e1}
-.tbl-scroll table{border:none;border-radius:0}
 .tbl-scroll thead th{position:sticky;top:0;z-index:2}
+.tbl-scroll .table-responsive{border:none;margin-bottom:0;}
 .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:#5f5e5a;margin:10px 0 4px}
 .legend span{display:flex;align-items:center;gap:6px}
 .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
@@ -408,7 +410,7 @@ def build(stats: dict, skin_key: str) -> str:
       "</div>")
     a("</div>")
 
-    a("<table><thead><tr><th>产品名称</th><th>产品类型</th><th>分红机制</th><th>披露年期</th><th class='num'>平均实现率(FR)</th><th class='num'>最新实现率(FR)</th><th class='num'>总现价比率(TCVR)</th><th>兑现点评</th></tr></thead><tbody>")
+    a("<div class='table-responsive'><table><thead><tr><th>产品名称</th><th>产品类型</th><th>分红机制</th><th>披露年期</th><th class='num'>平均实现率(FR)</th><th class='num'>最新实现率(FR)</th><th class='num'>总现价比率(TCVR)</th><th>兑现点评</th></tr></thead><tbody>")
     
     spotlight_items = [
         ("「盈御多元货币计划」系列 (1/2/3代)", "储蓄人寿", "英式分红 (复归+终期)", "第 3~4 年", "100.0%", "100%", "100%", "新一代多元货币王牌，各红利系列均 100% 完美达成"),
@@ -425,7 +427,7 @@ def build(stats: dict, skin_key: str) -> str:
           f"<td>{p_yrs}</td><td class='num'><b>{p_avg}</b></td><td class='num'><span class='chip good'>{p_latest}</span></td>"
           f"<td class='num' style='color:#0F6E56;font-weight:600;'>{p_tcvr}</td>"
           f"<td style='font-size:12.5px;color:#555;'>{p_comment}</td></tr>")
-    a("</tbody></table>")
+    a("</tbody></table></div>")
     a("</div>")
     a("</div></section>")
 
@@ -503,7 +505,7 @@ def build(stats: dict, skin_key: str) -> str:
 
     def _cmp_table(stats_map, metric_name):
         t = [f"<h3>{metric_name}</h3>"]
-        t.append("<table><thead><tr><th>公司</th><th class='num'>有效产品数</th>"
+        t.append("<div class='table-responsive'><table><thead><tr><th>公司</th><th class='num'>有效产品数</th>"
                  "<th class='num'>中位数</th>"
                  "<th class='num'>≥100% 占比</th><th class='num'>≥90% 占比 (达标优秀率)</th>"
                  "<th class='num'>&lt;70% 占比</th>"
@@ -522,7 +524,7 @@ def build(stats: dict, skin_key: str) -> str:
             cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
             t.append(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td>")
             t.append(f"<td class='num'>{s['lt70']:.0f}%</td></tr>")
-        t.append("</tbody></table>")
+        t.append("</tbody></table></div>")
         return "".join(t)
 
     a(_cmp_table(fr_stats, "分红实现率 (FR) - 跨公司对比唯一基准"))
@@ -557,7 +559,7 @@ def build(stats: dict, skin_key: str) -> str:
     a("<p class='lead'>这是全站最重要的一层筛选。储蓄分红险、终身寿险、年金、危疾产品"
       "的红利机制与投资账户完全不同，混在一起算出来的数字没有意义。</p>")
     order = ["savings", "wholelife", "annuity", "ci", "medical", "other"]
-    a("<table><thead><tr><th>公司</th><th>产品类型</th><th class='num'>有效产品数</th>"
+    a("<div class='table-responsive'><table><thead><tr><th>公司</th><th>产品类型</th><th class='num'>有效产品数</th>"
       "<th class='num'>中位数</th><th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>")
     for c in codes:
         types = stats["by_company_product_type"].get(c, {})
@@ -572,7 +574,7 @@ def build(stats: dict, skin_key: str) -> str:
             a(f"<tr><td>{name}</td><td>{esc(L['product_type'].get(pt, pt))}</td>")
             a(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
             a(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
-    a("</tbody></table>")
+    a("</tbody></table></div>")
     
     a("<div class='note-box info' style='margin-top:16px'>"
       "<p><b>💡 数据偏差提示（如何客观评价“达标优秀率”？）</b></p>"
@@ -588,7 +590,7 @@ def build(stats: dict, skin_key: str) -> str:
     a("<p class='lead'>分红实现率（FR）只看非保证部分的兑现程度；"
       "总现金价值比率（TCVR）把保证现金价值一并计入，更接近客户实际能拿回的总额。"
       "两者不可互相替代。</p>")
-    a("<table><thead><tr><th>公司</th><th>指标</th><th>红利类型</th>"
+    a("<div class='table-responsive'><table><thead><tr><th>公司</th><th>指标</th><th>红利类型</th>"
       "<th class='num'>有效产品数</th><th class='num'>中位数</th>"
       "<th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>")
     for c in codes:
@@ -612,7 +614,7 @@ def build(stats: dict, skin_key: str) -> str:
                 a(f"<td class='num'>{s['n']}</td>"
                   f"<td class='num'><b>{s['median']:.0f}%</b></td>")
                 a(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
-    a("</tbody></table>")
+    a("</tbody></table></div>")
     a("</div></section>")
 
     # ── 产品明细 ──
@@ -679,7 +681,7 @@ def build(stats: dict, skin_key: str) -> str:
     a("<p class='lead'>由香港保险业监管局（IA）公布的《保险公司实现率披露网页清单》"
       "取得各公司官方页面地址，抓取后按统一 schema 解析。"
       "每家公司抓取当日的页面 HTML 均完整归档，可逐条复核。</p>")
-    a("<table><thead><tr><th>公司</th><th>抓取通道</th><th>抓取日</th>"
+    a("<div class='table-responsive'><table><thead><tr><th>公司</th><th>抓取通道</th><th>抓取日</th>"
       "<th>官方来源</th></tr></thead><tbody>")
     for c in codes:
         m = comps[c]
@@ -688,7 +690,7 @@ def build(stats: dict, skin_key: str) -> str:
         a(f"<tr><td>{esc(m['short_zh'])}</td><td>{esc(ch)}</td>"
           f"<td>{esc(m['fetch_date'])}</td>"
           f"<td class='src'>{esc(m['source_url'])}</td></tr>")
-    a("</tbody></table>")
+    a("</tbody></table></div>")
 
     a("<h3>几个容易踩的口径问题</h3>")
     a("<div class='note-box'><p><b>1. 无数据不等于 0。</b>"
