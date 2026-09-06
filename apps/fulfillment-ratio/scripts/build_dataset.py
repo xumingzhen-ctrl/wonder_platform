@@ -132,12 +132,24 @@ def main():
     products = []
     pmap = defaultdict(lambda: defaultdict(list))
     for f in cur:
-        pmap[(f["insurer_code"], f["product_raw"], f["metric"])][f["inception_year"]].append(f)
+        iy = f.get("inception_year")
+        if not iy:
+            continue
+        ie = f.get("inception_year_end")
+        pmap[(f["insurer_code"], f["product_raw"], f["metric"])][(iy, ie)].append(f)
+        
     for (code, pname, metric), byyear in pmap.items():
         allv = [f["ratio_pct"] for ys in byyear.values() for f in ys]
         ptype = next((f["product_type"] for ys in byyear.values() for f in ys), "other")
-        series = {str(y): round(sum(f["ratio_pct"] for f in fs) / len(fs), 1)
-                  for y, fs in sorted(byyear.items()) if y and fs}
+        
+        series = {}
+        for (iy, ie), fs in sorted(byyear.items()):
+            if ie and ie > iy:
+                label = f"≤{ie}"
+            else:
+                label = str(iy)
+            series[label] = round(sum(f["ratio_pct"] for f in fs) / len(fs), 1)
+            
         products.append({
             "insurer_code": code, "product": pname, "metric": metric,
             "product_type": ptype, "stats": describe(allv), "series": series,

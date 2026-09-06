@@ -349,11 +349,11 @@ def build(stats: dict, skin_key: str) -> str:
     for anchor, label in [("guide", "💡 投资决策三大底层规律"),
                           ("aia-focus", "🏆 标杆险企旗舰验证 (AIA)"),
                           ("coh", "📈 长期跨周期大考"),
+                          ("prod", "全量产品检索"),
                           ("ov", "全市场总览"),
                           ("split", "核心指标对比 (FR/TCVR)"),
                           ("pt", "分产品类型"),
                           ("bt", "分红机制"),
-                          ("prod", "全量产品检索"),
                           ("method", "口径与来源")]:
         a(f"<a href='#{anchor}'>{label}</a>")
     a("</div></nav>")
@@ -481,6 +481,66 @@ def build(stats: dict, skin_key: str) -> str:
         a("<div id='trend-expert-note' class='note-box info' style='display:none;margin-top:16px'></div>")
 
     a("</div>") # end trend-box
+    a("</div></section>")
+
+    a("<section id='prod'><div class='wrap'>")
+    a("<h2>全量产品明细与检索</h2>")
+    a("<p class='lead'>每一个产品系列的逐年表现。支持按公司、"
+      "产品类型或指标快速筛选，也支持按产品名直接模糊检索：</p>")
+    
+    a("<div class='pill-group'>")
+    a("<button class='pill-btn active' data-quick='all'>全部产品</button>")
+    a("<button class='pill-btn' data-quick='aia'>⭐ 友邦香港 (AIA) 专区</button>")
+    a("<button class='pill-btn' data-quick='savings'>储蓄分红主力</button>")
+    a("<button class='pill-btn' data-quick='pru'>保诚 (PRU)</button>")
+    a("<button class='pill-btn' data-quick='axa'>安盛 (AXA)</button>")
+    a("<button class='pill-btn' data-quick='manu'>宏利 (MANU)</button>")
+    a("</div>")
+
+    a("<div class='filters'>")
+    a("<input id='q' type='search' placeholder='搜索产品名 (如：盈御 / 简爱 / 充裕未来 / 雋升)…'>")
+    a("<select id='fc'><option value=''>全部保险公司</option>")
+    for c in codes:
+        a(f"<option value='{esc(c)}'>{esc(comps[c]['short_zh'])} ({esc(c)})</option>")
+    a("</select>")
+    a("<select id='ft'><option value=''>全部产品类型</option>")
+    for k, v in L["product_type"].items():
+        a(f"<option value='{esc(k)}'>{esc(v)}</option>")
+    a("</select>")
+    a("<select id='fm'><option value=''>全部指标口径</option>"
+      "<option value='FR'>分红实现率 (FR)</option>"
+      "<option value='TCVR'>总现金价值比率 (TCVR)</option></select>")
+    a("</div>")
+    a("<div class='tbl-scroll'><table id='ptbl'><thead><tr>"
+      "<th>公司</th><th>产品系列</th><th>类型</th><th>指标</th>"
+      "<th class='num'>数据点</th><th class='num'>中位数</th>"
+      "<th class='num'>全区间</th><th class='num'>≥90%占比</th>"
+      "<th>逐 年（生效年份→%）</th></tr></thead><tbody>")
+    for p in stats["products"]:
+        s = p["stats"]
+        if not s.get("n"):
+            continue
+            
+        chips = []
+        for y, v in list(p["series"].items())[:15]:
+            c_cls = "good" if v >= 90 else ("warn" if v >= 70 else "bad")
+            chips.append(f"<span class='yr-chip {c_cls}'><span class='yr'>{y}</span><span class='val'>{v:.0f}%</span></span>")
+        ser_html = f"<div style='display:flex;flex-wrap:wrap;gap:4px;'>{''.join(chips)}</div>"
+        
+        # Format Metric for display
+        metric_disp = "分红实现率(FR)" if p['metric'] == "FR" else "总现价比率(TCVR)"
+
+        a(f"<tr data-c='{esc(p['insurer_code'])}' data-t='{esc(p['product_type'])}' "
+          f"data-m='{esc(p['metric'])}'>")
+        a(f"<td><b>{esc(comps.get(p['insurer_code'],{}).get('short_zh',''))}</b></td>")
+        a(f"<td>{esc(p['product'])}</td>")
+        a(f"<td>{esc(L['product_type'].get(p['product_type'], p['product_type']))}</td>")
+        a(f"<td><span class='chip'>{esc(metric_disp)}</span></td>")
+        a(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
+        a(f"<td class='num'>{s['min']:.0f}–{s['max']:.0f}%</td>")
+        a(f"<td class='num'>{s['ge90']:.0f}%</td>")
+        a(f"<td>{ser_html}</td></tr>")
+    a("</tbody></table></div>")
     a("</div></section>")
 
     # ── KPI ──
@@ -627,66 +687,6 @@ def build(stats: dict, skin_key: str) -> str:
     a("</div></section>")
 
     # ── 产品明细 ──
-    a("<section id='prod'><div class='wrap'>")
-    a("<h2>全量产品明细与检索</h2>")
-    a("<p class='lead'>每一个产品系列的逐年表现。支持按公司、"
-      "产品类型或指标快速筛选，也支持按产品名直接模糊检索：</p>")
-    
-    a("<div class='pill-group'>")
-    a("<button class='pill-btn active' data-quick='all'>全部产品</button>")
-    a("<button class='pill-btn' data-quick='aia'>⭐ 友邦香港 (AIA) 专区</button>")
-    a("<button class='pill-btn' data-quick='savings'>储蓄分红主力</button>")
-    a("<button class='pill-btn' data-quick='pru'>保诚 (PRU)</button>")
-    a("<button class='pill-btn' data-quick='axa'>安盛 (AXA)</button>")
-    a("<button class='pill-btn' data-quick='manu'>宏利 (MANU)</button>")
-    a("</div>")
-
-    a("<div class='filters'>")
-    a("<input id='q' type='search' placeholder='搜索产品名 (如：盈御 / 简爱 / 充裕未来 / 雋升)…'>")
-    a("<select id='fc'><option value=''>全部保险公司</option>")
-    for c in codes:
-        a(f"<option value='{esc(c)}'>{esc(comps[c]['short_zh'])} ({esc(c)})</option>")
-    a("</select>")
-    a("<select id='ft'><option value=''>全部产品类型</option>")
-    for k, v in L["product_type"].items():
-        a(f"<option value='{esc(k)}'>{esc(v)}</option>")
-    a("</select>")
-    a("<select id='fm'><option value=''>全部指标口径</option>"
-      "<option value='FR'>分红实现率 (FR)</option>"
-      "<option value='TCVR'>总现金价值比率 (TCVR)</option></select>")
-    a("</div>")
-    a("<div class='tbl-scroll'><table id='ptbl'><thead><tr>"
-      "<th>公司</th><th>产品系列</th><th>类型</th><th>指标</th>"
-      "<th class='num'>数据点</th><th class='num'>中位数</th>"
-      "<th class='num'>全区间</th><th class='num'>≥90%占比</th>"
-      "<th>逐 年（生效年份→%）</th></tr></thead><tbody>")
-    for p in stats["products"]:
-        s = p["stats"]
-        if not s.get("n"):
-            continue
-            
-        chips = []
-        for y, v in list(p["series"].items())[:15]:
-            c_cls = "good" if v >= 90 else ("warn" if v >= 70 else "bad")
-            chips.append(f"<span class='yr-chip {c_cls}'><span class='yr'>{y}</span><span class='val'>{v:.0f}%</span></span>")
-        ser_html = f"<div style='display:flex;flex-wrap:wrap;gap:4px;'>{''.join(chips)}</div>"
-        
-        # Format Metric for display
-        metric_disp = "分红实现率(FR)" if p['metric'] == "FR" else "总现价比率(TCVR)"
-
-        a(f"<tr data-c='{esc(p['insurer_code'])}' data-t='{esc(p['product_type'])}' "
-          f"data-m='{esc(p['metric'])}'>")
-        a(f"<td><b>{esc(comps.get(p['insurer_code'],{}).get('short_zh',''))}</b></td>")
-        a(f"<td>{esc(p['product'])}</td>")
-        a(f"<td>{esc(L['product_type'].get(p['product_type'], p['product_type']))}</td>")
-        a(f"<td><span class='chip'>{esc(metric_disp)}</span></td>")
-        a(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
-        a(f"<td class='num'>{s['min']:.0f}–{s['max']:.0f}%</td>")
-        a(f"<td class='num'>{s['ge90']:.0f}%</td>")
-        a(f"<td>{ser_html}</td></tr>")
-    a("</tbody></table></div>")
-    a("</div></section>")
-
 
     # ── 方法论 ──
     a("<section id='method'><div class='wrap'>")
