@@ -507,9 +507,9 @@ def build(stats: dict, skin_key: str) -> str:
     for k, v in L["product_type"].items():
         a(f"<option value='{esc(k)}'>{esc(v)}</option>")
     a("</select>")
-    a("<select id='fm'><option value=''>全部指标口径</option>"
+    a("<select id='fm'><option value='TCVR' selected>总现金价值比率 (TCVR)</option>"
       "<option value='FR'>分红实现率 (FR)</option>"
-      "<option value='TCVR'>总现金价值比率 (TCVR)</option></select>")
+      "<option value=''>全部指标口径</option></select>")
     a("</div>")
     a("<div class='tbl-scroll'><table id='ptbl'><thead><tr>"
       "<th>公司</th><th>产品系列</th><th>类型</th><th>指标</th>"
@@ -775,6 +775,7 @@ function apply(){
  });
 }
 [q,fc,ft,fm].forEach(e=>e.addEventListener('input',apply));
+apply(); // Initial filter apply
 
 pills.forEach(btn=>{
  btn.addEventListener('click',()=>{
@@ -782,12 +783,12 @@ pills.forEach(btn=>{
   btn.classList.add('active');
   const type=btn.dataset.quick;
   q.value='';
-  if(type==='all'){fc.value='';ft.value='';fm.value='';}
-  else if(type==='aia'){fc.value='AIA';ft.value='';fm.value='';}
-  else if(type==='savings'){fc.value='';ft.value='savings';fm.value='';}
-  else if(type==='pru'){fc.value='PRU';ft.value='';fm.value='';}
-  else if(type==='axa'){fc.value='AXA';ft.value='';fm.value='';}
-  else if(type==='manu'){fc.value='MANU';ft.value='';fm.value='';}
+  if(type==='all'){fc.value='';ft.value='';fm.value='TCVR';}
+  else if(type==='aia'){fc.value='AIA';ft.value='';fm.value='TCVR';}
+  else if(type==='savings'){fc.value='';ft.value='savings';fm.value='TCVR';}
+  else if(type==='pru'){fc.value='PRU';ft.value='';fm.value='TCVR';}
+  else if(type==='axa'){fc.value='AXA';ft.value='';fm.value='TCVR';}
+  else if(type==='manu'){fc.value='MANU';ft.value='';fm.value='TCVR';}
   apply();
  });
 });
