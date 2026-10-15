@@ -351,9 +351,7 @@ def build(stats: dict, skin_key: str) -> str:
                           ("coh", "📈 长期跨周期大考"),
                           ("prod", "全量产品检索"),
                           ("ov", "全市场总览"),
-                          ("split", "核心指标对比 (FR/TCVR)"),
                           ("pt", "分产品类型"),
-                          ("bt", "分红机制"),
                           ("method", "口径与来源")]:
         a(f"<a href='#{anchor}'>{label}</a>")
     a("</div></nav>")
@@ -559,67 +557,6 @@ def build(stats: dict, skin_key: str) -> str:
           f"<div class='val'>{val}</div><div class='note'>{note}</div></div>")
     a("</div>")
 
-    # 指标分列统计（P3：FR 与 TCVR 分开，混合口径已弃用）
-    om = stats.get("overall_by_company_metric", {})
-    fr_stats = {c: (om.get(c, {}).get("FR") or {}) for c in codes}
-    tcvr_stats = {c: (om.get(c, {}).get("TCVR") or {}) for c in codes}
-    a("</div></section>")
-
-    # ── FR / TCVR 分列对比（P3 核心）──
-    a("<section id='split'><div class='wrap'>")
-    a("<h2>核心指标对比：分红实现率 (FR) vs 总现金价值比率 (TCVR)</h2>")
-    a("<p class='lead'>为避免误导，这两项指标必须分开看：<br>"
-      "<b>• 分红实现率 (Fulfillment Ratio, 简称 FR)</b>：只衡量「非保证红利」的实际派发与演示之比，是真正体现保险公司投资能力的硬指标。<br>"
-      "<b>• 总现金价值比率 (Total Cash Value Ratio, 简称 TCVR)</b>：由于包含了「保证现金价值」，该指标在前期受到保证部分的“兜底”垫高，数值天然偏高，容易掩盖红利派发的真实情况。</p>")
-
-    def _cmp_table(stats_map, metric_name):
-        t = [f"<h3>{metric_name}</h3>"]
-        t.append("<div class='table-responsive'><table><thead><tr><th>公司</th><th class='num'>有效产品数</th>"
-                 "<th class='num'>中位数</th>"
-                 "<th class='num'>≥100% 占比</th><th class='num'>≥90% 占比 (达标优秀率)</th>"
-                 "<th class='num'>&lt;70% 占比</th>"
-                 "</tr></thead><tbody>")
-        for c in codes:
-            s = stats_map.get(c) or {}
-            if not s.get("n"):
-                continue
-            col = color_for(c)
-            t.append(f"<tr><td><span class='sw' style='background:{col};display:inline-block;"
-                     f"width:11px;height:11px;border-radius:3px;margin-right:7px'></span>"
-                     f"{esc(comps[c]['short_zh'])}</td>")
-            t.append(f"<td class='num'>{s['n']}</td>"
-                     f"<td class='num'><b>{s['median']:.0f}%</b></td>")
-            t.append(f"<td class='num'>{s['ge100']:.0f}%</td>")
-            cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
-            t.append(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td>")
-            t.append(f"<td class='num'>{s['lt70']:.0f}%</td></tr>")
-        t.append("</tbody></table></div>")
-        return "".join(t)
-
-    a(_cmp_table(fr_stats, "分红实现率 (FR) - 跨公司对比唯一基准"))
-    a("<div style='height:26px'></div>")
-    a(_cmp_table(tcvr_stats, "总现金价值比率 (TCVR) - 含保证部分，仅供参考"))
-
-    if sk["forbid_rank"]:
-        a("<div class='note-box'><p><b>解读提示</b>：上述两组数据反映不同层面的信息。跨公司对比时，建议主要参考 <b>FR（分红实现率）</b>，它能更真实地反映险企的红利管理能力；而 <b>TCVR（总现金价值比率）</b> 更适合用于评估具体客户保单账户目前的整体表现。</p></div>")
-    else:
-        # 量化 FR→TCVR 的「保证垫高」幅度
-        lifts = []
-        for c in codes:
-            fr, tv = fr_stats.get(c) or {}, tcvr_stats.get(c) or {}
-            if fr.get("n") and tv.get("n"):
-                lifts.append((tv["ge90"] - fr["ge90"], comps[c]["short_zh"],
-                              fr["ge90"], tv["ge90"]))
-        if lifts:
-            lifts.sort(reverse=True)
-            d0, c0, f0, t0 = lifts[0]
-            a("<div class='note-box'><p><b>专业解析</b>：同一家公司换用 TCVR 口径后，"
-              "≥90% 达标率普遍被「保证部分」垫高。垫高幅度最大的是"
-              f"{esc(c0)}：FR 口径 ≥90% 占比 {f0:.0f}%，TCVR 口径 {t0:.0f}%，"
-              f"相差 {d0:.0f} 个百分点。若把两者混为一谈，"
-              "部分公司会被系统性高估。</p>"
-              "<p>结论：横向对比一律用 FR；TCVR 只在评估"
-              "「同一产品客户实际总回报」时作参考。</p></div>")
     a("</div></section>")
 
     # ── 分产品类型 ──
@@ -652,41 +589,6 @@ def build(stats: dict, skin_key: str) -> str:
       "<p><b>结论</b>：评估险企的真实兑现能力，不能单纯只看全量历史产品的混合均值，而应重点参考<b>「标杆险企旗舰验证 (AIA)」</b>中核心主打产品的优异表现，以及长达 10 年以上的长期兑现趋势。</p>"
       "</div>")
     a("</div></section>")
-
-    # ── 分红类型 ──
-    a("<section id='bt'><div class='wrap'>")
-    a("<h2>分红类型与指标口径</h2>")
-    a("<p class='lead'>分红实现率（FR）只看非保证部分的兑现程度；"
-      "总现金价值比率（TCVR）把保证现金价值一并计入，更接近客户实际能拿回的总额。"
-      "两者不可互相替代。</p>")
-    a("<div class='table-responsive'><table><thead><tr><th>公司</th><th>指标</th><th>红利类型</th>"
-      "<th class='num'>有效产品数</th><th class='num'>中位数</th>"
-      "<th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>")
-    for c in codes:
-        bym = stats["by_company_bonus"].get(c, {})
-        for metric in ["FR", "TCVR"]:
-            bts = bym.get(metric, {})
-            first = True
-            for bt in ["annual", "reversionary", "terminal", "tcvr"]:
-                s = bts.get(bt)
-                if not s or not s.get("n"):
-                    continue
-                nm = f"<b>{esc(comps[c]['short_zh'])}</b>" if first else ""
-                first = False
-                cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
-                
-                # Format Metric for display
-                metric_disp = "分红实现率 (FR)" if metric == "FR" else "总现价比率 (TCVR)"
-
-                a(f"<tr><td>{nm}</td><td>{esc(metric_disp)}</td>"
-                  f"<td>{esc(L['bonus_type'].get(bt, bt))}</td>")
-                a(f"<td class='num'>{s['n']}</td>"
-                  f"<td class='num'><b>{s['median']:.0f}%</b></td>")
-                a(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
-    a("</tbody></table></div>")
-    a("</div></section>")
-
-    # ── 产品明细 ──
 
     # ── 方法论 ──
     a("<section id='method'><div class='wrap'>")
