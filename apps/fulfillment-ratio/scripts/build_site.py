@@ -177,6 +177,19 @@ CSS_EXTRA = """
 .metric-tab-btn.active{background:#fff;color:#185fa5;box-shadow:0 2px 5px rgba(0,0,0,.08)}
 .metric-tab-btn[data-metric="TCVR"].active{color:#0F6E56}
 .metric-badge-hint{font-size:12px;color:#7a7872}
+
+/* 险企表象透视看板 */
+.benchmark-box{background:#fff;border:1.5px solid #dcd7ca;border-radius:12px;padding:24px;margin:20px 0 28px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.benchmark-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.benchmark-table th{background:#f8f7f3;color:#333;font-weight:600;padding:10px 12px;border-bottom:2px solid #ddd8cd;text-align:left}
+.benchmark-table td{padding:11px 12px;border-bottom:1px solid #eeebe3;vertical-align:middle}
+.benchmark-table tr:hover{background:#faf9f6}
+.benchmark-table tr.highlight-aia{background:#f0f7ff;font-weight:500}
+.benchmark-table tr.highlight-aia td{border-bottom:1px solid #cce5ff}
+.benchmark-keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:20px}
+.key-card{background:#fbfaf7;border:1px solid #e5e0d4;border-radius:10px;padding:16px 18px}
+.key-card-title{font-size:13.5px;font-weight:600;color:#1c1c1a;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.key-card p{margin:0;font-size:12.5px;color:#555;line-height:1.6}
 """
 
 
@@ -330,6 +343,22 @@ def line_chart(series_items, unit="%", ref=100, height=290):
     return "".join(out)
 
 
+COMPANY_BADGES = {
+    "AIA": {"text": "平均 7.4年 · 10年+样本占31% (全港最深)", "style": "background:#e8f4fd;color:#185fa5;border:1px solid #b8daff;"},
+    "AXA": {"text": "平均 4.6年 · 10年+仅5% (新单为主)", "style": "background:#fff7e6;color:#d46b08;border:1px solid #ffd591;"},
+    "YF": {"text": "平均 5.2年 · 样本极少(仅58点)", "style": "background:#fff7e6;color:#d46b08;border:1px solid #ffd591;"},
+    "CTF": {"text": "平均 6.3年 · 传统防御险偏多", "style": "background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f;"},
+    "BOC": {"text": "平均 7.1年 · 未披露TCVR", "style": "background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;"},
+    "SUN": {"text": "平均 6.0年 · 样本量仅140点", "style": "background:#f9f9f9;color:#555;border:1px solid #ddd;"},
+    "MANU": {"text": "平均 5.5年 · 10年+占13%", "style": "background:#f9f9f9;color:#555;border:1px solid #ddd;"},
+    "PRU": {"text": "平均 6.8年 · 10年+占20%", "style": "background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;"},
+    "FWD": {"text": "平均 5.9年 · 10年+占16%", "style": "background:#f9f9f9;color:#555;border:1px solid #ddd;"},
+    "HANG": {"text": "平均 6.2年 · 未披露TCVR", "style": "background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;"},
+    "HSBC": {"text": "平均 7.0年 · 未披露TCVR", "style": "background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;"},
+    "CLO": {"text": "平均 5.8年 · 52.5%跌破80%", "style": "background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;"},
+}
+
+
 # ── 页面构建 ────────────────────────────────────────────────────────
 def build(stats: dict, skin_key: str) -> str:
     sk = SKINS[skin_key]
@@ -358,6 +387,7 @@ def build(stats: dict, skin_key: str) -> str:
     # ── nav ──
     a("<nav><div class='wrap'>")
     for anchor, label in [("guide", "💡 投资决策三大底层规律"),
+                          ("benchmark", "⚖️ 险企表象数据深度透视"),
                           ("aia-focus", "🏆 标杆险企旗舰验证 (AIA)"),
                           ("coh", "📈 长期跨周期大考"),
                           ("prod", "全量产品检索"),
@@ -403,6 +433,79 @@ def build(stats: dict, skin_key: str) -> str:
     a("</div>")
 
     a("</div>") # end guide-grid
+    a("</div></section>")
+
+    # ── 险企表象数据深度透视（穿透对比看板）──
+    a("<section id='benchmark' style='background:#fdfcf9;'><div class='wrap'>")
+    a("<div class='benchmark-box'>")
+    a("<div class='spotlight-head'>")
+    a("<div class='spotlight-title'><span style='color:#185fa5;font-size:22px'>⚖️</span> 险企表象数据深度透视：如何理性看待“部分险企达标率看似更高”？</div>")
+    a("<span class='badge' style='background:#185fa5;color:#fff'>年期厚度 · 样本广度 · 底线兜底全维度穿透</span>")
+    a("</div>")
+    a("<p class='lead' style='margin-bottom:16px'>分红数据公布后，常有客户疑惑：<i>“为什么万通、周大福、安盛等保司的达标率看似比友邦更高？”</i> 表面数据往往掩盖了<b>保单持有年期（蜜月期 vs 长跑）、样本数据量（偶然性 vs 确定性）与产品底层结构</b>的巨大落差。穿透以下底层硬核数据，才能看清真实的跨周期资产管理底蕴与长跑兑现力：</p>")
+
+    a("<div class='table-responsive'><table class='benchmark-table'><thead><tr>"
+      "<th>保险公司</th>"
+      "<th class='num'>披露产品</th>"
+      "<th class='num'>FR数据点</th>"
+      "<th class='num'>平均持有年期</th>"
+      "<th class='num'>≥10年样本占比</th>"
+      "<th class='num'>FR中位数</th>"
+      "<th class='num'>≥80%安全线</th>"
+      "<th class='num'>TCVR总现价中位</th>"
+      "<th>底层数据真相穿透解析</th>"
+      "</tr></thead><tbody>")
+
+    benchmark_rows = [
+        ("友邦保险 (AIA)", "AIA", "68 款", "397 点", "7.4 年 (全港最深)", "30.7% (122点)", "95%", "80.1%", "100.0%",
+         "<b>全生命周期无保留坦诚大考</b>：完整披露 15 年跨越次贷/欧债海啸的停售老单；核心旗舰（盈御/简爱/充裕未来）历年 100%~103% 满额兑现，保证+非保证 TCVR 坚如磐石。", True),
+        ("万通保险 (YF)", "YF", "20 款", "仅 58 点", "5.2 年", "仅 8.6% (5点)", "100%", "98.3%", "100.0%",
+         "<b>样本极度单薄 (仅58点)</b>：数据点不足友邦的 1/6，平均每款产品不到 3 个点，高度依赖近年新单支撑，缺乏长周期与大数定律检验。", False),
+        ("安盛保险 (AXA)", "AXA", "16 款", "226 点", "4.6 年 (全港极短)", "仅 5.3% (12点)", "100%", "95.1%", "100.0%",
+         "<b>95% 处于前5年蜜月期</b>：平均年期仅 4.6 年，未经历真正长周期复利大考；老单以高保证低分红传统险为主，大量新型高预期储蓄未到披露年期。", False),
+        ("周大福人寿 (CTF)", "CTF", "62 款", "310 点", "6.3 年", "20.6% (64点)", "100%", "95.8%", "100.0%",
+         "<b>以高保证低分红传统险为主</b>：老单多为富通时期超高保证、低非保证预期的防御型险种，较易做满；新一代高预期分红险（如匠心传承）年期尚短。", False),
+        ("中银人寿 (BOC)", "BOC", "33 款", "157 点", "7.1 年", "29.3% (46点)", "92%", "94.3%", "<span style='color:#A32D2D;font-weight:bold;'>未自愿披露</span>",
+         "<b>官方未披露 TCVR 兜底数据</b>：银行系险企主打中短期稳健还本，分红中位数仅 92%，且至今未自愿披露总现金价值比率以供市场全量检验。", False),
+        ("永明金融 (SUN)", "SUN", "34 款", "140 点", "6.0 年", "21.4% (30点)", "95%", "83.6%", "100.0%",
+         "<b>样本广度仅友邦 1/3</b>：老单平滑储备相对薄弱，跨周期老保单样本厚度明显逊于友邦。", False),
+    ]
+
+    for name, code, n_prods, n_pts, avg_yr, ge10_pct, med, ge80, tcvr_med, comment, is_aia in benchmark_rows:
+        tr_cls = "class='highlight-aia'" if is_aia else ""
+        badge_star = "<span style='color:#D31145;margin-right:4px;'>★ 标杆</span>" if is_aia else ""
+        tcvr_style = "color:#0F6E56;font-weight:600;" if "未" not in tcvr_med else ""
+        a(f"<tr {tr_cls}>"
+          f"<td><b>{badge_star}{esc(name)}</b></td>"
+          f"<td class='num'>{n_prods}</td>"
+          f"<td class='num'><b>{n_pts}</b></td>"
+          f"<td class='num' style='color:#185fa5;font-weight:600;'>{avg_yr}</td>"
+          f"<td class='num'>{ge10_pct}</td>"
+          f"<td class='num'><b>{med}</b></td>"
+          f"<td class='num'>{ge80}</td>"
+          f"<td class='num' style='{tcvr_style}'>{tcvr_med}</td>"
+          f"<td style='font-size:12.5px;color:#444;line-height:1.55;'>{comment}</td>"
+          f"</tr>")
+
+    a("</tbody></table></div>")
+
+    # 三把金钥匙总结
+    a("<div class='benchmark-keys'>")
+    a("<div class='key-card'>"
+      "<div class='key-card-title'>🔑 金钥匙一 · 看年期深度（长跑见真章）</div>"
+      "<p>保单前 3~5 年分红池小、成本极低，极易达成 100%；只有跨越 8~10 年以上、复利滚存放大百倍且经历全球加息与熊市周期的老保单，才能检验真功夫。</p>"
+      "</div>")
+    a("<div class='key-card'>"
+      "<div class='key-card-title'>🔑 金钥匙二 · 看样本厚度（大数定律）</div>"
+      "<p>50 个样本点极易出现偶然性与幸存者偏差；400 个样本点连同停售老单全量披露，具备统计学大数定律支撑，展现龙头险企的坦荡底蕴。</p>"
+      "</div>")
+    a("<div class='key-card'>"
+      "<div class='key-card-title'>🔑 金钥匙三 · 看底线兜底（TCVR 防线）</div>"
+      "<p>非保证红利追求长期弹性，但保证本金+收益的总现金价值（TCVR）必须达到 100% 坚如磐石，中银等未披露 TCVR 的险企缺乏底线兜底透明度。</p>"
+      "</div>")
+    a("</div>")
+
+    a("</div>") # end benchmark-box
     a("</div></section>")
 
     # ── 标杆旗舰聚焦专区 ──
@@ -581,9 +684,17 @@ def build(stats: dict, skin_key: str) -> str:
         # Format Metric for display
         metric_disp = "分红实现率(FR)" if p['metric'] == "FR" else "总现价比率(TCVR)"
 
-        a(f"<tr data-c='{esc(p['insurer_code'])}' data-t='{esc(p['product_type'])}' "
+        c_code = p['insurer_code']
+        c_badge = COMPANY_BADGES.get(c_code)
+        if c_badge:
+            b_s, b_t = c_badge["style"], c_badge["text"]
+            c_badge_html = f"<div style='font-size:10.5px;font-weight:normal;margin-top:3px;'><span style='display:inline-block;padding:1px 5px;border-radius:3px;{b_s}'>{b_t}</span></div>"
+        else:
+            c_badge_html = ""
+
+        a(f"<tr data-c='{esc(c_code)}' data-t='{esc(p['product_type'])}' "
           f"data-m='{esc(p['metric'])}'>")
-        a(f"<td><b>{esc(comps.get(p['insurer_code'],{}).get('short_zh',''))}</b></td>")
+        a(f"<td><b>{esc(comps.get(c_code,{}).get('short_zh',''))}</b>{c_badge_html}</td>")
         a(f"<td>{esc(p['product'])}</td>")
         a(f"<td>{esc(L['product_type'].get(p['product_type'], p['product_type']))}</td>")
         a(f"<td><span class='chip'>{esc(metric_disp)}</span></td>")
@@ -641,7 +752,13 @@ def build(stats: dict, skin_key: str) -> str:
                 s = types.get(pt)
                 if not s or not s.get("n"):
                     continue
-                name = f"<b>{esc(comps[c]['short_zh'])}</b>" if first else ""
+                badge = COMPANY_BADGES.get(c)
+                if badge:
+                    b_s, b_t = badge["style"], badge["text"]
+                    badge_html = f"<div style='font-size:11px;font-weight:normal;margin-top:3px;'><span style='display:inline-block;padding:1px 5px;border-radius:3px;{b_s}'>{b_t}</span></div>"
+                else:
+                    badge_html = ""
+                name = f"<b>{esc(comps[c]['short_zh'])}</b>{badge_html}" if first else ""
                 first = False
                 t.append(f"<tr><td>{name}</td><td>{esc(L['product_type'].get(pt, pt))}</td>")
                 t.append(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td></tr>")
