@@ -516,7 +516,45 @@ def build(stats: dict, skin_key: str) -> str:
     a("</div>")
     a("</div>")
 
-    # 4. 真实数据切片（给客户实感）
+    # 4. AIA 官方分红科目与实现率标签对照
+    a("<h3 style='font-size:16px;color:#1c1c1a;margin:22px 0 12px;'>4. 权威溯源：友邦香港 (AIA) 官方分红科目与实现率标签严谨对照</h3>")
+    a("<p style='font-size:13px;color:#555;line-height:1.65;'>"
+      "根据友邦香港官网按香港保监局 GL16 指引的披露标准，不同分红机制下各科目的<b>官方名称、英文简称与实现率核算口径</b>有着严格的精算法定区分：</p>")
+    
+    a("<div class='table-responsive'>"
+      "<table style='width:100%;font-size:12.5px;border-collapse:collapse;margin:12px 0 18px;'>"
+      "<thead><tr style='background:#f6f8fa;border-bottom:2px solid #ddd8cd;text-align:left;'>"
+      "<th style='padding:9px 12px;'>官方科目名称</th>"
+      "<th style='padding:9px 12px;'>英文缩写</th>"
+      "<th style='padding:9px 12px;'>分红机制类型</th>"
+      "<th style='padding:9px 12px;'>代表产品系列</th>"
+      "<th style='padding:9px 12px;'>官方实现率标签与核算口径</th>"
+      "</tr></thead><tbody>")
+    
+    aia_subject_rows = [
+        ("周年红利", "AD", "美式现金分红", "「简爱•延续」、「年金宝」、「活出精彩」",
+         "<b>周年红利的分红实现率</b><br><span style='color:#666;'>按实际累积的周年红利及利息 ÷ 销售演示金额计算</span>"),
+        ("终期红利", "TD", "美式现金分红", "「简爱•延续」、「资优教育」、「才隽之选」",
+         "<b>终期红利的分红实现率</b><br><span style='color:#666;'>保单终结（退保/理赔/期满）时支付的实际金额 ÷ 销售演示金额</span>"),
+        ("复归红利", "RB", "英式保额分红", "「盈御多元货币」、「充裕未来」",
+         "<b>复归红利的分红实现率</b><br><span style='color:#666;'>面值公布后获保证；官方实现率严格按<b>复归红利的现金价值</b>折现比对</span>"),
+        ("终期分红", "TB", "英式分红 / 重疾保障", "「盈御多元货币」、「充裕未来」、「加裕智倍保」",
+         "<b>终期分红的分红实现率</b><br><span style='color:#666;'>保单终结时支付；官方实现率严格按<b>终期分红的现金价值</b>折现比对</span>"),
+        ("总现金价值", "TCVR", "全口径安全底线", "储蓄、重疾、年金全线产品",
+         "<b>分红保单的总现金价值比率</b><br><span style='color:#666;'>保证现金价值 + 非保证红利/分红总现金价值 ÷ 销售演示总金额</span>"),
+    ]
+    for subj, abbr, mech, prods, rule in aia_subject_rows:
+        chip_cls = "blue" if abbr in ["AD", "TD"] else ("green" if abbr in ["RB", "TB"] else "amber")
+        a(f"<tr style='border-bottom:1px solid #eeebe3;'>"
+          f"<td style='padding:9px 12px;'><b>{subj}</b></td>"
+          f"<td style='padding:9px 12px;'><span class='hl-chip {chip_cls}'>{abbr}</span></td>"
+          f"<td style='padding:9px 12px;'>{mech}</td>"
+          f"<td style='padding:9px 12px;'>{prods}</td>"
+          f"<td style='padding:9px 12px;font-size:12px;line-height:1.5;'>{rule}</td></tr>")
+    
+    a("</tbody></table></div>")
+
+    # 5. 真实数据切片（给客户实感）
     a("<div class='sample-slice-box'>")
     a("<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;'>")
     a("<h4 style='margin:0;font-size:15px;color:#185fa5;'>📊 真实数据切片：看一眼市场标杆保单的真实成绩单</h4>")
@@ -533,8 +571,8 @@ def build(stats: dict, skin_key: str) -> str:
     a("<span class='sample-slice-tag'>在售王牌 · 常态满额</span>")
     a("</div>")
     a("<div class='sample-slice-metrics'>")
-    a("<div class='sample-metric-pill'>复归红利实现率：<strong>100%</strong></div>")
-    a("<div class='sample-metric-pill'>终期分红实现率：<strong>100%</strong></div>")
+    a("<div class='sample-metric-pill'>复归红利分红实现率：<strong>100%</strong></div>")
+    a("<div class='sample-metric-pill'>终期分红分红实现率：<strong>100%</strong></div>")
     a("<div class='sample-metric-pill'>总现金价值比率：<strong>100%</strong></div>")
     a("</div>")
     a("<p class='sample-slice-desc'>新一代多元货币主力王牌，自公布实现率以来生效批次<strong>连续 100% 满额兑现</strong>，底线与预期完全一致。</p>")
@@ -549,8 +587,8 @@ def build(stats: dict, skin_key: str) -> str:
     a("<span class='sample-slice-tag green'>穿越周期 · 长线爆发</span>")
     a("</div>")
     a("<div class='sample-slice-metrics'>")
-    a("<div class='sample-metric-pill'>复归红利实现率：<strong class='blue'>102%</strong> (超额)</div>")
-    a("<div class='sample-metric-pill'>终期分红最高：<strong class='blue'>162%</strong> (爆发)</div>")
+    a("<div class='sample-metric-pill'>复归红利分红实现率：<strong class='blue'>102%</strong> (超额)</div>")
+    a("<div class='sample-metric-pill'>终期分红分红实现率最高：<strong class='blue'>162%</strong> (爆发)</div>")
     a("<div class='sample-metric-pill'>总现价比率：<strong>94%~100%</strong></div>")
     a("</div>")
     a("<p class='sample-slice-desc'>历经加息与疫情多轮风浪，复归红利稳超 102%，成熟批次终期分红更<strong>爆发至 162%</strong>，显现英式长跑复利威力。</p>")
@@ -565,8 +603,8 @@ def build(stats: dict, skin_key: str) -> str:
     a("<span class='sample-slice-tag amber'>极端大考 · 坚实兜底</span>")
     a("</div>")
     a("<div class='sample-slice-metrics'>")
-    a("<div class='sample-metric-pill'>纯分红实现率(FR)：<strong class='amber'>81% ~ 85%</strong></div>")
-    a("<div class='sample-metric-pill'>总现金价值比率(TCVR)：<strong>96% ~ 99%</strong></div>")
+    a("<div class='sample-metric-pill'>纯分红实现率(FR)：<strong class='amber'>81% ~ 85%</strong> (复归/终期阶段回调)</div>")
+    a("<div class='sample-metric-pill'>总现金价值比率(TCVR)：<strong>96% ~ 99%</strong> (保证利益坚挺兜底)</div>")
     a("</div>")
     a("<p class='sample-slice-desc'>遭遇美联储暴力加息500bp极端行情，浮动红利出现<strong>阶段回调至 85%</strong>；但因保证价值坚实兜底，<strong>客户实际总资产(TCVR)仍坚守在 98%</strong>，随后重回上升通道。</p>")
     a("</div>")
@@ -614,8 +652,8 @@ def build(stats: dict, skin_key: str) -> str:
     a("<div class='guide-card'>")
     a("<span class='guide-tag t2'>机制二 · 分红结构</span>")
     a("<h3>美式分红 vs 英式分红：读懂波动背后的投资逻辑</h3>")
-    a("<p><strong>• 美式分红（周年现金红利 + 终期）：</strong>红利每年宣布即落袋为安（可提取或生息），不可回撤。投资策略稳健防御，实现率曲线平缓抗跌，常年稳定在 95%~100%。</p>")
-    a("<p><strong>• 英式分红（复归保额红利 + 终期）：</strong>红利滚入保额，底层配置 50%~75% 的全球股票与权益资产以博取长期高复合回报。采用市值法核算，<strong>受全球资本市场周期波动是英式分红追求超额收益的正常客观属性</strong>。</p>")
+    a("<p><strong>• 美式分红（周年红利 AD + 终期红利 TD）：</strong>红利每年宣布即落袋为安（可提取或积存生息），不可回撤。投资策略稳健防御，实现率曲线平缓抗跌，常年稳定在 95%~100%。</p>")
+    a("<p><strong>• 英式分红（复归红利 RB + 终期分红 TB）：</strong>复归红利面值公布后获保证并滚入保额，官方实现率按其现金价值折现核算。底层配置高达 75% 全球股票权益，短期的市况合理波动是英式分红长线博取超额复利的客观属性。</p>")
     a("<div class='guide-takeaway t2'>🎯 一句话选型：养老退休提取优先美式（波动极小）；代际增值优先英式（长线博取超额复利）！</div>")
     a("</div>")
 
@@ -657,14 +695,14 @@ def build(stats: dict, skin_key: str) -> str:
     a("<div class='table-responsive'><table><thead><tr><th>产品名称</th><th>产品类型</th><th>分红机制</th><th>披露年期</th><th class='num'>平均实现率(FR)</th><th class='num'>最新实现率(FR)</th><th class='num'>总现价比率(TCVR)</th><th>兑现点评</th></tr></thead><tbody>")
     
     spotlight_items = [
-        ("「盈御多元货币计划」系列 (1/2/3代)", "储蓄人寿", "英式分红 (复归+终期)", "第 3~4 年", "100.0%", "100%", "100%", "新一代多元货币王牌，各红利系列均 100% 完美达成"),
-        ("「简爱•延续」储蓄系列 (3/5代)", "储蓄 / 终身", "美式分红 (周年+终期)", "第 2~5 年", "100.0%", "100%", "100%", "美式稳健储蓄旗舰，周年红利与终期分红全线 100% 达成"),
-        ("「充裕未来」系列 (1/2/3代及盈尚)", "储蓄人寿", "英式分红 (复归+终期)", "第 4~8 年+", "91.5%", "81%~162%", "94%~100%", "历经市场洗礼的经典英式分红王牌，最高达162%，展现长线高权益资产的爆发力"),
-        ("「年金宝」入息计划", "年金计划", "周年红利", "第 7~11 年+", "85.0%", "77%~111%", "98%~100%", "跨越十年的经典退休年金，经历多次经济大周期，持续派发稳定现金流"),
-        ("「活出精彩」/ 人民币入息保险计划", "年金计划", "美式分红 (周年红利)", "第 1~11 年+", "98.5%", "98%~100%", "100%", "跨越 10 年以上超长周期，退休现金流兑现极其稳健"),
-        ("「加裕智倍保」系列 (2/3代/首护挚宝)", "重疾保障", "终期分红", "第 5~7 年", "105.0%", "105%", "100%", "重疾王牌旗舰，实现率超额 105% 达成，保障更安心"),
-        ("「资优教育储蓄计划」", "储蓄人寿", "周年+终期红利", "第 8~11 年+", "122.0%", "97%~169%", "100%~105%", "长达 11+ 年老保单验证，终期分红达 169%，长周期复利惊人"),
-        ("「才隽之选」终身寿险计划", "终身寿险", "周年红利", "第 4~11 年+", "120.5%", "112%~125%", "100%~102%", "长周期持续超额兑现（112%~125%），穿越多次经济牛熊"),
+        ("「盈御多元货币计划」系列 (1/2/3代)", "储蓄人寿", "英式分红 (复归红利 + 终期分红)", "第 3~4 年", "100.0%", "100%", "100%", "新一代多元货币王牌，复归红利与终期分红均 100% 完美达成"),
+        ("「简爱•延续」储蓄系列 (3/5代)", "储蓄 / 终身", "美式分红 (周年红利 + 终期红利)", "第 2~5 年", "100.0%", "100%", "100%", "美式稳健储蓄旗舰，周年红利与终期红利全线 100% 达成"),
+        ("「充裕未来」系列 (1/2/3代及盈尚)", "储蓄人寿", "英式分红 (复归红利 + 终期分红)", "第 4~8 年+", "91.5%", "81%~162%", "94%~100%", "经典英式分红长跑王牌，终期分红最高达162%，展现长线高权益资产的爆发力"),
+        ("「年金宝」入息计划", "年金计划", "美式分红 (周年红利)", "第 7~11 年+", "85.0%", "77%~111%", "98%~100%", "跨越十年的经典退休年金，经历多次经济大周期，周年红利持续派发稳定现金流"),
+        ("「活出精彩」/ 人民币入息保险计划", "年金计划", "美式分红 (周年红利 + 终期红利)", "第 1~11 年+", "98.5%", "98%~100%", "100%", "跨越 10 年以上超长周期，退休现金流兑现极其稳健"),
+        ("「加裕智倍保」系列 (2/3代/首护挚宝)", "重疾保障", "终期分红 (重疾保障)", "第 5~7 年", "105.0%", "105%", "100%", "重疾王牌旗舰，终期分红实现率超额 105% 达成，保障更安心"),
+        ("「资优教育储蓄计划」", "储蓄人寿", "美式分红 (周年红利 + 终期红利)", "第 8~11 年+", "122.0%", "97%~169%", "100%~105%", "长达 11+ 年老保单验证，终期红利达 169%，长周期复利惊人"),
+        ("「才隽之选」终身寿险计划", "终身寿险", "美式分红 (周年红利 + 终期红利)", "第 4~11 年+", "120.5%", "112%~125%", "100%~102%", "长周期持续超额兑现（112%~125%），穿越多次经济牛熊"),
     ]
     for p_name, p_type, p_mech, p_yrs, p_avg, p_latest, p_tcvr, p_comment in spotlight_items:
         a(f"<tr><td><b>{p_name}</b></td><td>{p_type}</td><td><span class='chip'>{p_mech}</span></td>"
