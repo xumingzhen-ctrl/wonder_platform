@@ -565,7 +565,7 @@ def build(stats: dict, skin_key: str) -> str:
     a("<div class='tbl-scroll'><table id='ptbl'><thead><tr>"
       "<th>公司</th><th>产品系列</th><th>类型</th><th>指标</th>"
       "<th class='num'>数据点</th><th class='num'>中位数</th>"
-      "<th class='num'>全区间</th><th class='num'>≥90%占比</th>"
+      "<th class='num'>全区间</th>"
       "<th>逐 年（生效年份→%）</th></tr></thead><tbody>")
     for p in stats["products"]:
         s = p["stats"]
@@ -589,7 +589,6 @@ def build(stats: dict, skin_key: str) -> str:
         a(f"<td><span class='chip'>{esc(metric_disp)}</span></td>")
         a(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
         a(f"<td class='num'>{s['min']:.0f}–{s['max']:.0f}%</td>")
-        a(f"<td class='num'>{s['ge90']:.0f}%</td>")
         a(f"<td>{ser_html}</td></tr>")
     a("</tbody></table></div>")
     a("</div></section>")
@@ -634,7 +633,7 @@ def build(stats: dict, skin_key: str) -> str:
 
     def _render_pt_table(data_map):
         t = ["<div class='table-responsive'><table><thead><tr><th>公司</th><th>产品类型</th><th class='num'>有效产品数</th>"
-             "<th class='num'>中位数</th><th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>"]
+             "<th class='num'>中位数</th></tr></thead><tbody>"]
         for c in codes:
             types = data_map.get(c, {})
             first = True
@@ -644,10 +643,8 @@ def build(stats: dict, skin_key: str) -> str:
                     continue
                 name = f"<b>{esc(comps[c]['short_zh'])}</b>" if first else ""
                 first = False
-                cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
                 t.append(f"<tr><td>{name}</td><td>{esc(L['product_type'].get(pt, pt))}</td>")
-                t.append(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
-                t.append(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
+                t.append(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td></tr>")
         t.append("</tbody></table></div>")
         return "".join(t)
 
@@ -656,10 +653,10 @@ def build(stats: dict, skin_key: str) -> str:
     a("<div id='pt-view-fr' class='macro-view-fr'>")
     a(_render_pt_table(types_fr))
     a("<div class='note-box info' style='margin-top:16px'>"
-      "<p><b>💡 数据偏差提示（如何客观评价“达标优秀率”？）</b></p>"
-      "<p>统计 <b>≥90% 占比</b> 时，各年份的保单在公式中权重相等。像 <b>友邦 (AIA)</b> 这样历史悠久的龙头险企，主动披露了多达数十款、跨越10年以上历史周期的老旧保单（历经多次全球金融海啸考验），由于包含了大量早期已停售且底层结构不同的产品，其全盘统计的比例在客观上会被拉平。</p>"
-      "<p>相反，部分险企仅披露近年发行的少数新产品（大多处于容易实现高分红的“前三年蜜月期”），这在统计学上会产生“幸存者偏差”，人为垫高了其达标率。</p>"
-      "<p><b>结论</b>：评估险企的真实兑现能力，不能单纯只看全量历史产品的混合均值，而应重点参考<b>「标杆险企旗舰验证 (AIA)」</b>中核心主打产品的优异表现，以及长达 10 年以上的长期兑现趋势。</p>"
+      "<p><b>💡 数据深度洞察（为什么看中位数与长期走势，胜过看单一截面？）</b></p>"
+      "<p>像 <b>友邦 (AIA)</b> 这样历史悠久的龙头险企，主动披露了多达数十款、跨越10年以上历史周期的老旧保单（历经多次全球金融海啸考验），包含了大量早期已停售且底层资产结构不同的产品。</p>"
+      "<p>相反，部分险企仅披露近年发行的少数新产品（大多处于容易实现高分红的“前三年蜜月期”），这在统计学上会产生“幸存者偏差”，拉高了单一截面的表现。</p>"
+      "<p><b>结论</b>：评估险企的真实兑现能力，不能单纯只看全量历史产品的静态切片，而应重点参考<b>「标杆险企旗舰验证 (AIA)」</b>中核心主打产品的优异表现，以及长达 10 年以上的跨周期长期兑现趋势。</p>"
       "</div>")
     a("</div>")
 
