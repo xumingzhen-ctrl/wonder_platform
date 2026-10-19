@@ -111,10 +111,14 @@ def main():
         for m in ("FR", "TCVR")
     }
 
-    # ── 1. 公司 × 产品类型 ─────────────────────────────────────────
+    # ── 1. 公司 × 产品类型（总计 + 分口径）───────────────────────────
     by_company_type = defaultdict(dict)
     for (code, ptype), vals in _group(cur, lambda f: (f["insurer_code"], f["product_type"])):
         by_company_type[code][ptype] = describe(vals)
+    by_company_type_metric = {"FR": defaultdict(dict), "TCVR": defaultdict(dict)}
+    for (code, metric, ptype), vals in _group(cur, lambda f: (f["insurer_code"], f["metric"], f["product_type"])):
+        if metric in by_company_type_metric:
+            by_company_type_metric[metric][code][ptype] = describe(vals)
 
     # ── 2. 公司 × 红利类型 ─────────────────────────────────────────
     by_company_bonus = defaultdict(dict)
@@ -122,11 +126,15 @@ def main():
             cur, lambda f: (f["insurer_code"], f["metric"], f["bonus_type"])):
         by_company_bonus[code].setdefault(metric, {})[bt] = describe(vals)
 
-    # ── 3. 生效年份批次趋势 ────────────────────────────────────────
+    # ── 3. 生效年份批次趋势（总计 + 分口径）───────────────────────────
     by_cohort = defaultdict(dict)
     for (code, iy), vals in _group(cur, lambda f: (f["insurer_code"], f["inception_year"])):
         if iy and isinstance(iy, int):
             by_cohort[code][iy] = describe(vals)
+    by_cohort_metric = {"FR": defaultdict(dict), "TCVR": defaultdict(dict)}
+    for (code, metric, iy), vals in _group(cur, lambda f: (f["insurer_code"], f["metric"], f["inception_year"])):
+        if metric in by_cohort_metric and iy and isinstance(iy, int):
+            by_cohort_metric[metric][code][iy] = describe(vals)
 
     # ── 4. 产品级明细 ──────────────────────────────────────────────
     products = []
@@ -174,9 +182,14 @@ def main():
         "overall_by_company_metric": overall_by_company_metric,
         "overall_by_metric": overall_by_metric,
         "by_company_product_type": {c: dict(v) for c, v in by_company_type.items()},
+        "by_company_product_type_metric": {m: {c: dict(v) for c, v in cs.items()}
+                                           for m, cs in by_company_type_metric.items()},
         "by_company_bonus": {c: dict(v) for c, v in by_company_bonus.items()},
         "by_cohort": {c: {str(y): s for y, s in sorted(v.items())}
                       for c, v in by_cohort.items()},
+        "by_cohort_metric": {m: {c: {str(y): s for y, s in sorted(v.items())}
+                                 for c, v in cs.items()}
+                             for m, cs in by_cohort_metric.items()},
         "products": products,
         "labels": {"product_type": PT_ZH, "bonus_type": BT_ZH, "metric": METRIC_ZH},
     }

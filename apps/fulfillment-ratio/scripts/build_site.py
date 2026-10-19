@@ -166,6 +166,17 @@ CSS_EXTRA = """
 .legend-pill.active-pill{background:#fff;border-color:#185fa5;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.05)}
 .legend-pill.dimmed{opacity:0.35}
 #chart-fast-tooltip{position:fixed;display:none;background:rgba(25,25,23,0.94);color:#fff;padding:9px 14px;border-radius:7px;font-size:12.5px;pointer-events:none;z-index:99999;box-shadow:0 6px 16px rgba(0,0,0,.2);white-space:nowrap;line-height:1.5;transform:translate(-50%,-120%);border:1px solid rgba(255,255,255,0.15)}
+
+/* 双通道指标切换组件 */
+.metric-switch-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:16px 0 20px;padding:12px 18px;background:#fff;border-radius:10px;border:1px solid #e2ded4;box-shadow:0 2px 6px rgba(0,0,0,.02)}
+.metric-switch-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.metric-switch-title{font-size:13px;font-weight:600;color:#333}
+.metric-tabs{display:inline-flex;background:#edebe4;padding:3px;border-radius:20px;gap:4px}
+.metric-tab-btn{background:transparent;border:none;padding:6px 16px;border-radius:18px;font-size:12.5px;font-weight:600;color:#666;cursor:pointer;transition:all .18s}
+.metric-tab-btn:hover{color:#111}
+.metric-tab-btn.active{background:#fff;color:#185fa5;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.metric-tab-btn[data-metric="TCVR"].active{color:#0F6E56}
+.metric-badge-hint{font-size:12px;color:#7a7872}
 """
 
 
@@ -445,6 +456,18 @@ def build(stats: dict, skin_key: str) -> str:
     a("<p class='lead'><b>数据怎么看？</b> 由于保单生效前几年的分红基数极小，很多公司都能在短期内交出「100%」的成绩单。但随着年份增加，能始终维持高实现率的险企，才真正具备穿越周期的实力。这张趋势图展示了各批次保单在 "
       f"{yr} 报告年度的实现率中位数表现。</p>")
 
+    # 双通道指标切换条
+    a("<div class='metric-switch-bar'>"
+      "<div class='metric-switch-left'>"
+      "<span class='metric-switch-title'>📊 统计指标口径：</span>"
+      "<div class='metric-tabs'>"
+      "<button class='metric-tab-btn active' data-metric='FR' onclick='setGlobalMetric(\"FR\")'>分红实现率 (FR) · 法定同台 (12家全量)</button>"
+      "<button class='metric-tab-btn' data-metric='TCVR' onclick='setGlobalMetric(\"TCVR\")'>总现金价值比率 (TCVR) · 含保证价值 (7家披露)</button>"
+      "</div>"
+      "</div>"
+      "<div class='metric-badge-hint'><span id='metric-hint-text'>当前：纯非保证分红兑现率，所有在售险企法定同台可比口径</span></div>"
+      "</div>")
+
     a("<div class='trend-box'>")
     a("<div class='trend-filter-bar'>")
     a("<span style='font-size:12.5px;font-weight:600;color:#555;'>⚡ 快速高亮对标：</span>")
@@ -453,30 +476,60 @@ def build(stats: dict, skin_key: str) -> str:
     a("<button class='trend-btn' data-target='AIA,AXA'>友邦 vs 安盛</button>")
     a("<button class='trend-btn' data-target='AIA,MANU'>友邦 vs 宏利</button>")
     a("<button class='trend-btn' data-target='AIA,CTF'>友邦 vs 周大福</button>")
-    a("<button class='trend-btn' data-target='all'>全市场 12 家对比</button>")
+    a("<button class='trend-btn' data-target='all'>全市场对比</button>")
     a("</div>")
 
-    series_items = []
+    # FR 口径走势
+    series_fr = []
+    cohort_fr = stats.get("by_cohort_metric", {}).get("FR", stats.get("by_cohort", {}))
     for c in codes:
         pts = []
-        for y, s in sorted(stats["by_cohort"].get(c, {}).items()):
+        for y, s in sorted(cohort_fr.get(c, {}).items()):
             if s.get("n", 0) >= 3:
                 pts.append((int(y), s["median"]))
         if pts:
-            series_items.append((c, comps[c]["short_zh"], color_for(c), c == "AIA", pts))
+            series_fr.append((c, comps[c]["short_zh"], color_for(c), c == "AIA", pts))
 
-    if series_items:
-        a(line_chart(series_items))
+    a("<div id='coh-view-fr' class='macro-view-fr'>")
+    if series_fr:
+        a(line_chart(series_fr))
         a("<div class='legend' style='margin-top:14px;'>")
-        for c, name, col, is_aia, _ in series_items:
+        for c, name, col, is_aia, _ in series_fr:
             cls = "legend-pill active-pill" if is_aia else "legend-pill"
             weight = "bold" if is_aia else "normal"
             a(f"<span class='{cls}' data-code='{esc(c)}' style='font-weight:{weight};'>"
               f"<i class='sw' style='background:{col};width:12px;height:12px;border-radius:3px;'></i>"
               f"{esc(name)}</span>")
         a("</div>")
-        
-        a("<div id='trend-expert-note' class='note-box info' style='display:none;margin-top:16px'></div>")
+    a("</div>")
+
+    # TCVR 口径走势
+    series_tcvr = []
+    cohort_tcvr = stats.get("by_cohort_metric", {}).get("TCVR", {})
+    for c in codes:
+        pts = []
+        for y, s in sorted(cohort_tcvr.get(c, {}).items()):
+            if s.get("n", 0) >= 3:
+                pts.append((int(y), s["median"]))
+        if pts:
+            series_tcvr.append((c, comps[c]["short_zh"], color_for(c), c == "AIA", pts))
+
+    a("<div id='coh-view-tcvr' class='macro-view-tcvr' style='display:none;'>")
+    if series_tcvr:
+        a(line_chart(series_tcvr))
+        a("<div class='legend' style='margin-top:14px;'>")
+        for c, name, col, is_aia, _ in series_tcvr:
+            cls = "legend-pill active-pill" if is_aia else "legend-pill"
+            weight = "bold" if is_aia else "normal"
+            a(f"<span class='{cls}' data-code='{esc(c)}' style='font-weight:{weight};'>"
+              f"<i class='sw' style='background:{col};width:12px;height:12px;border-radius:3px;'></i>"
+              f"{esc(name)}</span>")
+        a("</div>")
+    a("<div class='note-box' style='margin-top:14px;background:#fbfbf9;border-left:3px solid #888;font-size:12.5px;color:#666;'>"
+      "<p><b>ℹ️ 险企披露说明</b>：总现金价值比率（TCVR）属于自愿披露指标。全市场 12 家险企中，目前友邦、保诚、宏利、安盛、周大福、永明、万通共 7 家自愿测算并披露了该指标；<b>中国人寿（海外）、中银人寿、富卫保险、恒生保险、汇丰人寿官方未自愿披露 TCVR</b>，因此在 TCVR 走势图中不予列出。</p></div>")
+    a("</div>")
+
+    a("<div id='trend-expert-note' class='note-box info' style='display:none;margin-top:16px'></div>")
 
     a("</div>") # end trend-box
     a("</div></section>")
@@ -564,30 +617,63 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h2>分产品类型</h2>")
     a("<p class='lead'>这是全站最重要的一层筛选。储蓄分红险、终身寿险、年金、危疾产品"
       "的红利机制与投资账户完全不同，混在一起算出来的数字没有意义。</p>")
+
+    # 双通道指标切换条
+    a("<div class='metric-switch-bar'>"
+      "<div class='metric-switch-left'>"
+      "<span class='metric-switch-title'>📊 统计指标口径：</span>"
+      "<div class='metric-tabs'>"
+      "<button class='metric-tab-btn active' data-metric='FR' onclick='setGlobalMetric(\"FR\")'>分红实现率 (FR) · 法定同台 (12家全量)</button>"
+      "<button class='metric-tab-btn' data-metric='TCVR' onclick='setGlobalMetric(\"TCVR\")'>总现金价值比率 (TCVR) · 含保证价值 (7家披露)</button>"
+      "</div>"
+      "</div>"
+      "<div class='metric-badge-hint'><span class='metric-hint-text-pt'>当前：分红实现率 (FR)，纯非保证投资分红兑现情况</span></div>"
+      "</div>")
+
     order = ["savings", "wholelife", "annuity", "ci", "medical", "other"]
-    a("<div class='table-responsive'><table><thead><tr><th>公司</th><th>产品类型</th><th class='num'>有效产品数</th>"
-      "<th class='num'>中位数</th><th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>")
-    for c in codes:
-        types = stats["by_company_product_type"].get(c, {})
-        first = True
-        for pt in order:
-            s = types.get(pt)
-            if not s or not s.get("n"):
-                continue
-            name = f"<b>{esc(comps[c]['short_zh'])}</b>" if first else ""
-            first = False
-            cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
-            a(f"<tr><td>{name}</td><td>{esc(L['product_type'].get(pt, pt))}</td>")
-            a(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
-            a(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
-    a("</tbody></table></div>")
-    
+
+    def _render_pt_table(data_map):
+        t = ["<div class='table-responsive'><table><thead><tr><th>公司</th><th>产品类型</th><th class='num'>有效产品数</th>"
+             "<th class='num'>中位数</th><th class='num'>≥90% 占比 (达标优秀率)</th></tr></thead><tbody>"]
+        for c in codes:
+            types = data_map.get(c, {})
+            first = True
+            for pt in order:
+                s = types.get(pt)
+                if not s or not s.get("n"):
+                    continue
+                name = f"<b>{esc(comps[c]['short_zh'])}</b>" if first else ""
+                first = False
+                cls = "good" if s["ge90"] >= 70 else ("warn" if s["ge90"] >= 45 else "bad")
+                t.append(f"<tr><td>{name}</td><td>{esc(L['product_type'].get(pt, pt))}</td>")
+                t.append(f"<td class='num'>{s['n']}</td><td class='num'><b>{s['median']:.0f}%</b></td>")
+                t.append(f"<td class='num'><span class='chip {cls}'>{s['ge90']:.0f}%</span></td></tr>")
+        t.append("</tbody></table></div>")
+        return "".join(t)
+
+    # FR 视图
+    types_fr = stats.get("by_company_product_type_metric", {}).get("FR", stats.get("by_company_product_type", {}))
+    a("<div id='pt-view-fr' class='macro-view-fr'>")
+    a(_render_pt_table(types_fr))
     a("<div class='note-box info' style='margin-top:16px'>"
       "<p><b>💡 数据偏差提示（如何客观评价“达标优秀率”？）</b></p>"
       "<p>统计 <b>≥90% 占比</b> 时，各年份的保单在公式中权重相等。像 <b>友邦 (AIA)</b> 这样历史悠久的龙头险企，主动披露了多达数十款、跨越10年以上历史周期的老旧保单（历经多次全球金融海啸考验），由于包含了大量早期已停售且底层结构不同的产品，其全盘统计的比例在客观上会被拉平。</p>"
       "<p>相反，部分险企仅披露近年发行的少数新产品（大多处于容易实现高分红的“前三年蜜月期”），这在统计学上会产生“幸存者偏差”，人为垫高了其达标率。</p>"
       "<p><b>结论</b>：评估险企的真实兑现能力，不能单纯只看全量历史产品的混合均值，而应重点参考<b>「标杆险企旗舰验证 (AIA)」</b>中核心主打产品的优异表现，以及长达 10 年以上的长期兑现趋势。</p>"
       "</div>")
+    a("</div>")
+
+    # TCVR 视图
+    types_tcvr = stats.get("by_company_product_type_metric", {}).get("TCVR", {})
+    a("<div id='pt-view-tcvr' class='macro-view-tcvr' style='display:none;'>")
+    a(_render_pt_table(types_tcvr))
+    a("<div class='note-box' style='margin-top:16px;background:#fbfbf9;border-left:3px solid #0F6E56;font-size:12.5px;color:#555;'>"
+      "<p><b>💡 认识总现金价值比率 (TCVR)</b>：</p>"
+      "<p>1. TCVR 在分子和分母中均计入了 100% 刚性兑付的保证现金价值，因此各类型产品的达标率普遍表现极佳（普遍在 95%~100%）。</p>"
+      "<p>2. <b>未列示公司说明</b>：中国人寿（海外）、中银人寿、富卫保险、恒生保险、汇丰人寿官方未自愿披露 TCVR，因此在 TCVR 统计中不予列入。</p>"
+      "</div>")
+    a("</div>")
+
     a("</div></section>")
 
     # ── 方法论 ──
@@ -695,6 +781,35 @@ pills.forEach(btn=>{
  });
 });
 
+// === 双通道指标口径全局联动 (FR vs TCVR) ===
+let currentMacroMetric = 'FR';
+
+function setGlobalMetric(m){
+ currentMacroMetric = m;
+ document.querySelectorAll('.metric-tab-btn').forEach(btn => {
+  btn.classList.toggle('active', btn.dataset.metric === m);
+ });
+ document.querySelectorAll('.macro-view-fr').forEach(el => {
+  el.style.display = (m === 'FR') ? 'block' : 'none';
+ });
+ document.querySelectorAll('.macro-view-tcvr').forEach(el => {
+  el.style.display = (m === 'TCVR') ? 'block' : 'none';
+ });
+ 
+ const hintFR = "当前：纯非保证分红兑现率，所有在售险企法定同台可比口径";
+ const hintTCVR = "当前：总现金价值比率，包含保证现金价值兜底（仅 7 家自愿披露险企）";
+ const hintEl = document.getElementById('metric-hint-text');
+ if(hintEl) hintEl.textContent = (m === 'FR') ? hintFR : hintTCVR;
+ 
+ const hintPtFR = "当前：分红实现率 (FR)，纯非保证投资分红兑现情况";
+ const hintPtTCVR = "当前：总现金价值比率 (TCVR)，包含保证价值（仅 7 家自愿披露险企）";
+ document.querySelectorAll('.metric-hint-text-pt').forEach(el => {
+  el.textContent = (m === 'FR') ? hintPtFR : hintPtTCVR;
+ });
+
+ applyTrendHighlight(currentTrendFilter.split(','));
+}
+
 // === 交互折线图即时 Tooltip 与 高亮控制 ===
 const chartTooltip=document.createElement('div');
 chartTooltip.id='chart-fast-tooltip';
@@ -704,7 +819,7 @@ const trendPaths=document.querySelectorAll('.chart-path'),
  trendCircles=document.querySelectorAll('.chart-circle'),
  trendLegendPills=document.querySelectorAll('.legend-pill'),
  trendFilterBtns=document.querySelectorAll('.trend-btn'),
- aiaTag=document.querySelector('.aia-end-tag');
+ aiaTags=document.querySelectorAll('.aia-end-tag');
 
 let currentTrendFilter='AIA'; // 默认聚焦友邦
 
@@ -751,9 +866,9 @@ function applyTrendHighlight(codes){
   }
  });
 
- if(aiaTag){
-  aiaTag.style.display=(isAll||codes.includes('AIA'))?'':'none';
- }
+ aiaTags.forEach(tag=>{
+  tag.style.display=(isAll||codes.includes('AIA'))?'':'none';
+ });
 
   const noteEl = document.getElementById('trend-expert-note');
   if (noteEl) {
