@@ -116,6 +116,22 @@ SKINS = {
 }
 
 CSS_EXTRA = """
+/* 视觉突出与速读组件（降低非专业用户认知门槛） */
+.key-takeaway-banner{background:linear-gradient(135deg,#fef9e7 0%,#fffdf5 100%);border:1px solid #f0dfa8;border-left:4px solid #d97706;border-radius:8px;padding:12px 16px;margin:14px 0 18px;font-size:13px;color:#78350f;line-height:1.6;display:flex;align-items:flex-start;gap:10px}
+.key-takeaway-banner strong{color:#92400e;font-size:13.5px}
+.key-takeaway-banner .t-badge{background:#d97706;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;letter-spacing:.5px}
+.fast-read-box{background:#f0f7ff;border:1px solid #cbe2fe;border-radius:8px;padding:12px 15px;margin:10px 0 14px;font-size:13px;color:#1e40af;line-height:1.6}
+.fast-read-box strong{color:#1e3a8a;font-weight:700}
+.fast-read-badge{background:#2563eb;color:#fff;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px;display:inline-block}
+.hl-chip{display:inline-block;background:#fff2e8;border:1px solid #ffd591;color:#d4380d;font-weight:700;font-size:12px;padding:1px 6px;border-radius:4px;margin:0 2px}
+.hl-chip.green{background:#f6ffed;border-color:#b7eb8f;color:#389e0d}
+.hl-chip.blue{background:#e6f7ff;border-color:#91d5ff;color:#096dd9}
+.hl-chip.amber{background:#fffbe6;border-color:#ffe58f;color:#d48806}
+.guide-takeaway{background:#f6f5f0;border-radius:6px;padding:8px 12px;margin-top:12px;font-size:12px;color:#333;font-weight:600;display:flex;align-items:center;gap:6px;border-left:3px solid #ba7517}
+.guide-takeaway.t1{border-left-color:#185fa5}
+.guide-takeaway.t2{border-left-color:#ba7517}
+.guide-takeaway.t3{border-left-color:#0f6e56}
+
 /* 什么是分红实现率 核心概念与数据切片模块 */
 .concept-box{background:#fff;border:1.5px solid #dcd7ca;border-radius:12px;padding:24px;margin:20px 0 28px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
 .formula-box{background:#f4f7fb;border-left:4px solid #185fa5;border-radius:0 8px 8px 0;padding:16px 20px;margin:16px 0 20px;font-size:13.5px;color:#222;line-height:1.7}
@@ -127,15 +143,21 @@ CSS_EXTRA = """
 .concept-card p:last-child{margin-bottom:0}
 .sample-slice-box{background:#f8fafc;border:1.5px solid #dbe3eb;border-radius:10px;padding:20px 22px;margin-top:22px}
 .sample-slice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0}
-.sample-slice-card{background:#fff;border:1px solid #d6dfe8;border-radius:8px;padding:16px 18px;box-shadow:0 2px 5px rgba(0,0,0,.02)}
+.sample-slice-card{background:#fff;border:1px solid #d6dfe8;border-radius:8px;padding:16px 18px;box-shadow:0 2px 5px rgba(0,0,0,.02);display:flex;flex-direction:column;justify-content:space-between}
+.sample-slice-card.bear-market{border-color:#f5cba7;background:linear-gradient(180deg,#fff 0%,#fffaf5 100%)}
+.sample-slice-card.outperform{border-color:#b7eb8f;background:linear-gradient(180deg,#fff 0%,#fafff8 100%)}
 .sample-slice-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.sample-slice-title{font-size:14px;font-weight:700;color:#1a1915}
-.sample-slice-tag{font-size:11.5px;padding:2px 8px;border-radius:4px;font-weight:600;background:#e8f4fd;color:#185fa5}
-.sample-slice-metrics{display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap}
-.sample-metric-pill{background:#faf9f6;border:1px solid #e5e0d4;padding:6px 10px;border-radius:6px;font-size:12px;color:#444}
-.sample-metric-pill strong{color:#0f6e56;font-size:13.5px}
+.sample-slice-title{font-size:13.5px;font-weight:700;color:#1a1915}
+.sample-slice-tag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;background:#e8f4fd;color:#185fa5}
+.sample-slice-tag.green{background:#f6ffed;color:#389e0d}
+.sample-slice-tag.amber{background:#fff7e6;color:#d46b08}
+.sample-slice-metrics{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.sample-metric-pill{background:#faf9f6;border:1px solid #e5e0d4;padding:5px 9px;border-radius:6px;font-size:11.5px;color:#444}
+.sample-metric-pill strong{color:#0f6e56;font-size:13px}
+.sample-metric-pill strong.blue{color:#185fa5}
+.sample-metric-pill strong.amber{color:#d46b08}
 .sample-slice-desc{font-size:12px;color:#666;line-height:1.55;margin:0}
-.concept-transition{background:#fff;border-left:4px solid #ba7517;padding:12px 18px;border-radius:0 6px 6px 0;margin-top:16px;font-size:13px;color:#555;line-height:1.6;border-top:1px solid #f2ede4;border-right:1px solid #f2ede4;border-bottom:1px solid #f2ede4}
+.concept-transition{background:#fff;border-left:4px solid #ba7517;padding:14px 18px;border-radius:0 6px 6px 0;margin-top:16px;font-size:13px;color:#555;line-height:1.65;border-top:1px solid #f2ede4;border-right:1px solid #f2ede4;border-bottom:1px solid #f2ede4}
 
 .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px;margin:20px 0 28px}
 .guide-card{background:#fff;border:1px solid #e2ded4;border-radius:12px;padding:22px;box-shadow:0 2px 8px rgba(0,0,0,.03);transition:transform .15s}
@@ -438,6 +460,13 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h2>📘 什么是分红实现率？从概念定义到数据实感</h2>")
     a("<p class='lead'>在评估香港分红储蓄与重疾保单时，<b>「分红实现率 (Fulfillment Ratio)」</b>是出现频次最高、也最容易被误读的核心指标。建立清晰的第一性原理认知，是做出明智财富规划的基石。</p>")
 
+    # 3秒速读核心常识横幅
+    a("<div class='key-takeaway-banner'>"
+      "<span class='t-badge'>⚡ 3秒速读核心常识</span>"
+      "<div><strong>实现率 (FR) 纯粹衡量保司对浮动非保证分红的「履约守信度」，绝非保单年化收益率 (IRR)！</strong>"
+      "<br>它绝不影响保单中 100% 刚性保证兜底的现金价值。看懂它，核心在于：<strong>选保司看平滑储备与诚信，选产品看匹配现金流还是高爆发</strong>。</div>"
+      "</div>")
+
     a("<div class='concept-box'>")
     
     # 1. 定义与公式
@@ -445,10 +474,10 @@ def build(stats: dict, skin_key: str) -> str:
     a("<p style='font-size:13px;color:#555;line-height:1.65;'>分红实现率是由<b>香港保监局（Insurance Authority）</b>根据《长期业务分红保单指引》（GL16）强制要求各寿险公司每年向公众如实披露的透明度监管指标。它衡量的是保险公司在销售时向客户呈现的预期收益，在日后每一年到底兑现了多少。</p>")
     a("<div class='formula-box'>")
     a("<div class='formula-math'>分红实现率 (FR) = ( 当年实际派发的非保证红利 ÷ 投保建议书上演示的非保证红利 ) × 100%</div>")
-    a("<div><strong>通俗理解：</strong>"
-      "<span style='color:#0f6e56;font-weight:600;'>100%</span> 代表演示多少实际就发多少（满额兑现）；"
-      "<span style='color:#185fa5;font-weight:600;'> &gt;100%（如 102%~105%）</span> 代表超越预期派发（超额分红）；"
-      "<span style='color:#a32d2d;font-weight:600;'> &lt;100%（如 85%）</span> 代表当年受外部投资波动影响打了八五折。</div>")
+    a("<div><strong>一目了然看数值：</strong>"
+      "<span class='hl-chip green'>100% 满额兑现</span> 演示多少实际就发多少；"
+      "<span class='hl-chip blue'>&gt;100% 超额分红</span>（如 102%~162%）超越预期多发红包；"
+      "<span class='hl-chip amber'>&lt;100% 周期打折</span>（如 85%）熊市受资本波动影响阶段性回调。</div>")
     a("</div>")
 
     # 2. 两大核心认知与避坑
@@ -457,15 +486,16 @@ def build(stats: dict, skin_key: str) -> str:
     a("<div class='concept-card'>")
     a("<h4>📌 认知一：它不是年化收益率 (IRR)，而是收益兑现率</h4>")
     a("<p>很多初次接触的客户容易误以为「实现率 100% 就等于每年翻倍或保本 100%」。实际上，若某保单在建议书上演示的预期年化收益为 6%：</p>")
-    a("<p>• 若当年实现率 100%，客户拿到的就是这 <strong>6% 的年化预期</strong>；<br>"
-      "• 若当年实现率为 90%，客户实际获得的收益折合约 <strong>5.4%</strong>。<br>"
-      "<strong>实现率衡量的是保司的「承诺守信度与投资达成度」，并非投资绝对回报率。</strong></p>")
+    a("<p>• 若当年实现率 100%，客户拿到的就是这 <strong style='color:#0f6e56;'>6% 的年化预期</strong>；<br>"
+      "• 若当年实现率为 90%，客户实际获得的收益折合约 <strong style='color:#ba7517;'>5.4%</strong>。<br>"
+      "<strong><span class='hl-chip blue'>兑现率 ≠ 年化收益率</span> 实现率衡量的是保司的「承诺守信度与投资达成度」，并非投资绝对回报率。</strong></p>")
     a("</div>")
     a("<div class='concept-card'>")
     a("<h4>🛡️ 认知二：它纯粹考核非保证部分，保证收益毫不受损</h4>")
     a("<p>香港储蓄保单的利益由两部分组成：<b>「保证现金价值」</b> + <b>「非保证红利」</b>。</p>")
-    a("<p>• <strong>保证现金价值：</strong>写在保险合同中，具有法律刚性兑付效力，无论全球金融市场如何暴跌，险企必须 100% 兑付。<br>"
-      "• <strong>分红实现率：</strong>仅针对浮动的非保证红利进行披露与考核，保证利益不受任何影响。</p>")
+    a("<p>• <strong>保证现金价值：</strong>写在保险合同中，具有法律刚性兑付效力，无论全球金融市场如何暴跌，险企必须 <strong>100% 安全兑付</strong>。<br>"
+      "• <strong>分红实现率：</strong>仅针对浮动的非保证红利进行披露与考核。<br>"
+      "<strong><span class='hl-chip green'>保证利益绝对安全</span> 分红无论打几折，您的保证现金价值丝毫不受影响。</strong></p>")
     a("</div>")
     a("</div>")
 
@@ -476,11 +506,13 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h4>🏢 选保险公司：看契约信誉与跨周期平滑底蕴</h4>")
     a("<p><strong>• 识破精算画大饼：</strong>如果某保司在建议书上演示了极具诱惑力的高收益，但真实实现率长年在 60%~70%，说明其精算激进、兑现能力存疑；常年稳定在 95%~100%+ 的保司，代表其作风稳健、言出必行。</p>")
     a("<p><strong>• 检验平滑储备（Smoothing Reserve）实力：</strong>优质险企在投资丰收年份会把部分盈余拨入分红储备池，在熊市年份释放储备平滑收益。这极其考验险企数百亿至数千亿级资产大盘的跨周期调度能力。</p>")
+    a("<div class='guide-takeaway t1'>🎯 选保司要点：看长期中位数与老保单透明度，拒绝“会画饼但难兑现”的险企。</div>")
     a("</div>")
     a("<div class='concept-card'>")
     a("<h4>📑 选具体产品：匹配个人资金的时间规划与风险偏好</h4>")
     a("<p><strong>• 养老退休与现金流规划：</strong>优先选择<b>美式分红产品</b>（现金红利），实现率平缓抗跌（常年 95%~100%），每年红利可提取，现金流极具确定性。</p>")
     a("<p><strong>• 家族传承与财富高复利累积：</strong>优先选择<b>英式分红旗舰</b>（复归红利 + 终期分红），底层配置高比例全球股票权益，短期虽随市场波动，但长期复合收益天花板高，后期爆发力极强。</p>")
+    a("<div class='guide-takeaway t2'>🎯 选产品要点：退休取钱选美式（95%~100%稳如泰山）；传承增值选英式（博取长线高爆发）。</div>")
     a("</div>")
     a("</div>")
 
@@ -490,43 +522,63 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h4 style='margin:0;font-size:15px;color:#185fa5;'>📊 真实数据切片：看一眼市场标杆保单的真实成绩单</h4>")
     a("<span class='sample-slice-tag'>官方 GL16 披露标准</span>")
     a("</div>")
-    a("<p style='font-size:12.5px;color:#555;margin:8px 0 12px;'>理论讲得再好，不如看一眼真正交到客户手里的真实保单数据。以下为香港主流标杆储蓄保单的最新官方分红实现率切片：</p>")
+    a("<p style='font-size:12.5px;color:#555;margin:8px 0 12px;'>理论讲得再好，不如看一眼真正交到客户手里的真实保单数据。以下三组切片分别代表了<b>常态满额、长线爆发、熊市防御</b>三种真实场景：</p>")
     a("<div class='sample-slice-grid'>")
     
-    # 切片 1: 充裕未来
+    # 切片 1: 盈御多元货币（常态满分）
     a("<div class='sample-slice-card'>")
+    a("<div>")
     a("<div class='sample-slice-head'>")
-    a("<div class='sample-slice-title'>充裕未来（2016年生效 · 已运行8年）</div>")
-    a("<span class='sample-slice-tag'>经历牛熊穿越</span>")
-    a("</div>")
-    a("<div class='sample-slice-metrics'>")
-    a("<div class='sample-metric-pill'>复归红利实现率：<strong>102%</strong></div>")
-    a("<div class='sample-metric-pill'>终期分红实现率：<strong>100%</strong></div>")
-    a("<div class='sample-metric-pill'>总现金价值比率：<strong>100%</strong></div>")
-    a("</div>")
-    a("<p class='sample-slice-desc'>经历了2018全球震荡、2020疫情、2022美联储激进加息大考，所有指标全面达成甚至超额兑现。</p>")
-    a("</div>")
-
-    # 切片 2: 盈御多元货币
-    a("<div class='sample-slice-card'>")
-    a("<div class='sample-slice-head'>")
-    a("<div class='sample-slice-title'>盈御多元货币计划（2021年生效 · 当家在售旗舰）</div>")
-    a("<span class='sample-slice-tag'>市场当家王牌</span>")
+    a("<div class='sample-slice-title'>盈御多元货币计划（2021年生效 · 运行3~4年）</div>")
+    a("<span class='sample-slice-tag'>在售王牌 · 常态满额</span>")
     a("</div>")
     a("<div class='sample-slice-metrics'>")
     a("<div class='sample-metric-pill'>复归红利实现率：<strong>100%</strong></div>")
     a("<div class='sample-metric-pill'>终期分红实现率：<strong>100%</strong></div>")
     a("<div class='sample-metric-pill'>总现金价值比率：<strong>100%</strong></div>")
     a("</div>")
-    a("<p class='sample-slice-desc'>自首年公布实现率以来，已生效保单连续实现 100% 满额兑现，资产底线稳固。</p>")
+    a("<p class='sample-slice-desc'>新一代多元货币主力王牌，自公布实现率以来生效批次<strong>连续 100% 满额兑现</strong>，底线与预期完全一致。</p>")
+    a("</div>")
+    a("</div>")
+
+    # 切片 2: 充裕未来长跑（爆发超额）
+    a("<div class='sample-slice-card outperform'>")
+    a("<div>")
+    a("<div class='sample-slice-head'>")
+    a("<div class='sample-slice-title'>充裕未来 经典长跑系列（2016~2018年批次 · 运行6~8年）</div>")
+    a("<span class='sample-slice-tag green'>穿越周期 · 长线爆发</span>")
+    a("</div>")
+    a("<div class='sample-slice-metrics'>")
+    a("<div class='sample-metric-pill'>复归红利实现率：<strong class='blue'>102%</strong> (超额)</div>")
+    a("<div class='sample-metric-pill'>终期分红最高：<strong class='blue'>162%</strong> (爆发)</div>")
+    a("<div class='sample-metric-pill'>总现价比率：<strong>94%~100%</strong></div>")
+    a("</div>")
+    a("<p class='sample-slice-desc'>历经加息与疫情多轮风浪，复归红利稳超 102%，成熟批次终期分红更<strong>爆发至 162%</strong>，显现英式长跑复利威力。</p>")
+    a("</div>")
+    a("</div>")
+
+    # 切片 3: 熊市极端大考（回调与兜底）
+    a("<div class='sample-slice-card bear-market'>")
+    a("<div>")
+    a("<div class='sample-slice-head'>")
+    a("<div class='sample-slice-title'>早期英式储蓄 / 年金宝（2022年股债双杀极端熊市切片）</div>")
+    a("<span class='sample-slice-tag amber'>极端大考 · 坚实兜底</span>")
+    a("</div>")
+    a("<div class='sample-slice-metrics'>")
+    a("<div class='sample-metric-pill'>纯分红实现率(FR)：<strong class='amber'>81% ~ 85%</strong></div>")
+    a("<div class='sample-metric-pill'>总现金价值比率(TCVR)：<strong>96% ~ 99%</strong></div>")
+    a("</div>")
+    a("<p class='sample-slice-desc'>遭遇美联储暴力加息500bp极端行情，浮动红利出现<strong>阶段回调至 85%</strong>；但因保证价值坚实兜底，<strong>客户实际总资产(TCVR)仍坚守在 98%</strong>，随后重回上升通道。</p>")
+    a("</div>")
     a("</div>")
 
     a("</div>") # end sample-slice-grid
 
     # 过渡引导句
     a("<div class='concept-transition'>")
-    a("<strong>💡 深度承接：</strong>看到这些真实的数据，您可能会进一步好奇：<em>为什么有的年份 102%，有的产品在熊市是 85%，有的终期红利却能爆发到 162%？为什么不能只看前两年的 100%？</em><br>"
-      "接下来，我们开始分拆背后的三大核心数据维度与底层规律——")
+    a("<strong>💡 深度承接：</strong>看完这三组真实的切片数据，您一眼就能看出规律——"
+      "<strong>有常态的 100%、有长线爆发的 162%、有熊市回调的 85%、以及永远坚守在 96%~100% 的总现价防线</strong>。<br>"
+      "为什么会出现这些不同？为什么不能只看前两年的 100%？接下来，我们开始分拆背后的三大底层规律与核心维度——")
     a("</div>")
 
     a("</div>") # end sample-slice-box
@@ -539,6 +591,13 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h2>💡 保单分红深度导读与避坑指南</h2>")
     a("<p class='lead'>分红实现率是投保决策的重要参考，但<b>孤立地看单一数字极易产生严重误导</b>。"
       "理解以下三大底层规律，才能看清分红数字背后的真实投资实力与长期兑现底蕴。</p>")
+
+    # 核心选单口诀横幅
+    a("<div class='key-takeaway-banner'>"
+      "<span class='t-badge'>🎯 核心选单口诀</span>"
+      "<div><strong>短跑新单看 100% 是低基数幻觉，8~10 年穿越牛熊的老单依然在 90%+ 才是硬实力！</strong>"
+      "<br>看纯 FR 知保司进攻与投资真功夫，看 TCVR 知底层资产兜底防线。</div>"
+      "</div>")
     
     a("<div class='guide-grid'>")
     
@@ -548,7 +607,7 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h3>打破「前期冲高」幻觉：为什么 8 年以上老单才见真章？</h3>")
     a("<p><strong>• 前期（1~5年）基数极小：</strong>保单生效初期，非保证分红池尚未滚存，险企维持 100% 实现率的资金成本极低，极易出现「新产品前期全线飘红」的营销现象。</p>")
     a("<p><strong>• 后期（8~10+年）复利庞大：</strong>随着时间推移，分红池按复利几何级增长，且必须穿越多次全球加息、降息与股灾周期。<strong>能够在 8~10 年以上长周期仍稳定在 90%~100%+ 的产品，才真正体现险企跨周期的真实资产管理能力</strong>。</p>")
-    a("<div class='guide-point'><i>✓</i> 避坑要点：切勿因新产品前 2 年 100% 就认定稳赚，重点考察其 8 年以上老保单的历史兑现记录。</div>")
+    a("<div class='guide-takeaway t1'>🎯 一句话避坑：切勿因新产品前 2 年 100% 就认定稳赚，重点考察其 8 年以上老保单的历史兑现记录！</div>")
     a("</div>")
 
     # 卡片 2：美式 vs 英式
@@ -557,7 +616,7 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h3>美式分红 vs 英式分红：读懂波动背后的投资逻辑</h3>")
     a("<p><strong>• 美式分红（周年现金红利 + 终期）：</strong>红利每年宣布即落袋为安（可提取或生息），不可回撤。投资策略稳健防御，实现率曲线平缓抗跌，常年稳定在 95%~100%。</p>")
     a("<p><strong>• 英式分红（复归保额红利 + 终期）：</strong>红利滚入保额，底层配置 50%~75% 的全球股票与权益资产以博取长期高复合回报。采用市值法核算，<strong>受全球资本市场周期波动是英式分红追求超额收益的正常客观属性</strong>。</p>")
-    a("<div class='guide-point'><i>✓</i> 避坑要点：英式分红短期的合理波动不代表兑现失败，其核心在于长线博取更高的长期总现金价值。</div>")
+    a("<div class='guide-takeaway t2'>🎯 一句话选型：养老退休提取优先美式（波动极小）；代际增值优先英式（长线博取超额复利）！</div>")
     a("</div>")
 
     # 卡片 3：样本厚度与跨周期实力
@@ -566,7 +625,7 @@ def build(stats: dict, skin_key: str) -> str:
     a("<h3>大盘规模与穿越周期：为什么「15年老保单的95%」远胜「2年新单的100%」？</h3>")
     a("<p><strong>• 幸存者偏差与低基数：</strong>新单前 3 年分红池仅几十美元，维持 100% 成本微不足道。若某保司仅披露少量近年新单，其高达成率属于典型的低基数现象。</p>")
     a("<p><strong>• 81款全量大考的龙头底蕴：</strong>以行业标杆友邦（AIA）为例，完整披露全港跨度最长（15年+）、数量最多（81款含早已停售老单）的完整数据。在经历 2008 次贷海啸、欧债危机及全球加息三次极端冲击下，中位数依然保持 95%，当家在售旗舰更连续 100% 满分达成。</p>")
-    a("<div class='guide-point'><i>✓</i> 决策要点：短跑看冲刺，长跑看心肺。家族资产配置必须考察全生命周期的样本厚度。</div>")
+    a("<div class='guide-takeaway t3'>🎯 一句话识别：友邦 81 款全量老单经历次贷、欧债中位数仍保持 95%，远胜仅拿 2 款新单宣称 100% 的小险企！</div>")
     a("</div>")
 
     a("</div>") # end guide-grid
@@ -795,6 +854,13 @@ def build(stats: dict, skin_key: str) -> str:
     a("</div>")
     a("<p class='lead' style='margin-bottom:16px'>分红数据公布后，常有客户疑惑：<i>“为什么万通、周大福、安盛等保司的达标率看似比友邦更高？”</i> 表面数据往往掩盖了<b>保单持有年期（蜜月期 vs 长跑）、样本数据量（偶然性 vs 确定性）与产品底层结构</b>的巨大落差。穿透以下底层硬核数据，才能看清真实的跨周期资产管理底蕴与长跑兑现力：</p>")
 
+    # 3秒穿透真相横幅
+    a("<div class='key-takeaway-banner'>"
+      "<span class='t-badge'>⚡ 3秒穿透真相</span>"
+      "<div><strong>为什么部分小保司达标率看似很高？因为它们披露的保单平均只有 2~4 年，且基本没有 10 年以上成熟老单！</strong>"
+      "<br>友邦披露 81 款、平均持有 7.4 年、历经多轮经济大考中位数仍达 95%，展现全港最深厚的长跑真底蕴。</div>"
+      "</div>")
+
     a("<div class='table-responsive'><table class='benchmark-table'><thead><tr>"
       "<th>保险公司</th>"
       "<th class='num'>披露产品</th>"
@@ -872,6 +938,10 @@ def build(stats: dict, skin_key: str) -> str:
     a("<div class='faq-item'>")
     a("<div class='faq-q'><span class='faq-q-badge'>问答 01</span>【年期之惑】为什么网页上的单一产品数据多在 5~10 年？如何看待部分险企呈现的更早期（20~30年）产品收益？</div>")
     a("<div class='faq-a'>")
+    a("<div class='fast-read-box'>"
+      "<span class='fast-read-badge'>⚡ 核心答案速读</span>"
+      "<strong>并非保单寿命短，而是香港保监局 2017 年推行 GL16 后才开启全量公共披露；</strong>早期 20~30 年老保单虽未纳入现代公开表单，但真实到期分红复合回报（IRR）高达 <strong>4%~6%</strong> 复利；且储蓄产品如同智能手机，3~5 年必然根据宏观利率完成自然换代升级。"
+      "</div>")
     a("<p><strong>1. 从“私人专属信件”走向“现代全量透明”的时代演进：</strong>"
       "在过去数十年里，香港保单分红属于客户与保险公司之间一对一的私密契约，每位投保人每年仅通过纸质《保单周年通知书》获悉当年的现金价值与实际红利派发，社会层面并无全网统一步调的公共数据库。"
       "直到 <b>2017 年香港保监局颁布实施 GL16 指引</b>，才正式确立了现代标准化的公共披露制度，并统一定制从 2010 年生效保单开始作为全行业的公共追溯基准。因此，全市场在标准化网页上的连续报表自然呈现为近十余年的跨度。</p>")
@@ -888,6 +958,10 @@ def build(stats: dict, skin_key: str) -> str:
     a("<div class='faq-item'>")
     a("<div class='faq-q'><span class='faq-q-badge'>问答 02</span>【迭代之问】既然「充裕未来」等老产品实盘兑现如此优秀，为什么市场上买不到了？</div>")
     a("<div class='faq-a'>")
+    a("<div class='fast-read-box'>"
+      "<span class='fast-read-badge'>⚡ 核心答案速读</span>"
+      "<strong>停售「充裕未来」正是为了设立“分红平滑储备物理防火墙”，保护老客户专属分红池不被新资金稀释（所以至今稳定在 100%~102%、终期最高爆发至 162%）；</strong>同时在美联储加息新周期下，顺应时代升级为支持 9 种货币随时转换与无限次拆单传承的「盈御」等全新旗舰。"
+      "</div>")
     a("<p><strong>1. 保护老保单主利益：分红平滑储备池的“防火墙机制”：</strong>"
       "分红储蓄险底层拥有严格的<b>分红平滑储备（Smoothing Reserve）</b>。「充裕未来」历经近 10 年资本风浪沉淀了深厚的专属分红平滑储备，<b>关停销售相当于设立了物理防火墙</b>，不再涌入不可预知的海量新资金，让该丰厚储备池专属为已持有 7~10 年的老保单主服务，在逆周期中持续平稳释放红利（这也是其至今稳定在 100%~103%、终期分红最高达 162% 的底层底气）。</p>")
     a("<p><strong>2. 全球宏观利率周期的客观必然（资产负债匹配 ALM）：</strong>"
