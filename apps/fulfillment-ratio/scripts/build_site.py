@@ -116,6 +116,27 @@ SKINS = {
 }
 
 CSS_EXTRA = """
+/* 什么是分红实现率 核心概念与数据切片模块 */
+.concept-box{background:#fff;border:1.5px solid #dcd7ca;border-radius:12px;padding:24px;margin:20px 0 28px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.formula-box{background:#f4f7fb;border-left:4px solid #185fa5;border-radius:0 8px 8px 0;padding:16px 20px;margin:16px 0 20px;font-size:13.5px;color:#222;line-height:1.7}
+.formula-math{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#e9f0f8;padding:4px 10px;border-radius:4px;font-weight:700;color:#185fa5;display:inline-block;margin-bottom:6px}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:16px 0 22px}
+.concept-card{background:#fdfcf9;border:1px solid #e8e4da;border-radius:10px;padding:18px 20px}
+.concept-card h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:#1c1c1a;display:flex;align-items:center;gap:6px}
+.concept-card p{margin:0 0 8px;font-size:12.5px;color:#555;line-height:1.65}
+.concept-card p:last-child{margin-bottom:0}
+.sample-slice-box{background:#f8fafc;border:1.5px solid #dbe3eb;border-radius:10px;padding:20px 22px;margin-top:22px}
+.sample-slice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0}
+.sample-slice-card{background:#fff;border:1px solid #d6dfe8;border-radius:8px;padding:16px 18px;box-shadow:0 2px 5px rgba(0,0,0,.02)}
+.sample-slice-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sample-slice-title{font-size:14px;font-weight:700;color:#1a1915}
+.sample-slice-tag{font-size:11.5px;padding:2px 8px;border-radius:4px;font-weight:600;background:#e8f4fd;color:#185fa5}
+.sample-slice-metrics{display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.sample-metric-pill{background:#faf9f6;border:1px solid #e5e0d4;padding:6px 10px;border-radius:6px;font-size:12px;color:#444}
+.sample-metric-pill strong{color:#0f6e56;font-size:13.5px}
+.sample-slice-desc{font-size:12px;color:#666;line-height:1.55;margin:0}
+.concept-transition{background:#fff;border-left:4px solid #ba7517;padding:12px 18px;border-radius:0 6px 6px 0;margin-top:16px;font-size:13px;color:#555;line-height:1.6;border-top:1px solid #f2ede4;border-right:1px solid #f2ede4;border-bottom:1px solid #f2ede4}
+
 .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px;margin:20px 0 28px}
 .guide-card{background:#fff;border:1px solid #e2ded4;border-radius:12px;padding:22px;box-shadow:0 2px 8px rgba(0,0,0,.03);transition:transform .15s}
 .guide-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
@@ -399,7 +420,8 @@ def build(stats: dict, skin_key: str) -> str:
 
     # ── nav ──
     a("<nav><div class='wrap'>")
-    for anchor, label in [("guide", "💡 投资决策三大底层规律"),
+    for anchor, label in [("concept", "📘 什么是分红实现率？"),
+                          ("guide", "💡 投资决策三大底层规律"),
                           ("aia-focus", "🏆 标杆险企旗舰验证 (AIA)"),
                           ("coh", "📈 长期跨周期大考"),
                           ("prod", "全量产品检索"),
@@ -410,6 +432,107 @@ def build(stats: dict, skin_key: str) -> str:
                           ("method", "口径与来源")]:
         a(f"<a href='#{anchor}'>{label}</a>")
     a("</div></nav>")
+
+    # ── 什么是分红实现率（认知基石与数据切片）──
+    a("<section id='concept'><div class='wrap'>")
+    a("<h2>📘 什么是分红实现率？从概念定义到数据实感</h2>")
+    a("<p class='lead'>在评估香港分红储蓄与重疾保单时，<b>「分红实现率 (Fulfillment Ratio)」</b>是出现频次最高、也最容易被误读的核心指标。建立清晰的第一性原理认知，是做出明智财富规划的基石。</p>")
+
+    a("<div class='concept-box'>")
+    
+    # 1. 定义与公式
+    a("<h3 style='margin-top:0;font-size:16px;color:#1c1c1a;'>1. 权威定义与计算公式</h3>")
+    a("<p style='font-size:13px;color:#555;line-height:1.65;'>分红实现率是由<b>香港保监局（Insurance Authority）</b>根据《长期业务分红保单指引》（GL16）强制要求各寿险公司每年向公众如实披露的透明度监管指标。它衡量的是保险公司在销售时向客户呈现的预期收益，在日后每一年到底兑现了多少。</p>")
+    a("<div class='formula-box'>")
+    a("<div class='formula-math'>分红实现率 (FR) = ( 当年实际派发的非保证红利 ÷ 投保建议书上演示的非保证红利 ) × 100%</div>")
+    a("<div><strong>通俗理解：</strong>"
+      "<span style='color:#0f6e56;font-weight:600;'>100%</span> 代表演示多少实际就发多少（满额兑现）；"
+      "<span style='color:#185fa5;font-weight:600;'> &gt;100%（如 102%~105%）</span> 代表超越预期派发（超额分红）；"
+      "<span style='color:#a32d2d;font-weight:600;'> &lt;100%（如 85%）</span> 代表当年受外部投资波动影响打了八五折。</div>")
+    a("</div>")
+
+    # 2. 两大核心认知与避坑
+    a("<h3 style='font-size:16px;color:#1c1c1a;margin:20px 0 12px;'>2. 核心理解与避坑认知</h3>")
+    a("<div class='concept-grid'>")
+    a("<div class='concept-card'>")
+    a("<h4>📌 认知一：它不是年化收益率 (IRR)，而是收益兑现率</h4>")
+    a("<p>很多初次接触的客户容易误以为「实现率 100% 就等于每年翻倍或保本 100%」。实际上，若某保单在建议书上演示的预期年化收益为 6%：</p>")
+    a("<p>• 若当年实现率 100%，客户拿到的就是这 <strong>6% 的年化预期</strong>；<br>"
+      "• 若当年实现率为 90%，客户实际获得的收益折合约 <strong>5.4%</strong>。<br>"
+      "<strong>实现率衡量的是保司的「承诺守信度与投资达成度」，并非投资绝对回报率。</strong></p>")
+    a("</div>")
+    a("<div class='concept-card'>")
+    a("<h4>🛡️ 认知二：它纯粹考核非保证部分，保证收益毫不受损</h4>")
+    a("<p>香港储蓄保单的利益由两部分组成：<b>「保证现金价值」</b> + <b>「非保证红利」</b>。</p>")
+    a("<p>• <strong>保证现金价值：</strong>写在保险合同中，具有法律刚性兑付效力，无论全球金融市场如何暴跌，险企必须 100% 兑付。<br>"
+      "• <strong>分红实现率：</strong>仅针对浮动的非保证红利进行披露与考核，保证利益不受任何影响。</p>")
+    a("</div>")
+    a("</div>")
+
+    # 3. 对我们选择产品和公司的指导作用
+    a("<h3 style='font-size:16px;color:#1c1c1a;margin:20px 0 12px;'>3. 对我们选择产品与保险公司的指导作用</h3>")
+    a("<div class='concept-grid'>")
+    a("<div class='concept-card'>")
+    a("<h4>🏢 选保险公司：看契约信誉与跨周期平滑底蕴</h4>")
+    a("<p><strong>• 识破精算画大饼：</strong>如果某保司在建议书上演示了极具诱惑力的高收益，但真实实现率长年在 60%~70%，说明其精算激进、兑现能力存疑；常年稳定在 95%~100%+ 的保司，代表其作风稳健、言出必行。</p>")
+    a("<p><strong>• 检验平滑储备（Smoothing Reserve）实力：</strong>优质险企在投资丰收年份会把部分盈余拨入分红储备池，在熊市年份释放储备平滑收益。这极其考验险企数百亿至数千亿级资产大盘的跨周期调度能力。</p>")
+    a("</div>")
+    a("<div class='concept-card'>")
+    a("<h4>📑 选具体产品：匹配个人资金的时间规划与风险偏好</h4>")
+    a("<p><strong>• 养老退休与现金流规划：</strong>优先选择<b>美式分红产品</b>（现金红利），实现率平缓抗跌（常年 95%~100%），每年红利可提取，现金流极具确定性。</p>")
+    a("<p><strong>• 家族传承与财富高复利累积：</strong>优先选择<b>英式分红旗舰</b>（复归红利 + 终期分红），底层配置高比例全球股票权益，短期虽随市场波动，但长期复合收益天花板高，后期爆发力极强。</p>")
+    a("</div>")
+    a("</div>")
+
+    # 4. 真实数据切片（给客户实感）
+    a("<div class='sample-slice-box'>")
+    a("<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;'>")
+    a("<h4 style='margin:0;font-size:15px;color:#185fa5;'>📊 真实数据切片：看一眼市场标杆保单的真实成绩单</h4>")
+    a("<span class='sample-slice-tag'>官方 GL16 披露标准</span>")
+    a("</div>")
+    a("<p style='font-size:12.5px;color:#555;margin:8px 0 12px;'>理论讲得再好，不如看一眼真正交到客户手里的真实保单数据。以下为香港主流标杆储蓄保单的最新官方分红实现率切片：</p>")
+    a("<div class='sample-slice-grid'>")
+    
+    # 切片 1: 充裕未来
+    a("<div class='sample-slice-card'>")
+    a("<div class='sample-slice-head'>")
+    a("<div class='sample-slice-title'>充裕未来（2016年生效 · 已运行8年）</div>")
+    a("<span class='sample-slice-tag'>经历牛熊穿越</span>")
+    a("</div>")
+    a("<div class='sample-slice-metrics'>")
+    a("<div class='sample-metric-pill'>复归红利实现率：<strong>102%</strong></div>")
+    a("<div class='sample-metric-pill'>终期分红实现率：<strong>100%</strong></div>")
+    a("<div class='sample-metric-pill'>总现金价值比率：<strong>100%</strong></div>")
+    a("</div>")
+    a("<p class='sample-slice-desc'>经历了2018全球震荡、2020疫情、2022美联储激进加息大考，所有指标全面达成甚至超额兑现。</p>")
+    a("</div>")
+
+    # 切片 2: 盈御多元货币
+    a("<div class='sample-slice-card'>")
+    a("<div class='sample-slice-head'>")
+    a("<div class='sample-slice-title'>盈御多元货币计划（2021年生效 · 当家在售旗舰）</div>")
+    a("<span class='sample-slice-tag'>市场当家王牌</span>")
+    a("</div>")
+    a("<div class='sample-slice-metrics'>")
+    a("<div class='sample-metric-pill'>复归红利实现率：<strong>100%</strong></div>")
+    a("<div class='sample-metric-pill'>终期分红实现率：<strong>100%</strong></div>")
+    a("<div class='sample-metric-pill'>总现金价值比率：<strong>100%</strong></div>")
+    a("</div>")
+    a("<p class='sample-slice-desc'>自首年公布实现率以来，已生效保单连续实现 100% 满额兑现，资产底线稳固。</p>")
+    a("</div>")
+
+    a("</div>") # end sample-slice-grid
+
+    # 过渡引导句
+    a("<div class='concept-transition'>")
+    a("<strong>💡 深度承接：</strong>看到这些真实的数据，您可能会进一步好奇：<em>为什么有的年份 102%，有的产品在熊市是 85%，有的终期红利却能爆发到 162%？为什么不能只看前两年的 100%？</em><br>"
+      "接下来，我们开始分拆背后的三大核心数据维度与底层规律——")
+    a("</div>")
+
+    a("</div>") # end sample-slice-box
+    
+    a("</div>") # end concept-box
+    a("</div></section>")
 
     # ── 深度导读与避坑指南（专业引导核心）──
     a("<section id='guide' style='background:#fdfcf9;'><div class='wrap'>")
