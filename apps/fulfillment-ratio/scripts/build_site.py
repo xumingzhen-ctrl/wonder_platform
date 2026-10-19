@@ -190,6 +190,19 @@ CSS_EXTRA = """
 .key-card{background:#fbfaf7;border:1px solid #e5e0d4;border-radius:10px;padding:16px 18px}
 .key-card-title{font-size:13.5px;font-weight:600;color:#1c1c1a;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .key-card p{margin:0;font-size:12.5px;color:#555;line-height:1.6}
+
+/* Q&A 深度问答模块 */
+.faq-box{background:#fff;border:1.5px solid #dcd7ca;border-radius:12px;padding:24px;margin:20px 0 28px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.faq-item{background:#fdfcf9;border:1px solid #e8e4da;border-radius:10px;padding:20px 22px;margin-bottom:18px}
+.faq-item:last-child{margin-bottom:0}
+.faq-q{font-size:15px;font-weight:700;color:#1a1915;display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;line-height:1.45}
+.faq-q-badge{background:#185fa5;color:#fff;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px}
+.faq-a{font-size:13px;color:#444;line-height:1.7}
+.faq-a p{margin:0 0 10px}
+.faq-a p:last-child{margin-bottom:0}
+.faq-a strong{color:#1a1915}
+.faq-sub-point{background:#fff;border-left:3px solid #185fa5;padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0;font-size:12.5px;color:#444;border-top:1px solid #f0ede6;border-right:1px solid #f0ede6;border-bottom:1px solid #f0ede6}
+.faq-tip{background:#f6ffed;border:1px solid #b7eb8f;padding:10px 14px;border-radius:6px;margin-top:12px;font-size:12.5px;color:#274916;line-height:1.55}
 """
 
 
@@ -387,6 +400,7 @@ def build(stats: dict, skin_key: str) -> str:
     # ── nav ──
     a("<nav><div class='wrap'>")
     for anchor, label in [("guide", "💡 投资决策三大底层规律"),
+                          ("faq", "❓ 深度问答 (Q&A)"),
                           ("benchmark", "⚖️ 险企表象数据深度透视"),
                           ("aia-focus", "🏆 标杆险企旗舰验证 (AIA)"),
                           ("coh", "📈 长期跨周期大考"),
@@ -433,6 +447,49 @@ def build(stats: dict, skin_key: str) -> str:
     a("</div>")
 
     a("</div>") # end guide-grid
+    a("</div></section>")
+
+    # ── 高频深度问答 (Q&A) ──
+    a("<section id='faq'><div class='wrap'>")
+    a("<div class='faq-box'>")
+    a("<div class='spotlight-head'>")
+    a("<div class='spotlight-title'><span style='color:#185fa5;font-size:22px'>❓</span> 投资深度答疑 (Q&A)：读懂历史年期跨度与产品代际更迭</div>")
+    a("<span class='badge' style='background:#185fa5;color:#fff'>高净值客户高频问答 · 穿透两大认知盲区</span>")
+    a("</div>")
+    a("<p class='lead' style='margin-bottom:18px'>在审阅分红数据时，许多严谨的高净值客户都会敏锐地提出两个极具专业度的问题。穿透以下两大历史背景，能帮助您客观全面地把握长线财富管理的底层逻辑：</p>")
+
+    # Q1
+    a("<div class='faq-item'>")
+    a("<div class='faq-q'><span class='faq-q-badge'>问答 01</span>【年期之惑】为什么网页上的单一产品数据多在 5~10 年？如何看待部分险企呈现的更早期（20~30年）产品收益？</div>")
+    a("<div class='faq-a'>")
+    a("<p><strong>1. 从“私人专属信件”走向“现代全量透明”的时代演进：</strong>"
+      "在过去数十年里，香港保单分红属于客户与保险公司之间一对一的私密契约，每位投保人每年仅通过纸质《保单周年通知书》获悉当年的现金价值与实际红利派发，社会层面并无全网统一步调的公共数据库。"
+      "直到 <b>2017 年香港保监局颁布实施 GL16 指引</b>，才正式确立了现代标准化的公共披露制度，并统一定制从 2010 年生效保单开始作为全行业的公共追溯基准。因此，全市场在标准化网页上的连续报表自然呈现为近十余年的跨度。</p>")
+    a("<p><strong>2. 早期 20~30 年真实老单的回溯价值：跨越世代的复利铁证：</strong>"
+      "市场上部分实力雄厚的老牌险企（如友邦、保诚等），常以<b>“典型长期保单实盘跟踪案例”</b>或专属历史专刊的形式，展示其持有了 20年、25年乃至30年以上的早期经典保单实际收益情况："
+      "经历过 1997 亚洲金融危机、2000 互联网泡沫与 2008 次贷海啸长达四分之一世纪的洗礼，这些老保单的最终总现金价值不仅全额达成，且长期实际复合年化回报率（IRR）依然稳固落在 <b>4%~6%</b> 区间。"
+      "这些早期实盘数据不仅不矛盾，反而是最宝贵的历史财富——它以铁一般的事实证明：<b>时间是消除市场波动的最好解药，只要持有期跨越 15~20 年以上，复利滚存的力量就会全面爆发，展现出极强的抗周期财富韧性。</b></p>")
+    a("<p><strong>3. 在售产品 3~5 年自然换代的商业规律：</strong>"
+      "香港离岸金融产品创新活跃，单一产品在货架上的在售寿命通常为 3~5 年（非保证红利多从第 3 年起开始派发）。停售后的老产品不再增加新生效批次，其在报表中便自然呈现为数个批次平稳向前推移的精炼形态。</p>")
+    a("<div class='faq-tip'>💡 <b>决策要点</b>：网页中呈现的 5~10 年数据，是现代标准化监管下各代产品在途运行的真实截面；而老牌险企沉淀二三十年的早期实盘经验，则是为今天新一代产品注入信心的最深厚基石。</div>")
+    a("</div></div>") # end faq-item 1
+
+    # Q2
+    a("<div class='faq-item'>")
+    a("<div class='faq-q'><span class='faq-q-badge'>问答 02</span>【迭代之问】既然「充裕未来」等老产品实盘兑现如此优秀，为什么市场上买不到了？</div>")
+    a("<div class='faq-a'>")
+    a("<p><strong>1. 保护老保单主利益：分红平滑储备池的“防火墙机制”：</strong>"
+      "分红储蓄险底层拥有严格的<b>分红平滑储备（Smoothing Reserve）</b>。「充裕未来」历经近 10 年资本风浪沉淀了深厚的专属分红平滑储备，<b>关停销售相当于设立了物理防火墙</b>，不再涌入不可预知的海量新资金，让该丰厚储备池专属为已持有 7~10 年的老保单主服务，在逆周期中持续平稳释放红利（这也是其至今稳定在 100%~103%、终期分红最高达 162% 的底层底气）。</p>")
+    a("<p><strong>2. 全球宏观利率周期的客观必然（资产负债匹配 ALM）：</strong>"
+      "2015 年设计初代产品时全球处于超低息与量化宽松环境；而历经美联储 2022 年暴力加息 500bp 创 40 年新高，全球股票、债券与另类资产的收益率曲线发生了根本性巨变。保司必须顺应宏观新周期开启新的资产配置资金池，以保证资产与负债的稳健匹配。</p>")
+    a("<p><strong>3. 客户需求的代际技术飞跃：现代新产品已实现“降维打击”：</strong>"
+      "这就像 <b>iPhone 6 当年是划时代神机，但今天苹果一定会推出 iPhone 16</b>："
+      "初代充裕未来（2015~2019）功能相对单一，仅限美元单一币种，单一受保人，无法分拆传承；"
+      "而新一代在售主力「盈御多元货币计划」功能实现革命性飞跃——支持 <b>9 种世界主流货币随时自由转换</b>、<b>保单无限次随意分拆平分给子女</b>、<b>无限次更改受保人及信托式分期给付</b>。今天的高净值客户在了解了现代多货币与分拆功能后，即便充裕未来在售，也绝不会再选择功能单一的老产品。</p>")
+    a("<div class='faq-tip'>💡 <b>决策要点</b>：虽然今天买不到充裕未来，但<b>充裕未来过去 10 年穿越熊市跑出的 100%+ 满分战绩，就是今天购买「盈御」最好的信用背书</b>。因为操盘打理新一代产品的，是同一家百年友邦、同一个全球顶尖投资智囊团队、同一套严密的跨周期分红平滑机制。</div>")
+    a("</div></div>") # end faq-item 2
+
+    a("</div>") # end faq-box
     a("</div></section>")
 
     # ── 险企表象数据深度透视（穿透对比看板）──
