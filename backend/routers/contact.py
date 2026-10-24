@@ -7,10 +7,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field
 
 from config import settings
+from services.turnstile import verify_turnstile_token
 
 router = APIRouter(prefix="/contact", tags=["contact"])
 
@@ -47,14 +48,25 @@ class ImmigrationInquiry(BaseModel):
     status: str           # 当前身份 key
     lang: str = "zh"      # 语言偏好
     message: str = ""     # 可选备注
+    turnstile_token: str | None = Field(default=None, alias="cf-turnstile-response")
+
+    class Config:
+        populate_by_name = True
 
 
 @router.post("/immigration")
-async def send_immigration_inquiry(data: ImmigrationInquiry):
+async def send_immigration_inquiry(data: ImmigrationInquiry, request: Request):
     """
     接收CIES移民咨询表单，通过Gmail SMTP发送通知邮件至管理员。
     收件地址优先使用 ADMIN_EMAIL；若为空则硬编码到 helloaniuwu@gmail.com。
     """
+    # ── Cloudflare Turnstile 人机安全校验 ───────────────────────
+    client_ip = request.client.host if request.client else None
+    token = data.turnstile_token
+    is_valid = await verify_turnstile_token(token, expected_action="immigration_inquiry", remote_ip=client_ip)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail="人机身份验证未通过，请刷新后重试")
+
     if not settings.GMAIL_SENDER or not settings.GMAIL_APP_PASSWORD:
         # 配置缺失时记录但不报错（避免影响生产），仅返回成功
         print(f"[WARN] Gmail未配置，无法发送咨询邮件。数据：{data.dict()}")

@@ -25,6 +25,36 @@ export async function POST(req: NextRequest) {
       selectedTypes,
     } = body
 
+    // ── Cloudflare Turnstile 人机验证 ──────────────────────────
+    const turnstileToken =
+      body["cf-turnstile-response"] ||
+      body["cf_turnstile_response"] ||
+      body.turnstileToken
+    const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET
+
+    if (TURNSTILE_SECRET) {
+      if (!turnstileToken) {
+        return NextResponse.json({ ok: false, error: "請完成真人安全驗證" }, { status: 400 })
+      }
+
+      const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || ""
+      const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: TURNSTILE_SECRET,
+          response: turnstileToken,
+          ...(clientIp ? { remoteip: clientIp } : {}),
+        }),
+      })
+
+      const verifyData = await verifyRes.json()
+      if (!verifyData.success || (verifyData.action && verifyData.action !== "insurance_inquiry")) {
+        console.warn("[Turnstile] Insurance inquiry verification failed:", verifyData)
+        return NextResponse.json({ ok: false, error: "人機安全驗證失敗，請重試" }, { status: 400 })
+      }
+    }
+
     // 构建邮件 HTML
     const productsText = (selectedTypes as string[])
       .map((id: string) => PRODUCT_NAMES[id] || id)

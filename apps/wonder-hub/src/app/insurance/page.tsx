@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { Turnstile } from "@/components/Turnstile"
 
 // ── 产品数据 ──────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,8 @@ export default function InsurancePage() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [activeCard, setActiveCard] = useState<string | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState<string>("")
+  const [errorMessage, setErrorMessage] = useState<string>("")
   const formRef = useRef<HTMLDivElement>(null)
 
   const [form, setForm] = useState({
@@ -118,6 +121,7 @@ export default function InsurancePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setErrorMessage("")
     if (selectedTypes.length === 0) {
       alert("請選擇至少一項保險方案")
       return
@@ -127,15 +131,22 @@ export default function InsurancePage() {
       const res = await fetch("/api/insurance-inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, selectedTypes }),
+        body: JSON.stringify({
+          ...form,
+          selectedTypes,
+          "cf-turnstile-response": turnstileToken,
+        }),
       })
-      if (res.ok) {
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.ok) {
         setSubmitted(true)
         window.scrollTo({ top: 0, behavior: "smooth" })
+      } else {
+        setErrorMessage(data.error || "提交失敗，請稍後再試或直接聯絡我們")
       }
     } catch (err) {
       console.error(err)
-      alert("提交失敗，請稍後再試或直接聯絡我們")
+      setErrorMessage("網絡異常，請稍後再試")
     } finally {
       setSubmitting(false)
     }
@@ -513,6 +524,21 @@ export default function InsurancePage() {
             <p className="text-xs text-foreground/40 leading-relaxed">
               本詢價表僅用於收集投保資訊，不構成任何保險合約或報價承諾。最終保費及保障條款由保險公司釐定，顧問將以人工審核方式跟進。
             </p>
+
+            {/* 错误提示 */}
+            {errorMessage && (
+              <p className="text-sm text-red-500 text-center font-medium">⚠️ {errorMessage}</p>
+            )}
+
+            {/* Cloudflare Turnstile 人机验证 */}
+            <div className="py-2">
+              <Turnstile
+                action="insurance_inquiry"
+                theme="light"
+                onSuccess={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken("")}
+              />
+            </div>
 
             {/* 提交按钮 */}
             <button

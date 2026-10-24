@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { content, Lang } from "./content"
+import { Turnstile } from "@/components/Turnstile"
 
 // ── 语言检测 ──────────────────────────────────────────────────────
 async function detectLang(): Promise<Lang> {
@@ -85,6 +86,7 @@ export default function ImmigrationPage() {
 
   // 表单状态
   const [formData, setFormData] = useState({ name: "", contact: "", location: "", status: "", message: "" })
+  const [turnstileToken, setTurnstileToken] = useState<string>("")
   const [submitting, setSubmitting] = useState(false)
   const [submitResult, setSubmitResult] = useState<"success" | "error" | null>(null)
 
@@ -115,7 +117,11 @@ export default function ImmigrationPage() {
       const res = await fetch("/api/contact/immigration", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, lang }),
+        body: JSON.stringify({
+          ...formData,
+          lang,
+          "cf-turnstile-response": turnstileToken,
+        }),
       })
       setSubmitResult(res.ok ? "success" : "error")
     } catch {
@@ -467,6 +473,16 @@ export default function ImmigrationPage() {
               {submitResult === "error" && (
                 <p className="text-red-400 text-sm text-center">{c.form.error}</p>
               )}
+
+              {/* Cloudflare Turnstile 人机验证 */}
+              <div className="py-2">
+                <Turnstile
+                  action="immigration_inquiry"
+                  theme="dark"
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onExpire={() => setTurnstileToken("")}
+                />
+              </div>
 
               <button
                 type="submit"

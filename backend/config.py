@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     GMAIL_APP_PASSWORD: str = ""           # Gmail 应用专用密码（非登录密码）
     ADMIN_EMAIL: str = ""                  # 管理员收件邮箱
 
+    # ── Cloudflare Turnstile 人机验证 ───────────────────────────
+    TURNSTILE_SECRET: str = ""             # Cloudflare Turnstile 密钥
+
     class Config:
         env_file = ".env"
 
